@@ -3,6 +3,7 @@ package uk.gov.dwp.dataworks.provider;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import org.junit.Test;
 import org.springframework.util.Assert;
+import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
 
 public class KMSDataKeyGeneratorProviderTest {
 
@@ -16,12 +17,10 @@ public class KMSDataKeyGeneratorProviderTest {
     }
 
 
-    @Test
-    public void canGenerateDataKeyFailure() {
+    @Test(expected = DataKeyGenerationFailure.class)
+    public void canGenerateDataKeyFailureWithException() {
         KMSDataKeyGeneratorProvider providerUnderTest = new KMSDataKeyGeneratorProvider();
-
-        GenerateDataKeyResponse result = providerUnderTest.generateDataKey("frederick no keys");
-        Assert.isNull(result, "Must return a null");
+        providerUnderTest.generateDataKey("frederick no keys");
     }
 
 
