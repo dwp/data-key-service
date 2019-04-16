@@ -1,0 +1,163 @@
+{
+  "swagger":"2.0",
+  "info":{
+    "description":"Api Documentation",
+    "version":"1.0",
+    "title":"Api Documentation",
+    "termsOfService":"urn:tos",
+    "contact":{
+
+    },
+    "license":{
+      "name":"Apache 2.0",
+      "url":"http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host":"localhost:8080",
+  "basePath":"/",
+  "tags":[
+    {
+      "name":"data-key-controller",
+      "description":"Operations for data keys"
+    }
+  ],
+  "paths":{
+    "/datakey/":{
+      "get":{
+        "tags":[
+          "data-key-controller"
+        ],
+        "summary":"Generate a new data key",
+        "operationId":"generateUsingGET",
+        "produces":[
+          "*/*"
+        ],
+        "responses":{
+          "200":{
+            "description":"OK",
+            "schema":{
+              "$ref":"#/definitions/GenerateDataKeyResponse"
+            }
+          },
+          "201":{
+            "description":"Successfully created a new data key",
+            "schema":{
+              "$ref":"#/definitions/GenerateDataKeyResponse"
+            }
+          },
+          "401":{
+            "description":"You are not authorized to view the resource"
+          },
+          "403":{
+            "description":"Forbidden"
+          },
+          "404":{
+            "description":"Not Found"
+          },
+          "503":{
+            "description":"There has been an internal error, or a dependency failure"
+          }
+        },
+        "deprecated":false
+      }
+    },
+    "/datakey/actions/decrypt":{
+      "post":{
+        "tags":[
+          "data-key-controller"
+        ],
+        "summary":"Tries to decrypt the ciphertext of a data key",
+        "operationId":"decryptUsingPOST",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "*/*"
+        ],
+        "parameters":[
+          {
+            "in":"body",
+            "name":"ciphertextDataKey",
+            "description":"ciphertextDataKey",
+            "required":true,
+            "schema":{
+              "type":"string"
+            }
+          },
+          {
+            "name":"keyId",
+            "in":"query",
+            "description":"keyId",
+            "required":true,
+            "type":"string"
+          }
+        ],
+        "responses":{
+          "200":{
+            "description":"Successfully decrypted the data key",
+            "schema":{
+              "$ref":"#/definitions/DecryptDataKeyResponse"
+            }
+          },
+          "201":{
+            "description":"Created"
+          },
+          "400":{
+            "description":"The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."
+          },
+          "401":{
+            "description":"You are not authorized to view the resource"
+          },
+          "403":{
+            "description":"Forbidden"
+          },
+          "404":{
+            "description":"Not Found"
+          },
+          "503":{
+            "description":"There has been an internal error, or a dependency failure"
+          }
+        },
+        "deprecated":false
+      }
+    }
+  },
+  "definitions":{
+    "DecryptDataKeyResponse":{
+      "type":"object",
+      "properties":{
+        "dataKeyEncryptionKeyId":{
+          "type":"string",
+          "description":"The id of the key used to encrypt/decrypt this data key's ciphertext"
+        },
+        "iv":{
+          "type":"string",
+          "description":"The securely generated Initialisation Vector you need to use to decrypt data when using this data key"
+        },
+        "plaintextDataKey":{
+          "type":"string",
+          "description":"The decrypted data key"
+        }
+      },
+      "title":"DecryptDataKeyResponse"
+    },
+    "GenerateDataKeyResponse":{
+      "type":"object",
+      "properties":{
+        "ciphertextDataKey":{
+          "type":"string",
+          "description":"The data key in ciphertext, encrypted by the data key encryption key"
+        },
+        "dataKeyEncryptionKeyId":{
+          "type":"string",
+          "description":"The id of the encryption key that was used to encrypt the data key into ciphertext"
+        },
+        "plaintextDataKey":{
+          "type":"string",
+          "description":"The data key in plaintext"
+        }
+      },
+      "title":"GenerateDataKeyResponse"
+    }
+  }
+}
