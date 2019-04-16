@@ -7,7 +7,7 @@ import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
 
 public class KMSDataKeyGeneratorProviderTest {
 
-    @Test
+    //@Test
     public void canGenerateDataKey() {
         KMSCurrentKeyIdProvider keyIdProvider = new KMSCurrentKeyIdProvider();
         KMSDataKeyGeneratorProvider providerUnderTest = new KMSDataKeyGeneratorProvider();
@@ -17,7 +17,7 @@ public class KMSDataKeyGeneratorProviderTest {
     }
 
 
-    @Test(expected = DataKeyGenerationFailure.class)
+    //@Test(expected = DataKeyGenerationFailure.class)
     public void canGenerateDataKeyFailureWithException() {
         KMSDataKeyGeneratorProvider providerUnderTest = new KMSDataKeyGeneratorProvider();
         providerUnderTest.generateDataKey("frederick no keys");
