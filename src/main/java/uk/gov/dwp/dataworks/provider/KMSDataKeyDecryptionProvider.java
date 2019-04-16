@@ -15,11 +15,11 @@ import java.util.Base64;
 @Service
 public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
     private static final int IV_SIZE = 16;
-    private AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
     private Base64.Encoder encoder = Base64.getEncoder();
     private Base64.Decoder decoder = Base64.getDecoder();
 
     public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey) {
+        AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
 
         ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
         DecryptRequest req = new DecryptRequest().withCiphertextBlob(ciphertextDataKeyBuffer);
