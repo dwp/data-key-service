@@ -31,15 +31,17 @@ jobs:
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-    - run: gradle dependencies
+    - run: gradle build
 
     - save_cache:
         paths:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
-    # run tests!
-    - run: gradle test
+    - persist_to_workspace:
+        root: artifacts
+        paths:
+        - build/libs/data-key-service-*.jar
 
   publish-github-release:
     docker:
