@@ -47,7 +47,7 @@ jobs:
     - persist_to_workspace:
         root: artifacts
         paths:
-        - build/libs/data-key-service-*.jar
+        - data-key-service-*.jar
 
   publish-github-release:
     docker:
