@@ -38,6 +38,12 @@ jobs:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
+    - run:
+        name: mkdir for artifact
+        command: |
+          mkdir artifacts
+          cp build/libs/data-key-service-*.jar ./artifacts/
+
     - persist_to_workspace:
         root: artifacts
         paths:
