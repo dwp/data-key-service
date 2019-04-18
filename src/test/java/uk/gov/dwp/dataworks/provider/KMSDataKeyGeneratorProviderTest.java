@@ -23,11 +23,4 @@ public class KMSDataKeyGeneratorProviderTest {
         providerUnderTest.generateDataKey("frederick no keys");
     }
 
-
-    /* Missing tests:
-        - Service failure
-        - keyId invalid/missing
-        - disabled key
-
-     */
 }
