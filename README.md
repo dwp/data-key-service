@@ -36,3 +36,6 @@ And then navigating to
 ```
 http://localhost:8080/swagger-ui.html#/data-key-controller
 ```
+
+
+Requirments [here](./docs/requirements.md)
