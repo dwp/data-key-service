@@ -3,7 +3,6 @@ HELP.md
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
-
 # Terraform
-*.tf
-
+ci/terraform.tf
+*.tfvars
