@@ -27,13 +27,6 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
         try {
             DecryptResult result = kmsClient.decrypt(req);
 
-            // Check that the key ids match, otherwise this should not be allowed.
-            // Technically not required, but the HSM version will require the keyId
-            //String decryptedKeyId = result.getKeyId();
-            //if(dataKeyEncryptionKeyId != kmsClient.decrypt(req).getKeyId())
-            //    return null;
-
-            // Lame, but it will do for now
             byte[] iv = new byte[IV_SIZE];
             SecureRandom.getInstanceStrong().nextBytes(iv);
 
