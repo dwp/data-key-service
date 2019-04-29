@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.errors.CurrentKeyIdFailure;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionFailure;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
@@ -63,7 +64,12 @@ public class DataKeyServiceApplicationTests {
                 .willReturn(response);
 
         mockMvc.perform(get("/datakey"))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
+
+        // Must also allow a trailing slash
+        mockMvc.perform(get("/datakey/"))
+                .andExpect(status().isCreated())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
     }
 
@@ -80,7 +86,7 @@ public class DataKeyServiceApplicationTests {
 
     @Test
     public void currentKeyIdProviderThrowsError() throws Exception {
-        given(currentKeyIdProvider.getKeyId()).willThrow(new DataKeyGenerationFailure());
+        given(currentKeyIdProvider.getKeyId()).willThrow(new CurrentKeyIdFailure());
 
         mockMvc.perform(get("/datakey"))
                 .andExpect(status().isInternalServerError());

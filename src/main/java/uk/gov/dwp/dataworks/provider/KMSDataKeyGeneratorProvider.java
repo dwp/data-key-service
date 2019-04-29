@@ -17,7 +17,7 @@ import java.util.Base64;
 public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
     private Logger logger = LoggerFactory.getLogger(KMSDataKeyGeneratorProvider.class);
 
-    public GenerateDataKeyResponse generateDataKey(String keyId) {
+    public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationFailure {
         Base64.Encoder encoder = Base64.getEncoder();
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
         GenerateDataKeyRequest dataKeyRequest = new GenerateDataKeyRequest();
