@@ -3,6 +3,7 @@ package uk.gov.dwp.dataworks.provider;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import com.amazonaws.services.kms.model.*;
+import org.springframework.context.annotation.Profile;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionFailure;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 @Service
+@Profile("KMS")
 public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
     private static final int IV_SIZE = 16;
     private Base64.Encoder encoder = Base64.getEncoder();
