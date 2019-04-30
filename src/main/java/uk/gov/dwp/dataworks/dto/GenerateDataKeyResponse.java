@@ -13,9 +13,6 @@ public class GenerateDataKeyResponse {
     @ApiModelProperty(notes="The data key in ciphertext, encrypted by the data key encryption key")
     public String ciphertextDataKey;
 
-    public GenerateDataKeyResponse() {
-    }
-
     public GenerateDataKeyResponse(String dataKeyEncryptionKeyId, String plaintextDataKey, String ciphertextDataKey) {
         this.dataKeyEncryptionKeyId = dataKeyEncryptionKeyId;
         this.plaintextDataKey = plaintextDataKey;

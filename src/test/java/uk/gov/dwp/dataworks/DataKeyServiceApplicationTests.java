@@ -16,6 +16,7 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdFailure;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionFailure;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
+import uk.gov.dwp.dataworks.errors.GarbledDataKeyError;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
@@ -106,5 +107,13 @@ public class DataKeyServiceApplicationTests {
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "myKeyId").content("my content to decrypt"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void setDataKeyDecryptionProviderThrowsGarbledDataKeyError() throws Exception {
+        given(dataKeyDecryptionProvider.decryptDataKey(any(), any())).willThrow(new GarbledDataKeyError());
+
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "myKeyId").content("my garbled content to decrypt"))
+                .andExpect(status().isBadRequest());
     }
 }
