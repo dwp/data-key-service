@@ -90,7 +90,7 @@ public class DataKeyServiceApplicationTests {
         given(currentKeyIdProvider.getKeyId()).willThrow(new CurrentKeyIdFailure());
 
         mockMvc.perform(get("/datakey"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isServiceUnavailable());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class DataKeyServiceApplicationTests {
         given(dataKeyGeneratorProvider.generateDataKey(any())).willThrow(new DataKeyGenerationFailure());
 
         mockMvc.perform(get("/datakey"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isServiceUnavailable());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class DataKeyServiceApplicationTests {
         given(dataKeyDecryptionProvider.decryptDataKey(any(), any())).willThrow(new DataKeyDecryptionFailure());
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "myKeyId").content("my content to decrypt"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isServiceUnavailable());
     }
 
     @Test
