@@ -38,4 +38,4 @@ http://localhost:8080/swagger-ui.html#/data-key-controller
 ```
 
 
-Requirments [here](./docs/requirements.md)
+Requirements [here](./docs/requirements.md)
