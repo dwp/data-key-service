@@ -18,11 +18,15 @@
   "tags":[
     {
       "name":"data-key-controller",
-      "description":"Operations for data keys"
+      "description":"Data Key Controller"
+    },
+    {
+      "name":"ping-controller",
+      "description":"Ping Controller"
     }
   ],
   "paths":{
-    "/datakey/":{
+    "/datakey":{
       "get":{
         "tags":[
           "data-key-controller"
@@ -47,12 +51,6 @@
           },
           "401":{
             "description":"You are not authorized to view the resource"
-          },
-          "403":{
-            "description":"Forbidden"
-          },
-          "404":{
-            "description":"Not Found"
           },
           "503":{
             "description":"There has been an internal error, or a dependency failure"
@@ -99,23 +97,35 @@
               "$ref":"#/definitions/DecryptDataKeyResponse"
             }
           },
-          "201":{
-            "description":"Created"
-          },
           "400":{
             "description":"The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."
           },
           "401":{
             "description":"You are not authorized to view the resource"
           },
-          "403":{
-            "description":"Forbidden"
-          },
-          "404":{
-            "description":"Not Found"
-          },
           "503":{
             "description":"There has been an internal error, or a dependency failure"
+          }
+        },
+        "deprecated":false
+      }
+    },
+    "/ping":{
+      "get":{
+        "tags":[
+          "ping-controller"
+        ],
+        "summary":"A simple endpoint to confirm that the service is running.",
+        "operationId":"pingUsingGET",
+        "produces":[
+          "*/*"
+        ],
+        "responses":{
+          "200":{
+            "description":"Service is running",
+            "schema":{
+              "type":"string"
+            }
           }
         },
         "deprecated":false

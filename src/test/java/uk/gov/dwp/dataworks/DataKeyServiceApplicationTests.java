@@ -56,6 +56,13 @@ public class DataKeyServiceApplicationTests {
     }
 
     @Test
+    public void pingWorks() throws Exception {
+        mockMvc.perform(get("/ping"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
+    @Test
     public void generateDataKeyRequest() throws Exception {
         given(currentKeyIdProvider.getKeyId()).willReturn("myKeyId");
 
