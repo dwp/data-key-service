@@ -5,7 +5,7 @@ import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import com.amazonaws.services.kms.model.*;
 import org.springframework.context.annotation.Profile;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
-import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
+import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.Base64;
 public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
     private Logger logger = LoggerFactory.getLogger(KMSDataKeyGeneratorProvider.class);
 
-    public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationFailure {
+    public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationException {
         Base64.Encoder encoder = Base64.getEncoder();
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
         GenerateDataKeyRequest dataKeyRequest = new GenerateDataKeyRequest();
@@ -34,7 +34,7 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
         } catch (NotFoundException | DisabledException | KeyUnavailableException | DependencyTimeoutException |
                 InvalidKeyUsageException | InvalidGrantTokenException | KMSInternalException | KMSInvalidStateException ex) {
             logger.error("Exception caught while communicating with KMS", ex);
-            throw new DataKeyGenerationFailure();
+            throw new DataKeyGenerationException();
         }
     }
 }

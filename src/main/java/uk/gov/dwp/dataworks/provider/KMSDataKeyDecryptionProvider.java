@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
-import uk.gov.dwp.dataworks.errors.DataKeyDecryptionFailure;
+import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import org.springframework.stereotype.Service;
-import uk.gov.dwp.dataworks.errors.GarbledDataKeyError;
+import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +25,7 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
     private Logger logger = LoggerFactory.getLogger(KMSDataKeyDecryptionProvider.class);
 
     public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey)
-            throws GarbledDataKeyError, DataKeyDecryptionFailure{
+            throws GarbledDataKeyException, DataKeyDecryptionException {
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
 
         ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
@@ -45,13 +45,13 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
         }
         catch(InvalidCiphertextException ex) {
             logger.error("Exception caught while communicating with KMS", ex);
-            throw new GarbledDataKeyError();
+            throw new GarbledDataKeyException();
         }
         catch(NotFoundException | DisabledException | KeyUnavailableException |
                 DependencyTimeoutException | InvalidGrantTokenException | KMSInternalException |
                 KMSInvalidStateException | NoSuchAlgorithmException ex) {
             logger.error("Exception caught while communicating with KMS", ex);
-            throw new DataKeyDecryptionFailure();
+            throw new DataKeyDecryptionException();
         }
     }
 }

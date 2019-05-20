@@ -1,173 +1,172 @@
 {
-  "swagger":"2.0",
-  "info":{
-    "description":"Api Documentation",
-    "version":"1.0",
-    "title":"Api Documentation",
-    "termsOfService":"urn:tos",
-    "contact":{
-
-    },
-    "license":{
-      "name":"Apache 2.0",
-      "url":"http://www.apache.org/licenses/LICENSE-2.0"
+  "swagger": "2.0",
+  "info": {
+    "description": "Api Documentation",
+    "version": "1.0",
+    "title": "Api Documentation",
+    "termsOfService": "urn:tos",
+    "contact": {},
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   },
-  "host":"localhost:8080",
-  "basePath":"/",
-  "tags":[
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
     {
-      "name":"data-key-controller",
-      "description":"Data Key Controller"
+      "name": "data-key-controller",
+      "description": "Data Key Controller"
     },
     {
-      "name":"ping-controller",
-      "description":"Ping Controller"
+      "name": "ping-controller",
+      "description": "Ping Controller"
     }
   ],
-  "paths":{
-    "/datakey":{
-      "get":{
-        "tags":[
+  "paths": {
+    "/datakey": {
+      "get": {
+        "tags": [
           "data-key-controller"
         ],
-        "summary":"Generate a new data key",
-        "operationId":"generateUsingGET",
-        "produces":[
+        "summary": "Generate a new data key",
+        "operationId": "generateUsingGET",
+        "produces": [
           "*/*"
         ],
-        "responses":{
-          "200":{
-            "description":"OK",
-            "schema":{
-              "$ref":"#/definitions/GenerateDataKeyResponse"
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GenerateDataKeyResponse"
             }
           },
-          "201":{
-            "description":"Successfully created a new data key",
-            "schema":{
-              "$ref":"#/definitions/GenerateDataKeyResponse"
+          "201": {
+            "description": "Successfully created a new data key",
+            "schema": {
+              "$ref": "#/definitions/GenerateDataKeyResponse"
             }
           },
-          "401":{
-            "description":"You are not authorized to view the resource"
+          "401": {
+            "description": "You are not authorized to view the resource"
           },
-          "503":{
-            "description":"There has been an internal error, or a dependency failure"
+          "503": {
+            "description": "There has been an internal error, or a dependency failure"
           }
         },
-        "deprecated":false
+        "deprecated": false
       }
     },
-    "/datakey/actions/decrypt":{
-      "post":{
-        "tags":[
+    "/datakey/actions/decrypt": {
+      "post": {
+        "tags": [
           "data-key-controller"
         ],
-        "summary":"Tries to decrypt the ciphertext of a data key",
-        "operationId":"decryptUsingPOST",
-        "consumes":[
+        "summary": "Tries to decrypt the ciphertext of a data key",
+        "operationId": "decryptUsingPOST",
+        "consumes": [
           "application/json"
         ],
-        "produces":[
+        "produces": [
           "*/*"
         ],
-        "parameters":[
+        "parameters": [
           {
-            "in":"body",
-            "name":"ciphertextDataKey",
-            "description":"ciphertextDataKey",
-            "required":true,
-            "schema":{
-              "type":"string"
+            "in": "body",
+            "name": "ciphertextDataKey",
+            "description": "ciphertextDataKey",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
           {
-            "name":"keyId",
-            "in":"query",
-            "description":"keyId",
-            "required":true,
-            "type":"string"
+            "name": "keyId",
+            "in": "query",
+            "description": "keyId",
+            "required": true,
+            "type": "string"
           }
         ],
-        "responses":{
-          "200":{
-            "description":"Successfully decrypted the data key",
-            "schema":{
-              "$ref":"#/definitions/DecryptDataKeyResponse"
+        "responses": {
+          "200": {
+            "description": "Successfully decrypted the data key",
+            "schema": {
+              "$ref": "#/definitions/DecryptDataKeyResponse"
             }
           },
-          "400":{
-            "description":"The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."
+          "400": {
+            "description": "The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."
           },
-          "401":{
-            "description":"You are not authorized to view the resource"
+          "401": {
+            "description": "You are not authorized to view the resource"
           },
-          "503":{
-            "description":"There has been an internal error, or a dependency failure"
+          "503": {
+            "description": "There has been an internal error, or a dependency failure"
           }
         },
-        "deprecated":false
+        "deprecated": false
       }
     },
-    "/ping":{
-      "get":{
-        "tags":[
+    "/ping": {
+      "get": {
+        "tags": [
           "ping-controller"
         ],
-        "summary":"A simple endpoint to confirm that the service is running.",
-        "operationId":"pingUsingGET",
-        "produces":[
+        "summary": "A simple endpoint to confirm that the service is running.",
+        "operationId": "pingUsingGET",
+        "produces": [
           "*/*"
         ],
-        "responses":{
-          "200":{
-            "description":"Service is running",
-            "schema":{
-              "type":"string"
+        "responses": {
+          "200": {
+            "description": "Service is running. Will always respond with the value \"OK\"",
+            "schema": {
+              "type": "string"
             }
           }
         },
-        "deprecated":false
+        "deprecated": false
       }
     }
   },
-  "definitions":{
-    "DecryptDataKeyResponse":{
-      "type":"object",
-      "properties":{
-        "dataKeyEncryptionKeyId":{
-          "type":"string",
-          "description":"The id of the key used to encrypt/decrypt this data key's ciphertext"
+  "definitions": {
+    "DecryptDataKeyResponse": {
+      "type": "object",
+      "properties": {
+        "dataKeyEncryptionKeyId": {
+          "type": "string",
+          "description": "The id of the key used to encrypt/decrypt this data key's ciphertext"
         },
-        "iv":{
-          "type":"string",
-          "description":"The securely generated Initialisation Vector you need to use to decrypt data when using this data key"
+        "iv": {
+          "type": "string",
+          "description": "The securely generated Initialisation Vector you need to use to decrypt data when using this data key"
         },
-        "plaintextDataKey":{
-          "type":"string",
-          "description":"The decrypted data key"
+        "plaintextDataKey": {
+          "type": "string",
+          "description": "The decrypted data key"
         }
       },
-      "title":"DecryptDataKeyResponse"
+      "title": "DecryptDataKeyResponse"
     },
-    "GenerateDataKeyResponse":{
-      "type":"object",
-      "properties":{
-        "ciphertextDataKey":{
-          "type":"string",
-          "description":"The data key in ciphertext, encrypted by the data key encryption key"
+    "GenerateDataKeyResponse": {
+      "type": "object",
+      "properties": {
+        "ciphertextDataKey": {
+          "type": "string",
+          "description": "The data key in ciphertext, encrypted by the data key encryption key"
         },
-        "dataKeyEncryptionKeyId":{
-          "type":"string",
-          "description":"The id of the encryption key that was used to encrypt the data key into ciphertext"
+        "dataKeyEncryptionKeyId": {
+          "type": "string",
+          "description": "The id of the encryption key that was used to encrypt the data key into ciphertext"
         },
-        "plaintextDataKey":{
-          "type":"string",
-          "description":"The data key in plaintext"
+        "plaintextDataKey": {
+          "type": "string",
+          "description": "The data key in plaintext"
         }
       },
-      "title":"GenerateDataKeyResponse"
+      "title": "GenerateDataKeyResponse"
     }
   }
 }
+

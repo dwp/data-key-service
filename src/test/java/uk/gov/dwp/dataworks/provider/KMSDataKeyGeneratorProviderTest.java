@@ -1,9 +1,7 @@
 package uk.gov.dwp.dataworks.provider;
 
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
-import org.junit.Test;
 import org.springframework.util.Assert;
-import uk.gov.dwp.dataworks.errors.DataKeyGenerationFailure;
 
 public class KMSDataKeyGeneratorProviderTest {
 
@@ -17,7 +15,7 @@ public class KMSDataKeyGeneratorProviderTest {
     }
 
 
-    //@Test(expected = DataKeyGenerationFailure.class)
+    //@Test(expected = DataKeyGenerationException.class)
     public void canGenerateDataKeyFailureWithException() {
         KMSDataKeyGeneratorProvider providerUnderTest = new KMSDataKeyGeneratorProvider();
         providerUnderTest.generateDataKey("frederick no keys");

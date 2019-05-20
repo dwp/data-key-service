@@ -1,9 +1,9 @@
 package uk.gov.dwp.dataworks.provider;
 
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
-import uk.gov.dwp.dataworks.errors.DataKeyDecryptionFailure;
-import uk.gov.dwp.dataworks.errors.GarbledDataKeyError;
+import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
+import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 
 public interface DataKeyDecryptionProvider {
-    DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey) throws GarbledDataKeyError, DataKeyDecryptionFailure;
+    DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey) throws GarbledDataKeyException, DataKeyDecryptionException;
 }
