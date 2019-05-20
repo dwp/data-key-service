@@ -1,18 +1,12 @@
-# java
-#
-# VERSION       Java 8
+# This is an example of how to run this java app on CentOS, because we will host it as an EC2 running Centos in prod
 FROM centos
 
-# Upgrading system
+EXPOSE 8080
+CMD ["java", "-jar",  "/opt/data-key-service/data-key-service.jar"]
+RUN mkdir /opt/data-key-service
+
 RUN yum -y upgrade
-
-RUN yum install -y \
-       java-1.8.0-openjdk
-
+RUN yum install -y java-1.8.0-openjdk
 ENV JAVA_HOME /etc/alternatives/jre
 
-RUN mkdir /opt/data-key-service
-ADD build/libs/data-key-service-*.jar /opt/data-key-service
-
-EXPOSE 8080
-CMD ["java", "-jar",  "/opt/data-key-service/data-key-service-0.0.1-SNAPSHOT.jar"]
+COPY build/libs/data-key-service-*.jar /opt/data-key-service/data-key-service.jar
