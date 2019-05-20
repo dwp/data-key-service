@@ -14,9 +14,6 @@ public class DecryptDataKeyResponse {
     @ApiModelProperty(notes="The decrypted data key")
     public String plaintextDataKey;
 
-    public DecryptDataKeyResponse() {
-    }
-
     public DecryptDataKeyResponse(String dataKeyEncryptionKeyId, String iv, String plaintextDataKey) {
         this.dataKeyEncryptionKeyId = dataKeyEncryptionKeyId;
         this.iv = iv;

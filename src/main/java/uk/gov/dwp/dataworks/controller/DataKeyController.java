@@ -4,15 +4,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+@SuppressWarnings("unused")
 @RestController
 @RequestMapping("/datakey")
-@Api(value="datakey", description="Operations for data keys")
+@Api(value="datakey")
 public class DataKeyController {
 
     private DataKeyService dataKeyService;
@@ -22,15 +25,15 @@ public class DataKeyController {
         this.dataKeyService = dataKeyService;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value="Generate a new data key", response=GenerateDataKeyResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
-    public GenerateDataKeyResponse generate() {
-        return dataKeyService.generate();
+    public ResponseEntity<GenerateDataKeyResponse> generate() {
+        return new ResponseEntity<>(dataKeyService.generate(), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)
