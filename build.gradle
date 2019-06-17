@@ -24,6 +24,7 @@ dependencies {
     implementation "io.springfox:springfox-swagger-ui:2.9.2"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.1.4.RELEASE'
+    testCompile "junit:junit:4.12"
 }
 
 mainClassName = "uk.gov.dwp.dataworks.DataKeyServiceApplication"

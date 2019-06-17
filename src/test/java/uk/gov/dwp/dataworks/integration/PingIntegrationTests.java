@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-@ActiveProfiles("Test")
+@ActiveProfiles("IntegrationTest")
 @AutoConfigureMockMvc
 public class PingIntegrationTests {
 

@@ -9,8 +9,9 @@ import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 @Configuration
-@Profile("Test")
-public class ProviderTestConfiguration {
+@Profile("IntegrationTest")
+public class ProviderIntegrationTestConfiguration {
+
     @Bean
     public CurrentKeyIdProvider currentKeyIdProvider() {
         return Mockito.mock(CurrentKeyIdProvider.class);
@@ -25,4 +26,5 @@ public class ProviderTestConfiguration {
     public DataKeyGeneratorProvider dataKeyGeneratorProvider() {
         return Mockito.mock(DataKeyGeneratorProvider.class);
     }
+
 }

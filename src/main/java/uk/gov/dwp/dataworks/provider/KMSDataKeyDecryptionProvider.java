@@ -1,57 +1,56 @@
 package uk.gov.dwp.dataworks.provider;
 
 import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
-import com.amazonaws.services.kms.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.amazonaws.services.kms.model.DecryptRequest;
+import com.amazonaws.services.kms.model.DecryptResult;
+import com.amazonaws.services.kms.model.InvalidCiphertextException;
+import com.google.common.base.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
-import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
+import uk.gov.dwp.dataworks.errors.UnusableParameterException;
 
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Base64;
 
 @Service
 @Profile("KMS")
 public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
-    private static final int IV_SIZE = 16;
-    private Base64.Encoder encoder = Base64.getEncoder();
-    private Base64.Decoder decoder = Base64.getDecoder();
-    private Logger logger = LoggerFactory.getLogger(KMSDataKeyDecryptionProvider.class);
 
-    public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey)
-            throws GarbledDataKeyException, DataKeyDecryptionException {
-        AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
+    private final Base64.Encoder encoder = Base64.getEncoder();
+    private final Base64.Decoder decoder = Base64.getDecoder();
+    private final AWSKMS awsKms;
 
-        ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
-        DecryptRequest req = new DecryptRequest().withCiphertextBlob(ciphertextDataKeyBuffer);
+    @Autowired
+    public KMSDataKeyDecryptionProvider(AWSKMS awsKms) {
+        this.awsKms = awsKms;
+    }
 
+    public DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey) {
         try {
-            DecryptResult result = kmsClient.decrypt(req);
 
-            byte[] iv = new byte[IV_SIZE];
-            SecureRandom.getInstanceStrong().nextBytes(iv);
+            if (Strings.isNullOrEmpty(keyId) || Strings.isNullOrEmpty(ciphertextDataKey) ||
+                    ciphertextDataKey.getBytes().length > DataKeyDecryptionProvider.MAX_PAYLOAD_SIZE) {
+                throw new UnusableParameterException();
+            }
 
-            return new DecryptDataKeyResponse(
-                    result.getKeyId(),
-                    encoder.encodeToString(iv),
-                    encoder.encodeToString(result.getPlaintext().array())
-            );
+            ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
+            DecryptRequest request = new DecryptRequest().withCiphertextBlob(ciphertextDataKeyBuffer);
+            DecryptResult result = this.awsKms.decrypt(request);
+            return new DecryptDataKeyResponse(result.getKeyId(),
+                    encoder.encodeToString(result.getPlaintext().array()));
         }
-        catch(InvalidCiphertextException ex) {
-            logger.error("Exception caught while communicating with KMS", ex);
-            throw new GarbledDataKeyException();
+        catch (UnusableParameterException e) {
+            throw e;
         }
-        catch(NotFoundException | DisabledException | KeyUnavailableException |
-                DependencyTimeoutException | InvalidGrantTokenException | KMSInternalException |
-                KMSInvalidStateException | NoSuchAlgorithmException ex) {
-            logger.error("Exception caught while communicating with KMS", ex);
-            throw new DataKeyDecryptionException();
+        catch (IllegalArgumentException | InvalidCiphertextException ex) {
+            throw new GarbledDataKeyException(ex);
+        }
+        catch (RuntimeException ex) {
+            throw new DataKeyDecryptionException(ex);
         }
     }
 }

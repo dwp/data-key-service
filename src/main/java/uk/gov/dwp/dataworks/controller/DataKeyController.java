@@ -4,13 +4,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 @SuppressWarnings("unused")
 @RestController
@@ -18,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 @Api(value="datakey")
 public class DataKeyController {
 
-    private DataKeyService dataKeyService;
+    private final DataKeyService dataKeyService;
+    private final static Logger LOGGER = LoggerFactory.getLogger(DataKeyController.class);
 
     @Autowired
     public DataKeyController(DataKeyService dataKeyService) {
@@ -29,7 +32,6 @@ public class DataKeyController {
     @ApiOperation(value="Generate a new data key", response=GenerateDataKeyResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
     public ResponseEntity<GenerateDataKeyResponse> generate() {
@@ -41,12 +43,12 @@ public class DataKeyController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully decrypted the data key"),
             @ApiResponse(code = 400, message = "The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })    public DecryptDataKeyResponse decrypt(
             @RequestParam(value = "keyId") String dataKeyEncryptionKeyId,
-            @RequestBody String ciphertextDataKey
-    ) {
+            @RequestBody String ciphertextDataKey) {
         return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey);
     }
+
+
 }
