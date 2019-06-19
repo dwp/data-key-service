@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -35,24 +36,56 @@ public class KMSCurrentKeyIdProviderTest {
         assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId());
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void handlesInternalServerErrorException() {
-        throwException(InternalServerErrorException.class);
+        try {
+            throwException(InternalServerErrorException.class);
+        }
+        catch (CurrentKeyIdException ex) {
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void handlesInvalidKeyIdException() {
-        throwException(InvalidKeyIdException.class);
+        try {
+            throwException(InvalidKeyIdException.class);
+        }
+        catch (CurrentKeyIdException ex) {
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void handlesParameterNotFoundException() {
-        throwException(ParameterNotFoundException.class);
+        try {
+            throwException(ParameterNotFoundException.class);
+        }
+        catch (CurrentKeyIdException ex) {
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void handlesRuntimeException() {
-        throwException(RuntimeException.class);
+        try {
+            throwException(RuntimeException.class);
+        }
+        catch (CurrentKeyIdException ex) {
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
+        }
     }
 
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {

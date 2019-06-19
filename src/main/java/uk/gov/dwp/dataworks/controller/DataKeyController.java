@@ -4,8 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,6 @@ import uk.gov.dwp.dataworks.service.DataKeyService;
 public class DataKeyController {
 
     private final DataKeyService dataKeyService;
-    private final static Logger LOGGER = LoggerFactory.getLogger(DataKeyController.class);
 
     @Autowired
     public DataKeyController(DataKeyService dataKeyService) {

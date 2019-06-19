@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.Base64;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -51,39 +52,95 @@ public class KMSDataKeyGeneratorProviderTest {
     }
 
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesNotFoundException() {
-        throwException(NotFoundException.class);
+        try {
+            throwException(NotFoundException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesDisabledException() {
-        throwException(DisabledException.class);
+        try {
+            throwException(DisabledException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesDependencyTimeoutException() {
-        throwException(DependencyTimeoutException.class);
+        try {
+            throwException(DependencyTimeoutException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesInvalidKeyUsageException() {
-        throwException(InvalidKeyUsageException.class);
+        try {
+            throwException(InvalidKeyUsageException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesInvalidGrantTokenException () {
-        throwException(InvalidGrantTokenException.class);
+        try {
+            throwException(InvalidGrantTokenException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesKMSInternalException() {
-        throwException(KMSInternalException.class);
+        try {
+            throwException(KMSInternalException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void handlesKMSInvalidStateException() {
-        throwException(KMSInvalidStateException.class);
+        try {
+            throwException(KMSInvalidStateException.class);
+        }
+        catch (DataKeyGenerationException ex) {
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
+        catch (Exception  e) {
+            fail("Expected " + DataKeyGenerationException.class + " got " + e.getClass() + ".");
+        }
     }
 
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {

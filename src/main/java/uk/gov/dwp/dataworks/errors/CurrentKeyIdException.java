@@ -5,9 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
 public class CurrentKeyIdException extends RuntimeException  {
-
-    public CurrentKeyIdException(Throwable cause) {
-        super("Failed to retrieve the current key id.", cause);
+    public CurrentKeyIdException() {
+        super("Failed to retrieve the current key id.");
     }
-
 }
