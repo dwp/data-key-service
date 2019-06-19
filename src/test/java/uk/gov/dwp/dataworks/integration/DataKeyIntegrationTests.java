@@ -13,10 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
-import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
-import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
-import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
-import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
+import uk.gov.dwp.dataworks.errors.*;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
@@ -30,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-@ActiveProfiles("Test")
+@ActiveProfiles("IntegrationTest")
 @AutoConfigureMockMvc
 public class DataKeyIntegrationTests {
 
@@ -55,7 +52,10 @@ public class DataKeyIntegrationTests {
     public void shouldReturnADataKeyWhenRequestingKeyGeneration() throws Exception {
         given(currentKeyIdProvider.getKeyId()).willReturn("myKeyId");
 
-        GenerateDataKeyResponse response = new GenerateDataKeyResponse("encryptionId", "plainKey", "cipherKey");
+        GenerateDataKeyResponse response =
+                new GenerateDataKeyResponse("encryptionId",
+                        "plainKey",
+                        "cipherKey");
 
         given(dataKeyGeneratorProvider.generateDataKey("myKeyId"))
                 .willReturn(response);
@@ -72,44 +72,62 @@ public class DataKeyIntegrationTests {
 
     @Test
     public void shouldReturnDecryptedKeyWhenRequested() throws Exception {
-        DecryptDataKeyResponse response = new DecryptDataKeyResponse("decryptKeyId", "iv", "plaintextDataKey");
-        given(dataKeyDecryptionProvider.decryptDataKey("encryptionKeyId", "cipher text"))
+        DecryptDataKeyResponse response =
+                new DecryptDataKeyResponse("decryptKeyId",
+                        "plaintextDataKey");
+
+        String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
+        String encryptedDataKey = "blah blah blah";
+        given(dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey))
                 .willReturn(response);
 
-        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "encryptionKeyId").content("cipher text"))
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}",
+                dataKeyEncryptionKeyId).content(encryptedDataKey))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
     }
 
     @Test
     public void shouldReturnServiceUnavailableWhenCurrentKeyIdIsUnavailable() throws Exception {
-        given(currentKeyIdProvider.getKeyId()).willThrow(new CurrentKeyIdException());
-
-        mockMvc.perform(get("/datakey"))
-                .andExpect(status().isServiceUnavailable());
+        given(currentKeyIdProvider.getKeyId()).willThrow(CurrentKeyIdException.class);
+        mockMvc.perform(get("/datakey")).andExpect(status().isServiceUnavailable());
     }
 
     @Test
     public void shouldReturnServiceUnavailableWhenDataKeyGenerationFails() throws Exception {
-        given(dataKeyGeneratorProvider.generateDataKey(any())).willThrow(new DataKeyGenerationException());
-
-        mockMvc.perform(get("/datakey"))
-                .andExpect(status().isServiceUnavailable());
+        given(dataKeyGeneratorProvider.generateDataKey(any())).willThrow(DataKeyGenerationException.class);
+        mockMvc.perform(get("/datakey")).andExpect(status().isServiceUnavailable());
     }
 
     @Test
     public void shouldReturnServiceUnavailableWhenDataKeyDecryptionFails() throws Exception {
-        given(dataKeyDecryptionProvider.decryptDataKey(any(), any())).willThrow(new DataKeyDecryptionException());
+        String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
+        given(dataKeyDecryptionProvider.decryptDataKey(any(), any()))
+                .willThrow(DataKeyDecryptionException.class);
 
-        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "myKeyId").content("my content to decrypt"))
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", dataKeyEncryptionKeyId)
+                .content("my content to decrypt"))
                 .andExpect(status().isServiceUnavailable());
     }
 
     @Test
     public void shouldReturnBadRequestWhenEncryptedDataKeyIsInvalid() throws Exception {
-        given(dataKeyDecryptionProvider.decryptDataKey("myKeyId", "my garbled content to decrypt")).willThrow(new GarbledDataKeyException());
+        given(dataKeyDecryptionProvider.decryptDataKey(any(), any()))
+                .willThrow(GarbledDataKeyException.class);
 
-        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "myKeyId").content("my garbled content to decrypt"))
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "DATAKEYID")
+                .content("my garbled content to decrypt"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void shouldReturnBadRequestWhenEncryptedDataKeyTooLarge() throws Exception {
+        given(dataKeyDecryptionProvider.decryptDataKey("DATAKEYID", "my garbled content to decrypt"))
+                .willThrow(UnusableParameterException.class);
+
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "DATAKEYID")
+                .content("my garbled content to decrypt"))
+                .andExpect(status().isBadRequest());
+    }
+
 }

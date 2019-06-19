@@ -11,11 +11,9 @@ public class DataKeyControllerTest {
     public void decryptWillPassParametersToTheDataKeyService() {
         DataKeyService dataKeyService = mock(DataKeyService.class);
         DataKeyController dataKeyController = new DataKeyController(dataKeyService);
-
         String keyId = "I am a key Id";
         String ciphertextDataKey = "I am a ciphertext Data Key";
         dataKeyController.decrypt(keyId, ciphertextDataKey);
-
         verify(dataKeyService, times(1)).decrypt(keyId, ciphertextDataKey);
     }
 }

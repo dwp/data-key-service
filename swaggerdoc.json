@@ -47,9 +47,6 @@
               "$ref": "#/definitions/GenerateDataKeyResponse"
             }
           },
-          "401": {
-            "description": "You are not authorized to view the resource"
-          },
           "503": {
             "description": "There has been an internal error, or a dependency failure"
           }
@@ -98,9 +95,6 @@
           "400": {
             "description": "The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."
           },
-          "401": {
-            "description": "You are not authorized to view the resource"
-          },
           "503": {
             "description": "There has been an internal error, or a dependency failure"
           }
@@ -137,10 +131,6 @@
         "dataKeyEncryptionKeyId": {
           "type": "string",
           "description": "The id of the key used to encrypt/decrypt this data key's ciphertext"
-        },
-        "iv": {
-          "type": "string",
-          "description": "The securely generated Initialisation Vector you need to use to decrypt data when using this data key"
         },
         "plaintextDataKey": {
           "type": "string",
