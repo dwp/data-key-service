@@ -24,12 +24,21 @@ public class DataKeyService {
         this.dataKeyDecryptionProvider = dataKeyDecryptionProvider;
     }
 
+    public String currentKeyId() {
+        return currentKeyIdProvider.getKeyId();
+    }
+
     public GenerateDataKeyResponse generate() {
-        String keyEncryptionKeyId = currentKeyIdProvider.getKeyId();
-        return dataKeyProvider.generateDataKey(keyEncryptionKeyId);
+        return dataKeyProvider.generateDataKey(currentKeyId());
     }
 
     public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey) {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey);
+    }
+
+    public boolean canSeeDependencies() {
+        return dataKeyProvider != null && dataKeyProvider.canSeeDependencies() &&
+                currentKeyIdProvider != null && currentKeyIdProvider.canSeeDependencies() &&
+                dataKeyDecryptionProvider != null && dataKeyDecryptionProvider.canSeeDependencies();
     }
 }

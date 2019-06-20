@@ -60,4 +60,9 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
             throw new DataKeyDecryptionException();
         }
     }
+
+    @Override
+    public boolean canSeeDependencies() {
+        return awsKms != null;
+    }
 }
