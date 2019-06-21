@@ -35,4 +35,9 @@ public class KMSCurrentKeyIdProvider implements CurrentKeyIdProvider {
             throw new CurrentKeyIdException();
         }
     }
+
+    @Override
+    public boolean canSeeDependencies() {
+        return awsSimpleSystemsManagementClient != null;
+    }
 }

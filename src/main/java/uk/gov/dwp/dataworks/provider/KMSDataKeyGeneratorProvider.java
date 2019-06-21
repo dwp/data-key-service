@@ -38,4 +38,9 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
             throw new DataKeyGenerationException();
         }
     }
+
+    @Override
+    public boolean canSeeDependencies() {
+        return awsKms != null;
+    }
 }

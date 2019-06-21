@@ -9,3 +9,4 @@ ci/terraform.tf
 .idea/
 rad/
 *.iml
+out/

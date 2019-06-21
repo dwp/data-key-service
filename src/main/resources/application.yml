@@ -1,3 +1,9 @@
 spring:
   profiles:
     active: KMS
+
+#server.port: 8443
+#server.ssl.key-store: rad/keystore.p12
+#server.ssl.key-store-password: Password1
+#server.ssl.keyStoreType: PKCS12
+#server.ssl.keyAlias: tomcat
