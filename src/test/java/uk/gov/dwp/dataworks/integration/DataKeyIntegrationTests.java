@@ -129,6 +129,4 @@ public class DataKeyIntegrationTests {
                 .content("my garbled content to decrypt"))
                 .andExpect(status().isBadRequest());
     }
-
-
 }
