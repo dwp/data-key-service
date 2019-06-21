@@ -37,7 +37,27 @@ And then navigating to
 http://localhost:8080/swagger-ui.html#/data-key-controller
 ```
 
+# Healthcheck endpoint
 
+New GET endpoint on ‘/healthcheck’ reports the following
+
+- all dependencies can be reached,
+- the current master key id can be fetched,
+- a new key can be generated,
+- the new key is encrypted
+- the new key can be decrypted
+
+Response code is 200 if everything is OK, 500 otherwise. Example response body:
+
+```
+{
+"encryptionService": "OK",
+"masterKey": "OK",
+"dataKeyGenerator": "OK",
+"encryption": "OK",
+"decryption": “BAD”
+}
+```
 # Requirements for Data Key Service
 
 ## Runtime

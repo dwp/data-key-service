@@ -69,8 +69,7 @@ public class HealthCheckController {
             boolean allOk = canReachDependencies && canRetrieveCurrentMasterKeyId &&
                     canCreateNewDataKey && canEncryptDataKey &&  canDecryptDataKey;
 
-            return new ResponseEntity<>(health,
-                    allOk ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(health, allOk ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

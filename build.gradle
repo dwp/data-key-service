@@ -15,14 +15,18 @@ repositories {
     mavenCentral()
 }
 
+bootJar {
+    launchScript()
+}
+
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.google.guava:guava:27.0.1-jre'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.1.4.RELEASE'
     implementation 'com.amazonaws:aws-java-sdk-kms:1.11.534'
     implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.534'
     implementation "io.springfox:springfox-swagger2:2.9.2"
     implementation "io.springfox:springfox-swagger-ui:2.9.2"
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.1.4.RELEASE'
     testCompile "junit:junit:4.12"
 }

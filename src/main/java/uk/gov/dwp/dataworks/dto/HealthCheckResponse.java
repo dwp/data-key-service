@@ -1,9 +1,26 @@
 package uk.gov.dwp.dataworks.dto;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @SuppressWarnings("unused")
 public class HealthCheckResponse {
 
     public enum Health {OK, BAD}
+
+    @ApiModelProperty(notes="Can the controller see its dependencies.")
+    private Health encryptionService;
+
+    @ApiModelProperty(notes="Can the controller fetch the current master key.")
+    private Health masterKey;
+
+    @ApiModelProperty(notes="Can the controller generate a new data key.")
+    private Health dataKeyGenerator;
+
+    @ApiModelProperty(notes="Can the controller encrypt a new data key.")
+    private Health encryption;
+
+    @ApiModelProperty(notes="Can the controller decrypt an encrypted data key.")
+    private Health decryption;
 
     public HealthCheckResponse() {
         this.encryptionService = Health.BAD;
@@ -22,12 +39,6 @@ public class HealthCheckResponse {
         this.encryption = encryption;
         this.decryption = decryption;
     }
-
-    private Health encryptionService;
-    private Health masterKey;
-    private Health dataKeyGenerator;
-    private Health encryption;
-    private Health decryption;
 
     public Health getEncryptionService() {
         return encryptionService;
