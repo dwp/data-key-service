@@ -28,7 +28,7 @@ The API has been documented in swagger format (OpenAPI) using code annotations o
 you can also view them by running the service
 
 ```
-./gradlew bootRun
+SPRING_PROFILES_ACTIVE=AWS,KMS ./gradlew bootRun
 ```
 
 And then navigating to
