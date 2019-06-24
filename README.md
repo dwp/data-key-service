@@ -14,10 +14,29 @@ Gradle will fetch required packages and action all of the building. You can star
 # Running locally
 Gradle can run a local webserver to host the api on port 8080
 ```
-./gradlew bootRun
+SPRING_PROFILES_ACTIVE=AWS,KMS ./gradlew bootRun
 ```
 You can then access it as http://localhost:8080
 
+# Mutual authorisation
+
+Start with the following parameters:
+
+```
+server.port
+server.ssl.keystore
+server.ssl.key-store-password
+server.ssl.key-store-type
+server.ssl.key-alias
+server.http2.enabled
+server.ssl.trust-store
+server.ssl.trust-store-password
+server.ssl.client-auth
+```
+
+```
+curl --insecure --cert certificate.pem:changeit --key key.pem https://localhost:8443/healthcheck
+```
 For it to work you will also need some dependencies fulfilled.
 * AWS access
 * AWS KMS Data Key Encryption Key
