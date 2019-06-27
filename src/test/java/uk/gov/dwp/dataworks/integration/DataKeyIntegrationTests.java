@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-@ActiveProfiles("IntegrationTest")
+@ActiveProfiles({"IntegrationTest", "INSECURE"})
 @AutoConfigureMockMvc
 public class DataKeyIntegrationTests {
 

@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.aws;
+package uk.gov.dwp.dataworks.config;
 
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;

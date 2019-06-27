@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +33,7 @@ public class HealthCheckController {
         this.dataKeyService = dataKeyService;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value="A simple endpoint to confirm that the service is well configured and that its dependencies are fulfilled.")
     @ApiResponses(value = {
