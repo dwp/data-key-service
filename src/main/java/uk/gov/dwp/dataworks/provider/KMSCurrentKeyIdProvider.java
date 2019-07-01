@@ -25,7 +25,7 @@ public class KMSCurrentKeyIdProvider implements CurrentKeyIdProvider {
     public String getKeyId() throws CurrentKeyIdException {
         try {
             GetParameterRequest request = new GetParameterRequest()
-                    .withName("data-key-service.currentKeyId")
+                    .withName("data_key_service.currentKeyId")
                     .withWithDecryption(false);
             GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
             return result.getParameter().getValue();

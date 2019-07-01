@@ -102,7 +102,7 @@ public class KMSCurrentKeyIdProviderTest {
     }
 
     private GetParameterRequest getGetParameterRequest() {
-        return new GetParameterRequest().withName("data-key-service.currentKeyId").withWithDecryption(false);
+        return new GetParameterRequest().withName("data_key_service.currentKeyId").withWithDecryption(false);
     }
 
     @Autowired
