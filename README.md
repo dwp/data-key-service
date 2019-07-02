@@ -106,3 +106,9 @@ docker build --tag javacentos:latest .
 ```
 docker run -it -p8080:8080 javacentos:latest
 ```
+
+# Running locally
+```
+export SPRING_PROFILES_ACTIVE=AWS,KMS,INSECURE
+java -jar /path/to/dks.jar
+```
