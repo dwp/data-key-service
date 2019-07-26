@@ -3,6 +3,7 @@
     <module name="data-key-service.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="uk.gov.dwp.dataworks.DataKeyServiceApplication" />
     <option name="ACTIVE_PROFILES" value="KMS,AWS,SECURE" />
+    <option name="VM_PARAMETERS" value="-Ddks.log.level.file=INFO -Ddks.log.directory=/opt/dks -Ddks.log.level.console=INFO" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <additionalParameters>
       <param>
@@ -48,7 +49,7 @@
       <param>
         <option name="enabled" value="true" />
         <option name="name" value="server.ssl.client-auth" />
-        <option name="value" value="need" />
+        <option name="value" value="want" />
       </param>
     </additionalParameters>
     <method v="2">

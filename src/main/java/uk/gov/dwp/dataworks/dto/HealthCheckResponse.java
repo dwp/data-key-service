@@ -2,6 +2,9 @@ package uk.gov.dwp.dataworks.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SuppressWarnings("unused")
 public class HealthCheckResponse {
 
@@ -22,12 +25,15 @@ public class HealthCheckResponse {
     @ApiModelProperty(notes="Can the controller decrypt an encrypted data key.")
     private Health decryption;
 
+    private Map<String, String> trustedCertificates;
+
     public HealthCheckResponse() {
         this.encryptionService = Health.BAD;
         this.masterKey = Health.BAD;
         this.dataKeyGenerator = Health.BAD;
         this.encryption = Health.BAD;
         this.decryption = Health.BAD;
+        this.trustedCertificates = new HashMap<>();
     }
 
     public HealthCheckResponse(Health encryptionService,
@@ -80,4 +86,11 @@ public class HealthCheckResponse {
         this.decryption = decryption;
     }
 
+    public Map<String, String> getTrustedCertificates() {
+        return trustedCertificates;
+    }
+
+    public void setTrustedCertificates(Map<String, String> trustedCertificates) {
+        this.trustedCertificates = trustedCertificates;
+    }
 }

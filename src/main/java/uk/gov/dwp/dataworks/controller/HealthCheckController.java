@@ -5,9 +5,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +21,17 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.HealthCheckResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 @RestController
@@ -41,7 +55,10 @@ public class HealthCheckController {
             @ApiResponse(code = 500, message = "Service is unhealthy, one or more dependencies can't be fullfilled. Response body indicates which.")
     })
 
-    public ResponseEntity<HealthCheckResponse> healthCheck() {
+    public ResponseEntity<HealthCheckResponse> healthCheck()
+            throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+
+
         boolean canReachDependencies = false;
         boolean canRetrieveCurrentMasterKeyId = false;
         boolean canCreateNewDataKey = false;
@@ -49,6 +66,26 @@ public class HealthCheckController {
         boolean canDecryptDataKey = false;
         HealthCheckResponse health = new HealthCheckResponse();
         try {
+            Map<String, String> trustedCertificates = new HashMap<>();
+
+            if (StringUtils.isNoneBlank(trustStorePath, trustStorePassword)) {
+                KeyStore keystore = KeyStore.getInstance("JKS");
+                LOGGER.info("keystore: '{}'.", keystore);
+                LOGGER.info("trustStorePath: '{}'.", trustStorePath);
+                LOGGER.info("trustStorePassword: '{}'.", trustStorePassword);
+                keystore.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
+                Enumeration<String> aliases = keystore.aliases();
+                while (aliases.hasMoreElements()) {
+                    String alias = aliases.nextElement();
+                    LOGGER.info("alias: '{}'.", alias);
+                    Certificate certificate = keystore.getCertificate(alias);
+                    String thumbprint = DigestUtils.sha1Hex(certificate.getEncoded());
+                    LOGGER.info("thumbprint: {}.", thumbprint);
+                    trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase());
+                }
+            }
+
+            health.setTrustedCertificates(trustedCertificates);
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
             String currentKeyId = this.dataKeyService.currentKeyId();
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
@@ -74,4 +111,11 @@ public class HealthCheckController {
             return new ResponseEntity<>(health, allOk ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Value("${server.ssl.trust-store:}")
+    private String trustStorePath;
+
+    @Value("${server.ssl.trust-store-password:}")
+    private String trustStorePassword;
+
 }

@@ -18,15 +18,17 @@ public class SecureConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .authorizeRequests().anyRequest().authenticated()
+                .authorizeRequests().antMatchers("/healthcheck").permitAll()
+                .anyRequest()
+                .authenticated()
                 .and()
-                .x509().subjectPrincipalRegex("CN=(.*?)(?:,|$)");
+                .x509()
+                .subjectPrincipalRegex("CN=(.*?)(?:,|$)");
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            LOGGER.info("Loading user '{}'.", username);
             return new User(username, "",
                     AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
         };

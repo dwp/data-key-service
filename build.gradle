@@ -17,12 +17,17 @@ repositories {
 
 bootJar {
     launchScript()
+    manifest {
+        attributes 'Class-Path': '/opt/dks/config/'
+    }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'commons-codec:commons-codec:1.12'
+    implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.1.4.RELEASE'
     implementation 'com.amazonaws:aws-java-sdk-kms:1.11.534'
     implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.534'
@@ -31,5 +36,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.1.4.RELEASE'
     testCompile "junit:junit:4.12"
 }
+
 
 mainClassName = "uk.gov.dwp.dataworks.DataKeyServiceApplication"
