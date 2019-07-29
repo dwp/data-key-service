@@ -75,7 +75,7 @@ Response code is 200 if everything is OK, 500 otherwise. Example response body:
     "masterKey": "OK",
     "dataKeyGenerator": "OK",
     "encryption": "OK",
-    "decryption": “BAD”
+    "decryption": "BAD",
     "trustedCertificates": {
         "alice": "AA:11:22 ...",
         "bob": "BB:33:45 ..."

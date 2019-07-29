@@ -44,6 +44,7 @@ public class HealthCheckResponse {
         this.dataKeyGenerator = dataKeyGenerator;
         this.encryption = encryption;
         this.decryption = decryption;
+        this.trustedCertificates = new HashMap<>();
     }
 
     public Health getEncryptionService() {

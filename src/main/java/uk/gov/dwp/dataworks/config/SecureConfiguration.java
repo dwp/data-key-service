@@ -28,11 +28,8 @@ public class SecureConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> {
-            return new User(username, "",
-                    AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
-        };
+        return username -> new User(username, "",
+                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SecureConfiguration.class);
 }

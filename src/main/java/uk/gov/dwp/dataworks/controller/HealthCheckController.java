@@ -23,12 +23,8 @@ import uk.gov.dwp.dataworks.dto.HealthCheckResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +51,7 @@ public class HealthCheckController {
             @ApiResponse(code = 500, message = "Service is unhealthy, one or more dependencies can't be fullfilled. Response body indicates which.")
     })
 
-    public ResponseEntity<HealthCheckResponse> healthCheck()
-            throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+    public ResponseEntity<HealthCheckResponse> healthCheck() {
 
 
         boolean canReachDependencies = false;
