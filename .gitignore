@@ -8,3 +8,4 @@ ci/terraform.tf
 *.tfvars
 rad/
 out/
+.idea/workspace.xml
