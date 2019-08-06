@@ -9,3 +9,6 @@ ci/terraform.tf
 rad/
 out/
 .idea/workspace.xml
+
+#Logs
+dks.log.directory_IS_UNDEFINED
