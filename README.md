@@ -39,6 +39,15 @@ curl --insecure --cert certificate.pem:changeit --key key.pem \
     https://localhost:8443/healthcheck
 ```
 
+# Standalone Mode
+You can DKS in a mode that does not require AWS credentials at all. This is helpful you essentially want a mock version 
+of DKS that you can develop against. Encryption and decryption will work (simple byte reversals) and there is a hard 
+coded encryption key id of STANDALONE
+
+```bash
+SPRING_PROFILES_ACTIVE=Standalone,INSECURE ./gradlew bootRun
+```
+
 # Swagger UI
 
 The API has been documented in swagger format (OpenAPI) using code annotations

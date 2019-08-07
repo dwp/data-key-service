@@ -22,13 +22,6 @@ bootJar {
     }
 }
 
-def profiles = 'Standalone,INSECURE'
-//def profiles = 'AWS,KMS,SECURE'
-
-bootRun {
-    args = ["--spring.profiles.active=" + profiles]
-}
-
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
