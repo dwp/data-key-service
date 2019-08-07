@@ -8,4 +8,8 @@ ci/terraform.tf
 *.tfvars
 rad/
 out/
-.idea/workspace.xml
+.idea/*
+
+#Logs
+dks.log.directory_IS_UNDEFINED
+dks.log.*
