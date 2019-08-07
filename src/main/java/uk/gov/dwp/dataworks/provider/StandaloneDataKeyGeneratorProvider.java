@@ -12,7 +12,7 @@ import java.util.Random;
 @Service
 @Profile("STANDALONE")
 public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
-    private Base64.Encoder encoder = Base64.getEncoder();
+    private final Base64.Encoder encoder = Base64.getEncoder();
 
     @Autowired
     public StandaloneDataKeyGeneratorProvider(){

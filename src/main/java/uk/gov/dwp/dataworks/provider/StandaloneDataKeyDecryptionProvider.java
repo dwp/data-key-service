@@ -12,8 +12,8 @@ import java.util.Base64;
 @Service
 @Profile("STANDALONE")
 public class StandaloneDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
-    private Base64.Encoder encoder = Base64.getEncoder();
-    private Base64.Decoder decoder = Base64.getDecoder();
+    private final Base64.Encoder encoder = Base64.getEncoder();
+    private final Base64.Decoder decoder = Base64.getDecoder();
 
     @Autowired
     public StandaloneDataKeyDecryptionProvider(){

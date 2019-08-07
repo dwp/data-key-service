@@ -45,7 +45,7 @@ of DKS that you can develop against. Encryption and decryption will work (simple
 coded encryption key id of STANDALONE
 
 ```bash
-SPRING_PROFILES_ACTIVE=StandaSPRING_PROFILES_ACTIVE=STANDALONE,INSECURElone,INSECURE ./gradlew bootRun
+SPRING_PROFILES_ACTIVE=STANDALONE,INSECURE ./gradlew bootRun
 ```
 
 # Swagger UI
