@@ -3,14 +3,14 @@ package uk.gov.dwp.dataworks.provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import sun.security.util.ArrayUtil;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.util.ArrayUtils;
 
 import java.util.Base64;
 import java.util.Random;
 
 @Service
-@Profile("Standalone")
+@Profile("STANDALONE")
 public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
     private Base64.Encoder encoder = Base64.getEncoder();
 
@@ -28,7 +28,7 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
         String plaintextKey = encoder.encodeToString(key);
 
         // reverse the bytes
-        ArrayUtil.reverse(key);
+        ArrayUtils.reverse(key);
         String encryptedKey = encoder.encodeToString(key);
 
         return new GenerateDataKeyResponse(
