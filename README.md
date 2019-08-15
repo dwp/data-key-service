@@ -25,7 +25,7 @@ SPRING_PROFILES_ACTIVE=AWS,KMS,INSECURE ./gradlew bootRun
 You can then access it for example at http://localhost:8080/datakey
 
 
-# Secure mode (with Mutual authorisation)
+## Secure mode (with Mutual Authentication)
 
 ```bash
 SPRING_CONFIG_LOCATION=resources/config/application.properties ./gradlew bootRun
@@ -39,13 +39,42 @@ curl --insecure --cert certificate.pem:changeit --key key.pem \
     https://localhost:8443/healthcheck
 ```
 
-# Standalone Mode
-You can DKS in a mode that does not require AWS credentials at all. This is helpful you essentially want a mock version 
-of DKS that you can develop against. Encryption and decryption will work (simple byte reversals) and there is a hard 
-coded encryption key id of STANDALONE
+## Standalone Mode
+You can run DKS in a mode that does not require AWS credentials at all. This is
+helpful if you essentially want a mock version of DKS that you can develop
+against. Encryption and decryption will work (simple byte reversals) and there
+is a hard coded encryption key id of STANDALONE.
 
 ```bash
 SPRING_PROFILES_ACTIVE=STANDALONE,INSECURE ./gradlew bootRun
+```
+
+# Running non-locally
+
+For production, or production-like deployments it is expected that you deploy
+this service with certificates issued by a Certificate Authority (rather than
+self-signed certificates as above), with your server's CA cert and client's CA
+cert added to a Java Truststore. Your `config/application.properties` file
+should then look like this:
+
+```bash
+server.http2.enabled=true
+server.port=8443
+server.ssl.client-auth=require
+server.ssl.key-alias=some_alias
+server.ssl.key-store-password=a_suitably_strong_password
+server.ssl.key-store-type=JKS
+server.ssl.key-store=/opt/dks/keystore.jks
+server.ssl.trust-store-password=a_suitably_strong_password
+server.ssl.trust-store=/opt/dks/truststore.jks
+spring.profiles.active=AWS,KMS,SECURE
+```
+
+The Data Key Service can then be run using a command similar to the following:
+
+```bash
+java -Ddks.log.directory=/var/log/dks -Ddks.log.level.console=WARN \
+-Ddks.log.level.file=INFO -jar /opt/dks/dks.jar`
 ```
 
 # Swagger UI
