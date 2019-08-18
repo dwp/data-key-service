@@ -17,3 +17,4 @@ dks.log.*
 *.pem
 *.crt
 *.p12
+.idea
