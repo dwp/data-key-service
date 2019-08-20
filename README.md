@@ -28,7 +28,7 @@ You can then access it for example at http://localhost:8080/datakey
 ## Secure mode (with Mutual Authentication)
 
 ```bash
-SPRING_CONFIG_LOCATION=resources/config/application.properties ./gradlew bootRun
+SPRING_CONFIG_LOCATION=resources/application.properties ./gradlew bootRun
 ```
 
 And then to hit an endpoint with the provided self signed-certificates (from the
@@ -37,6 +37,44 @@ And then to hit an endpoint with the provided self signed-certificates (from the
 ```bash
 curl --insecure --cert certificate.pem:changeit --key key.pem \
     https://localhost:8443/healthcheck
+```
+
+## Generating developer certificates
+
+For local development of the ```SECURE``` mode of operation a script has been
+provided to generate to generate a keystore and a truststore containing
+self-signed which allow a locally running client (e.g. a local installation of
+hbase-to-mongo-export) to operate over a mutually authenticated connection.
+
+To generate the keystores (from the project root directory):
+
+``` bash
+cd resources
+./generate-developer-certs.sh
+```
+
+This will create the files ```keystore.jks``` and ```truststore.jks```. These
+should be made available to the data-key-service and to the client (for the
+data-key-service see the file resources/application.properties).
+
+Additionally the private key and certificate can be exctracted so that the
+service can be accessed from using ```curl```.
+
+To extract these files, from the project root directory perform the following:
+
+``` bash
+cd resources
+. ./environment.sh
+extract_pems
+```
+
+The result of this is 2 files ```key.pem``` and ```certificate.pem``` which can
+be used thus to hit the service:
+
+``` bash
+curl --insecure --cert certificate.pem:changeit --key key.pem \
+    https://localhost:8443/datakey
+
 ```
 
 ## Standalone Mode
