@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./emvironment.sh
+source ./environment.sh
 
 make_keystore keystore.jks localhost
 extract_public_certificate keystore.jks localhost.crt
