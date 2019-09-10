@@ -1,19 +1,16 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.standalone;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
+import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
 @Service
 @Profile("STANDALONE")
 public class StandaloneCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
-    @Autowired
-    public StandaloneCurrentKeyIdProvider(){
-
-    }
-
-    public String getKeyId() {
+    @Override
+    public String getKeyId() throws CurrentKeyIdException {
         return "STANDALONE";
     }
 
@@ -21,5 +18,6 @@ public class StandaloneCurrentKeyIdProvider implements CurrentKeyIdProvider {
     public boolean canSeeDependencies() {
         return true;
     }
+
 }
 

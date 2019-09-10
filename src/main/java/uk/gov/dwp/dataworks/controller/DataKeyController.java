@@ -12,6 +12,8 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
+import javax.servlet.http.HttpServletRequest;
+
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/datakey")
@@ -31,7 +33,7 @@ public class DataKeyController {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
-    public ResponseEntity<GenerateDataKeyResponse> generate() {
+    public ResponseEntity<GenerateDataKeyResponse> generate(HttpServletRequest httpRequest) {
         return new ResponseEntity<>(dataKeyService.generate(), HttpStatus.CREATED);
     }
 

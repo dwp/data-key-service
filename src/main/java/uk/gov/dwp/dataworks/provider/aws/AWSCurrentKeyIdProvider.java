@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.aws;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
@@ -9,16 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
+import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
 @Service
-@Profile("KMS")
-public class KMSCurrentKeyIdProvider implements CurrentKeyIdProvider {
+@Profile({"KMS", "HSM"})
+public class AWSCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
-    private final static Logger LOGGER = LoggerFactory.getLogger(KMSCurrentKeyIdProvider.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AWSCurrentKeyIdProvider.class);
 
     @Autowired
-    public KMSCurrentKeyIdProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
+    public AWSCurrentKeyIdProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 

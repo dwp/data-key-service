@@ -1,7 +1,8 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.aws;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.*;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,15 +13,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
+import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-@ActiveProfiles({"UnitTest", "KMS"})
-public class KMSCurrentKeyIdProviderTest {
+@ActiveProfiles({"KMS", "UnitTest"})
+public class AWSCurrentKeyIdProviderTest {
 
     @Before
     public void init() {
@@ -33,63 +33,33 @@ public class KMSCurrentKeyIdProviderTest {
         GetParameterRequest request = getGetParameterRequest();
         GetParameterResult result = getGetParameterResult(expectedKeyId);
         given(awsSimpleSystemsManagement.getParameter(request)).willReturn(result);
-        assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId());
+        System.err.println("currentKeyIdProvider: '" + currentKeyIdProvider + "'");
+        Assert.assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId());
     }
 
-    @Test
+    @Test(expected = CurrentKeyIdException.class)
     public void handlesInternalServerErrorException() {
-        try {
-            throwException(InternalServerErrorException.class);
-        }
-        catch (CurrentKeyIdException ex) {
-            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
-        }
+        throwException(InternalServerErrorException.class);
     }
 
-    @Test
+    @Test(expected = CurrentKeyIdException.class)
     public void handlesInvalidKeyIdException() {
-        try {
-            throwException(InvalidKeyIdException.class);
-        }
-        catch (CurrentKeyIdException ex) {
-            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
-        }
+        throwException(InvalidKeyIdException.class);
     }
 
-    @Test
+    @Test(expected = CurrentKeyIdException.class)
     public void handlesParameterNotFoundException() {
-        try {
-            throwException(ParameterNotFoundException.class);
-        }
-        catch (CurrentKeyIdException ex) {
-            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
-        }
+        throwException(ParameterNotFoundException.class);
     }
 
-    @Test
+    @Test(expected = CurrentKeyIdException.class)
     public void handlesRuntimeException() {
-        try {
-            throwException(RuntimeException.class);
-        }
-        catch (CurrentKeyIdException ex) {
-            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + CurrentKeyIdException.class + " got " + e.getClass() + ".");
-        }
+        throwException(RuntimeException.class);
     }
 
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {
         given(awsSimpleSystemsManagement.getParameter(ArgumentMatchers.any(GetParameterRequest.class))).willThrow(e);
+        System.err.println("currentKeyIdProvider: '" + currentKeyIdProvider + "'");
         currentKeyIdProvider.getKeyId();
     }
 

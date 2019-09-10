@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.kms;
 
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.DecryptRequest;
@@ -14,6 +14,7 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.UnusableParameterException;
+import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;

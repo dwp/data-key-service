@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.kms;
 
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.*;
@@ -15,13 +15,13 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.UnusableParameterException;
+import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Base64;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -80,134 +80,54 @@ public class KMSDataKeyDecryptionProviderTest {
         assertEquals(expected, actual);
     }
 
-    @Test
+    @Test(expected = GarbledDataKeyException.class)
     public void handlesInvalidCiphertextException() {
-        try {
-            throwException(InvalidCiphertextException.class);
-        }
-        catch (GarbledDataKeyException ex) {
-            assertEquals("The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + GarbledDataKeyException.class + " got " + e.getClass() + ".");
-        }
+        throwException(InvalidCiphertextException.class);
     }
 
-    @Test
+    @Test(expected = GarbledDataKeyException.class)
     public void handlesIllegalArgumentException() {
-        try {
-            throwException(IllegalArgumentException.class);
-        }
-        catch (GarbledDataKeyException ex) {
-            assertEquals("The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + GarbledDataKeyException.class + " got " + e.getClass() + ".");
-        }
+        throwException(IllegalArgumentException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesNotFoundException() {
-        try {
-            throwException(NotFoundException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(NotFoundException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesDisabledException() {
-        try {
-            throwException(DisabledException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(DisabledException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesKeyUnavailableException() {
-        try {
-            throwException(DisabledException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(DisabledException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesDependencyTimeoutException() {
-        try {
-            throwException(DependencyTimeoutException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(DependencyTimeoutException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesInvalidGrantTokenException() {
-        try {
-            throwException(InvalidGrantTokenException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(InvalidGrantTokenException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesKMSInternalException() {
-        try {
-            throwException(KMSInternalException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(KMSInternalException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesKMSInvalidStateException() {
-        try {
-            throwException(KMSInternalException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(KMSInternalException.class);
     }
 
-    @Test
+    @Test(expected = DataKeyDecryptionException.class)
     public void handlesRuntimeException() {
-        try {
-            throwException(RuntimeException.class);
-        }
-        catch (DataKeyDecryptionException ex) {
-            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
-        }
-        catch (Exception  e) {
-            fail("Expected " + DataKeyDecryptionException.class + " got " + e.getClass() + ".");
-        }
+        throwException(RuntimeException.class);
     }
 
     public void throwException(Class<? extends Throwable> exceptionClass) {
