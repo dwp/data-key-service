@@ -22,15 +22,6 @@ public class HSMLoginManager implements AWSLoginManager {
     @Autowired
     private HSMCredentialsProvider hsmCredentialsProvider;
 
-    static {
-        try {
-            Security.addProvider(new CaviumProvider());
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Cavium provider not available: '" + e.getMessage() + "'", e);
-        }
-    }
-
     @Override
     public  void login() {
 

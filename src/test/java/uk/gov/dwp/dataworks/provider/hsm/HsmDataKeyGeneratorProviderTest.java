@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,8 +23,7 @@ import java.util.Base64;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -36,6 +36,7 @@ public class HsmDataKeyGeneratorProviderTest {
     @Before
     public void init() {
         Mockito.reset(cryptoImplementationSupplier);
+        Mockito.reset(hsmLoginManager);
     }
 
     @Test
@@ -45,6 +46,8 @@ public class HsmDataKeyGeneratorProviderTest {
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         String plainTextKey = "PLAINTEXTKEY";
         String encryptedDataKey = "ENCRYPTEDDATAKEY";
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
         given(cryptoImplementationSupplier.dataKey()).willReturn(key);
@@ -62,6 +65,8 @@ public class HsmDataKeyGeneratorProviderTest {
     public void generateDataKeyNotOk() throws CryptoImplementationSupplierException {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
@@ -74,6 +79,8 @@ public class HsmDataKeyGeneratorProviderTest {
     public void encryptDataKeyNotOk() throws CryptoImplementationSupplierException {
         int privateKeyHandle = 1;
         Integer publicKeyHandle = 2;
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
@@ -94,4 +101,8 @@ public class HsmDataKeyGeneratorProviderTest {
 
     @Autowired
     private CryptoImplementationSupplier cryptoImplementationSupplier;
+
+    @MockBean
+    private HSMLoginManager hsmLoginManager;
+
 }

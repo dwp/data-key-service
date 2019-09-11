@@ -1,10 +1,13 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -17,8 +20,8 @@ import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -28,12 +31,20 @@ import static org.mockito.Mockito.verify;
 })
 public class HsmDataKeyDecryptionProviderTest {
 
+    @Before
+    public void init() {
+        Mockito.reset(cryptoImplementationSupplier);
+        Mockito.reset(hsmLoginManager);
+    }
+
     @Test
     public void decryptDataKey() throws CryptoImplementationSupplierException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
         String plaintextDataKey = "PLAINTEXT_DATA_KEY";
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willReturn(plaintextDataKey);
         DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
@@ -48,6 +59,8 @@ public class HsmDataKeyDecryptionProviderTest {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
         dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
@@ -56,6 +69,8 @@ public class HsmDataKeyDecryptionProviderTest {
     @Test(expected = CurrentKeyIdException.class)
     public void malformedMasterKeyId() {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
+        doNothing().when(hsmLoginManager).login();
+        doNothing().when(hsmLoginManager).logout();
         dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
     }
 
@@ -64,4 +79,7 @@ public class HsmDataKeyDecryptionProviderTest {
 
     @Autowired
     private CryptoImplementationSupplier cryptoImplementationSupplier;
+
+    @MockBean
+    private HSMLoginManager hsmLoginManager;
 }
