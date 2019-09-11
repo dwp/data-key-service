@@ -17,10 +17,10 @@ import uk.gov.dwp.dataworks.dto.HSMCredentials;
 @Profile("HSM")
 public class HSMCredentialsProvider {
 
-    public static final String CRYPTO_USER = "_crypto_user";
-    public static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
-    public static final String CRYPTO_USER_CLUSTERID = "cluster_id";
-    public static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
+    private static final String CRYPTO_USER = "_crypto_user";
+    private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
+    private static final String CRYPTO_USER_CLUSTERID = "cluster_id";
+    private static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
     private final static Logger LOGGER = LoggerFactory.getLogger(HSMCredentialsProvider.class);
@@ -30,24 +30,21 @@ public class HSMCredentialsProvider {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 
-
-
     @Value("${server.environment_name}")
     private String environmentName;
 
-
     @Scheduled(fixedRateString = "${cache.eviction.interval:120000}")
-    @CacheEvict(value = HSM_CREDENTIALS_CACHE_NAME, allEntries=true)
+    @CacheEvict(value = HSM_CREDENTIALS_CACHE_NAME, allEntries = true)
     public void clearCache() {
         LOGGER.info("Cache evicted");
 
     }
 
-    @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME,key = "#root.methodName")
+    @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME, key = "#root.methodName")
     public HSMCredentials getCredentials() {
         HSMCredentials hsmCredentials = null;
         try {
-            if(null != environmentName) {
+            if (null != environmentName) {
                 String username = environmentName + CRYPTO_USER;
                 GetParameterRequest pwdRequest = new GetParameterRequest()
                         .withName(environmentName + CRYPTO_USER_PASSWORD)

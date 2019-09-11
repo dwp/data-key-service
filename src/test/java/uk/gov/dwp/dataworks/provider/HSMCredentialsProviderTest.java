@@ -13,6 +13,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -57,7 +58,7 @@ public class HSMCredentialsProviderTest {
     }
 
     @Test
-    public void Should_Verify_Cache_Returns_Credentials_When_Invoked_With_In_2_Min() {
+    public void Should_Verify_Cache_Returns_Credentials_When_Invoked_With_In_Cache_Eviction_Interva() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -75,7 +76,7 @@ public class HSMCredentialsProviderTest {
     }
 
     @Test
-    public void Should_Verify_Cache_Evicts_Every_50ms() throws InterruptedException {
+    public void Should_Verify_Cache_Evicts_At_Specified_Interval() throws InterruptedException {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -94,7 +95,9 @@ public class HSMCredentialsProviderTest {
 
     @Test
     public void Should_Return_Null_When_Env_Property_Is_Not_Set() {
+        ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", null);
         assertEquals(null, hsmCredentialsProvider.getCredentials());
+        ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
     @Test

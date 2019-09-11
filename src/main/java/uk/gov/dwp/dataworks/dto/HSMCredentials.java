@@ -5,7 +5,6 @@ import java.util.Objects;
 public class HSMCredentials {
 
     private String userName;
-
     private String passWord;
     private String clusterId;
     public HSMCredentials(String userName, String passWord, String clusterId) {
