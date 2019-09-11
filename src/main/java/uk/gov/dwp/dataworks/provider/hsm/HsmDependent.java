@@ -16,6 +16,7 @@ public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
     @Autowired
     HSMLoginManager loginManager;
+    CryptoImplementationSupplier cryptoImplementationSupplier;
 
     int privateKeyHandle(String keyId) {
         return keyHandle(keyId, PRIVATE_KEY_GROUP_NAME);

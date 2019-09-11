@@ -12,8 +12,6 @@ import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 public class HsmDataKeyDecryptionProvider extends HsmDependent
         implements DataKeyDecryptionProvider, HsmDataKeyDecryptionConstants {
 
-    private final CryptoImplementationSupplier cryptoImplementationSupplier;
-
     HsmDataKeyDecryptionProvider(CryptoImplementationSupplier cryptoImplementationSupplier) {
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
