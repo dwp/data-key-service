@@ -20,7 +20,7 @@ repositories {
 bootJar {
     launchScript()
     manifest {
-        attributes 'Class-Path': '/opt/dks/config/'
+        attributes 'Class-Path': '/opt/dks/config /opt/cloudhsm/java/cloudhsm-2.0.4.jar /opt/cloudhsm/java/log4j-api-2.8.jar /opt/cloudhsm/java/log4j-core-2.8.jar'
     }
 }
 

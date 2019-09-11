@@ -15,5 +15,5 @@ public interface HsmDataKeyDecryptionConstants {
     String PUBLIC_KEY_GROUP_NAME = "publicKeyHandle";
 
     Pattern KEY_ID_PATTERN =
-            Pattern.compile("^cloudhsm:(?<" + PRIVATE_KEY_GROUP_NAME + ">\\d+)/(?<" + PUBLIC_KEY_GROUP_NAME + ">\\d+)$");
+            Pattern.compile("^cloudhsm:(?<" + PRIVATE_KEY_GROUP_NAME + ">\\d+)[/,](?<" + PUBLIC_KEY_GROUP_NAME + ">\\d+)$");
 }

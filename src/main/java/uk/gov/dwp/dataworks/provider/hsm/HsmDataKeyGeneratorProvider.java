@@ -23,6 +23,7 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         try {
             loginManager.login();
             int publicKeyHandle = publicKeyHandle(keyId);
+            System.err.println("publicKeyHandle: '" + publicKeyHandle + "'");
             CaviumKey dataKey = (CaviumKey) cryptoImplementationSupplier.dataKey();
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
@@ -32,6 +33,7 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
                                                 new String(ciphertext));
         }
         catch (CryptoImplementationSupplierException e) {
+            e.printStackTrace(System.err);
             throw new DataKeyGenerationException();
         }
     }
