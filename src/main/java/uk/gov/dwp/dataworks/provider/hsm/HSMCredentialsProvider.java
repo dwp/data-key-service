@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;

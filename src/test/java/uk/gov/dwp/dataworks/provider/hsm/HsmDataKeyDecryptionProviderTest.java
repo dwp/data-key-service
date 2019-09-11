@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
@@ -22,6 +23,9 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @ActiveProfiles({"UnitTest", "HSM"})
+@TestPropertySource(properties = {"server.environment_name=development",
+        "cache.eviction.interval=1000"
+})
 public class HsmDataKeyDecryptionProviderTest {
 
     @Test

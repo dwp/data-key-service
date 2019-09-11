@@ -1,7 +1,9 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.model.*;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
+import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +22,7 @@ import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-@ActiveProfiles({"UnitTest", "KMS", "HSM"})
+@ActiveProfiles({"UnitTest", "HSM"})
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000"
 })
