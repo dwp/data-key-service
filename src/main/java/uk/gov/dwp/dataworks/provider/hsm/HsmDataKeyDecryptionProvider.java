@@ -21,8 +21,10 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
     @Override
     public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey) {
         try {
+            loginManager.login();
             Integer decryptionKeyHandle = privateKeyHandle(decryptionKeyId);
             String decryptedKey = cryptoImplementationSupplier.decryptedKey(decryptionKeyHandle, ciphertextDataKey);
+            loginManager.logout();
             return new DecryptDataKeyResponse(decryptionKeyId, decryptedKey);
         }
         catch (CryptoImplementationSupplierException e) {

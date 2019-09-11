@@ -21,10 +21,12 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     @Override
     public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationException {
         try {
+            loginManager.login();
             int publicKeyHandle = publicKeyHandle(keyId);
             CaviumKey dataKey = (CaviumKey) cryptoImplementationSupplier.dataKey();
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
+            loginManager.logout();
             return new GenerateDataKeyResponse(keyId,
                                                 new String(plaintextDatakey),
                                                 new String(ciphertext));

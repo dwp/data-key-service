@@ -2,6 +2,7 @@ package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.key.CaviumKey;
 import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.provider.Dependent;
 
@@ -13,6 +14,8 @@ import java.util.regex.Matcher;
 
 public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
+    @Autowired
+    HSMLoginManager loginManager;
 
     int privateKeyHandle(String keyId) {
         return keyHandle(keyId, PRIVATE_KEY_GROUP_NAME);
