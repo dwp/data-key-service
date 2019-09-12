@@ -5,5 +5,5 @@ import uk.gov.dwp.dataworks.errors.LoginException;
 
 public interface DataKeyDecryptionProvider extends Dependent {
     int MAX_PAYLOAD_SIZE = 32000;
-    DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey) throws LoginException;
+    DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey);
 }
