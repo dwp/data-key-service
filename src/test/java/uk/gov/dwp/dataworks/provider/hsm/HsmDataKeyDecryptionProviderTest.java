@@ -81,5 +81,5 @@ public class HsmDataKeyDecryptionProviderTest {
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean
-    private HSMLoginManager hsmLoginManager;
+    private HsmLoginManager hsmLoginManager;
 }

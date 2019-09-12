@@ -103,6 +103,6 @@ public class HsmDataKeyGeneratorProviderTest {
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean
-    private HSMLoginManager hsmLoginManager;
+    private HsmLoginManager hsmLoginManager;
 
 }

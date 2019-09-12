@@ -16,7 +16,7 @@ import uk.gov.dwp.dataworks.dto.HSMCredentials;
 
 @Service
 @Profile("HSM")
-public class HSMCredentialsProvider {
+public class HsmCredentialsProvider {
 
     private static final String CRYPTO_USER = "_crypto_user";
     private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
@@ -24,10 +24,10 @@ public class HSMCredentialsProvider {
     private static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
-    private final static Logger LOGGER = LoggerFactory.getLogger(HSMCredentialsProvider.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(HsmCredentialsProvider.class);
 
     @Autowired
-    public HSMCredentialsProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
+    public HsmCredentialsProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 

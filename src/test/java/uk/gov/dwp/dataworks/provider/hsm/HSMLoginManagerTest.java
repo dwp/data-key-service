@@ -31,10 +31,10 @@ public class HSMLoginManagerTest {
     private static final String CRYPTO_USER_CLUSTERID = "cluster_id";
 
     @MockBean
-    private HSMCredentialsProvider hsmCredentialsProvider;
+    private HsmCredentialsProvider hsmCredentialsProvider;
 
     @Autowired
-    private HSMLoginManager hsmLoginManager;
+    private HsmLoginManager hsmLoginManager;
 
     @MockBean
     private LoginManager loginManager;

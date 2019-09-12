@@ -3,13 +3,13 @@ package uk.gov.dwp.dataworks.provider.hsm;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.LoginException;
 import uk.gov.dwp.dataworks.provider.Dependent;
-import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
+import uk.gov.dwp.dataworks.provider.LoginManager;
 
 import java.util.regex.Matcher;
 
 public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
-    public HsmDependent(AWSLoginManager loginManager) {
+    public HsmDependent(LoginManager loginManager) {
         this.loginManager = loginManager;
     }
 
@@ -43,5 +43,5 @@ public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
         }
     }
 
-    protected AWSLoginManager loginManager;
+    protected LoginManager loginManager;
 }

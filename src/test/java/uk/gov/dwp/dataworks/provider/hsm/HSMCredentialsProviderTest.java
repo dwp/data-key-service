@@ -187,7 +187,7 @@ public class HSMCredentialsProviderTest {
     }
 
     @Autowired
-    private HSMCredentialsProvider hsmCredentialsProvider;
+    private HsmCredentialsProvider hsmCredentialsProvider;
 
     @MockBean
     private AWSSimpleSystemsManagement awsSimpleSystemsManagement;

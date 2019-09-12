@@ -13,13 +13,13 @@ import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
 @Service
 @Profile({"KMS", "HSM"})
-public class AWSCurrentKeyIdProvider implements CurrentKeyIdProvider {
+public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
-    private final static Logger LOGGER = LoggerFactory.getLogger(AWSCurrentKeyIdProvider.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AwsCurrentKeyIdProvider.class);
 
     @Autowired
-    public AWSCurrentKeyIdProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
+    public AwsCurrentKeyIdProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 

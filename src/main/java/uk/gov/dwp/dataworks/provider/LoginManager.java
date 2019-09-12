@@ -1,6 +1,6 @@
-package uk.gov.dwp.dataworks.provider.aws;
+package uk.gov.dwp.dataworks.provider;
 
-public interface AWSLoginManager {
+public interface LoginManager {
     void login();
     void logout();
 }

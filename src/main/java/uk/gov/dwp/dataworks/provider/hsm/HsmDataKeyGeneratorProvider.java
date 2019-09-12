@@ -7,7 +7,7 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
-import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
+import uk.gov.dwp.dataworks.provider.LoginManager;
 
 import java.util.Base64;
 
@@ -15,7 +15,7 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    public HsmDataKeyGeneratorProvider(AWSLoginManager loginManager,  CryptoImplementationSupplier cryptoImplementationSupplier) {
+    public HsmDataKeyGeneratorProvider(LoginManager loginManager,  CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
