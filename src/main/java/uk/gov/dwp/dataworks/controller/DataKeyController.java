@@ -12,8 +12,6 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
-import javax.servlet.http.HttpServletRequest;
-
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/datakey")

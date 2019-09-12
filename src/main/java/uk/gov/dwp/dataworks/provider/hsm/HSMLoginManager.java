@@ -1,13 +1,13 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.cfm2.CFM2Exception;
+import com.cavium.cfm2.LoginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;
-import com.cavium.cfm2.LoginManager;
 import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
 
 @Component
