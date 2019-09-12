@@ -8,4 +8,8 @@ public class LoginException extends RuntimeException {
     public LoginException(Throwable e) {
         super(e);
     }
+
+    public LoginException(String s) {
+        super(s);
+    }
 }

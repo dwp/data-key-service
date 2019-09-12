@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;
+import uk.gov.dwp.dataworks.errors.LoginException;
 
 @Service
 @Profile("HSM")
@@ -61,13 +62,16 @@ public class HsmCredentialsProvider {
                     hsmCredentials = new HSMCredentials(username, password, clusterId);
                 } else {
                     LOGGER.error("Either username or password is null or empty");
+                    throw new LoginException("Either username or password is null or empty");
                 }
             } else {
                 LOGGER.error("server.environment_name property is null");
+                throw new LoginException("Unknown environment");
             }
 
         } catch (RuntimeException e) {
             LOGGER.error("Failed to retrieve the HSM credentials.", e);
+            throw new LoginException(e);
         }
         return hsmCredentials;
     }
