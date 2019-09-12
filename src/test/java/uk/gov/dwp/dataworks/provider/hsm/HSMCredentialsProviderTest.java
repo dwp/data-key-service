@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import uk.gov.dwp.dataworks.errors.LoginException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -95,33 +96,33 @@ public class HSMCredentialsProviderTest {
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(clusterIdrequest);
     }
 
-    @Test
-    public void Should_Return_Null_When_Env_Property_Is_Not_Set() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_Env_Property_Is_Not_Set() {
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", null);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
-    @Test
-    public void Should_Return_Null_When_Env_Property_Is_Empty() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_Env_Property_Is_Empty() {
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "");
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
-    @Test
-    public void Should_Return_Null_When_SSM_Doesnt_Have_All_Values() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_SSM_Doesnt_Have_All_Values() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
         GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(null);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
     }
 
-    @Test
-    public void Should_Return_Null_When_SSM_Doesnt_Have_Pwd() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_SSM_Doesnt_Have_Pwd() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -129,11 +130,11 @@ public class HSMCredentialsProviderTest {
         GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
     }
 
-    @Test
-    public void Should_Return_Null_When_SSM_Has_Pwd_Empty() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_SSM_Has_Pwd_Empty() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -142,11 +143,11 @@ public class HSMCredentialsProviderTest {
         GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
     }
 
-    @Test
-    public void Should_Return_Null_When_SSM_Has_ClusterId_Empty() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_SSM_Has_ClusterId_Empty() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -155,11 +156,11 @@ public class HSMCredentialsProviderTest {
         GetParameterResult clusterResult = getGetParameterResult("");
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
     }
 
-    @Test
-    public void Should_Return_Null_When_SSM_Doesnt_Have_ClusterId() {
+    @Test(expected = LoginException.class)
+    public void Should_Throw_LoginException_When_SSM_Doesnt_Have_ClusterId() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -167,7 +168,7 @@ public class HSMCredentialsProviderTest {
         GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(null);
-        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        hsmCredentialsProvider.getCredentials();
     }
 
     private GetParameterResult getGetParameterResult(String result) {
