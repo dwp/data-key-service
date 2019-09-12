@@ -1,22 +1,17 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
-import com.cavium.key.CaviumKey;
-import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
+import uk.gov.dwp.dataworks.errors.LoginException;
 import uk.gov.dwp.dataworks.provider.Dependent;
+import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
 
-import javax.crypto.KeyGenerator;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.regex.Matcher;
 
 public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
-    @Autowired
-    HSMLoginManager loginManager;
-    CryptoImplementationSupplier cryptoImplementationSupplier;
+    public HsmDependent(AWSLoginManager loginManager) {
+        this.loginManager = loginManager;
+    }
 
     int privateKeyHandle(String keyId) {
         return keyHandle(keyId, PRIVATE_KEY_GROUP_NAME);
@@ -39,15 +34,14 @@ public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
     @Override
     public boolean canSeeDependencies() {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, PROVIDER);
-            CaviumAESKeyGenParameterSpec aesSpec =
-                    new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
-            keyGenerator.init(aesSpec);
-            CaviumKey dataKey = (CaviumKey) keyGenerator.generateKey();
-            return dataKey != null;
+            loginManager.login();
+            loginManager.logout();
+            return true;
         }
-        catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+        catch (LoginException e) {
             return false;
         }
     }
+
+    protected AWSLoginManager loginManager;
 }

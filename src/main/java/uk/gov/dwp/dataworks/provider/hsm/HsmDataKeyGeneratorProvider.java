@@ -7,6 +7,7 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
+import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
 
 import java.util.Base64;
 
@@ -14,7 +15,8 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    public HsmDataKeyGeneratorProvider(CryptoImplementationSupplier cryptoImplementationSupplier) {
+    public HsmDataKeyGeneratorProvider(AWSLoginManager loginManager,  CryptoImplementationSupplier cryptoImplementationSupplier) {
+        super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
@@ -23,7 +25,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         try {
             loginManager.login();
             int publicKeyHandle = publicKeyHandle(keyId);
-            System.err.println("publicKeyHandle: '" + publicKeyHandle + "'");
             CaviumKey dataKey = (CaviumKey) cryptoImplementationSupplier.dataKey();
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
@@ -32,7 +33,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
                                                 new String(ciphertext));
         }
         catch (CryptoImplementationSupplierException e) {
-            e.printStackTrace(System.err);
             throw new DataKeyGenerationException();
         }
         finally {
@@ -45,4 +45,5 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         return false;
     }
 
+    private CryptoImplementationSupplier cryptoImplementationSupplier;
 }

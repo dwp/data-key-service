@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.errors.LoginException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
@@ -43,12 +44,12 @@ public class DataKeyService {
 
     }
 
-    public GenerateDataKeyResponse generate(String keyId) {
+    public GenerateDataKeyResponse generate(String keyId) throws LoginException {
 
         return dataKeyProvider.generateDataKey(keyId);
     }
 
-    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey) {
+    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey) throws LoginException {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey);
     }
 

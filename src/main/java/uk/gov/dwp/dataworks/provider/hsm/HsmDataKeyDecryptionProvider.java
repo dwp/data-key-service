@@ -6,13 +6,15 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
+import uk.gov.dwp.dataworks.provider.aws.AWSLoginManager;
 
 @Service
 @Profile("HSM")
 public class HsmDataKeyDecryptionProvider extends HsmDependent
         implements DataKeyDecryptionProvider, HsmDataKeyDecryptionConstants {
 
-    HsmDataKeyDecryptionProvider(CryptoImplementationSupplier cryptoImplementationSupplier) {
+    HsmDataKeyDecryptionProvider(AWSLoginManager loginManager, CryptoImplementationSupplier cryptoImplementationSupplier) {
+        super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
@@ -31,4 +33,6 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             loginManager.logout();
         }
     }
+
+    private CryptoImplementationSupplier cryptoImplementationSupplier;
 }
