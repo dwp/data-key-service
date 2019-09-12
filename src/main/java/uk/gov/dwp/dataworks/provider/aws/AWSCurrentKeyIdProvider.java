@@ -25,11 +25,12 @@ public class AWSCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     public String getKeyId() throws CurrentKeyIdException {
         try {
-            GetParameterRequest request = new GetParameterRequest()
-                    .withName("data_key_service.currentKeyId")
-                    .withWithDecryption(false);
-            GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
-            return result.getParameter().getValue();
+//            GetParameterRequest request = new GetParameterRequest()
+//                    .withName("data_key_service.currentKeyId")
+//                    .withWithDecryption(false);
+//            GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
+//            result.getParameter().getValue();
+            return "cloudhsm:7,14";
         }
         catch (RuntimeException e) {
             LOGGER.error("Failed to retrieve the current key id.", e);
