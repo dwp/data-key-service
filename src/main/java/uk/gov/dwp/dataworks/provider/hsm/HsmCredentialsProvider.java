@@ -38,8 +38,7 @@ public class HsmCredentialsProvider {
     @Scheduled(fixedRateString = "${credentials.cache.eviction.interval:120000}")
     @CacheEvict(value = HSM_CREDENTIALS_CACHE_NAME, allEntries = true)
     public void clearCache() {
-        LOGGER.info("Cache evicted");
-
+        LOGGER.debug("Credentials cache evicted.");
     }
 
     @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME, key = "#root.methodName")

@@ -40,8 +40,7 @@ public class DataKeyService {
     @Scheduled(fixedRateString = "${key.cache.eviction.interval:120000}")
     @CacheEvict(value = KEY_CACHE, allEntries = true)
     public void clearCache() {
-        LOGGER.info("Cache evicted");
-
+        LOGGER.debug("Key cache evicted.");
     }
 
     public GenerateDataKeyResponse generate(String keyId) throws LoginException {
