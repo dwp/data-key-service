@@ -34,7 +34,7 @@ public class DataKeyController {
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
     public ResponseEntity<GenerateDataKeyResponse> generate(HttpServletRequest httpRequest) {
-        return new ResponseEntity<>(dataKeyService.generate(), HttpStatus.CREATED);
+        return new ResponseEntity<>(dataKeyService.generate(dataKeyService.currentKeyId()), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)

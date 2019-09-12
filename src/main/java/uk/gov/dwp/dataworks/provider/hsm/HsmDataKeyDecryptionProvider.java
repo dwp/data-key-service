@@ -22,11 +22,13 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             loginManager.login();
             Integer decryptionKeyHandle = privateKeyHandle(decryptionKeyId);
             String decryptedKey = cryptoImplementationSupplier.decryptedKey(decryptionKeyHandle, ciphertextDataKey);
-            loginManager.logout();
             return new DecryptDataKeyResponse(decryptionKeyId, decryptedKey);
         }
         catch (CryptoImplementationSupplierException e) {
             throw new DataKeyDecryptionException();
+        }
+        finally {
+            loginManager.logout();
         }
     }
 }

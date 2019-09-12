@@ -2,6 +2,7 @@ package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class HSMCredentialsProvider {
     public HSMCredentials getCredentials() {
         HSMCredentials hsmCredentials = null;
         try {
-            if (null != environmentName) {
+            if (!Strings.isNullOrEmpty(environmentName)) {
                 String username = environmentName + CRYPTO_USER;
                 GetParameterRequest pwdRequest = new GetParameterRequest()
                         .withName(environmentName + CRYPTO_USER_PASSWORD)
@@ -56,7 +57,11 @@ public class HSMCredentialsProvider {
                         .withWithDecryption(true);
                 String clusterId = awsSimpleSystemsManagementClient.getParameter(clusterIdRequest).getParameter().getValue();
 
-                hsmCredentials = new HSMCredentials(username, password, clusterId);
+                if(!(Strings.isNullOrEmpty(password) || Strings.isNullOrEmpty(clusterId))) {
+                    hsmCredentials = new HSMCredentials(username, password, clusterId);
+                } else {
+                    LOGGER.error("Either username or password is null or empty");
+                }
             } else {
                 LOGGER.error("server.environment_name property is null");
             }
