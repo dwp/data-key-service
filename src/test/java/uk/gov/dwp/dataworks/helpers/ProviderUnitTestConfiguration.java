@@ -6,10 +6,16 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import uk.gov.dwp.dataworks.provider.hsm.CryptoImplementationSupplier;
 
 @Configuration
 @Profile("UnitTest")
 public class ProviderUnitTestConfiguration {
+
+    @Bean
+    public CryptoImplementationSupplier keyGeneratorSupplier() {
+        return Mockito.mock(CryptoImplementationSupplier.class);
+    }
 
     @Bean
     public AWSSimpleSystemsManagement awsSimpleSystemsManagement() {

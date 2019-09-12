@@ -57,7 +57,7 @@ This will create the files ```keystore.jks``` and ```truststore.jks```. These
 should be made available to the data-key-service and to the client (for the
 data-key-service see the file resources/application.properties).
 
-Additionally the private key and certificate can be exctracted so that the
+Additionally the private key and certificate can be extracted so that the
 service can be accessed from using ```curl```.
 
 To extract these files, from the project root directory perform the following:

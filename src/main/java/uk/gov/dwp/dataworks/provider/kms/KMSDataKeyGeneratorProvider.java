@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.kms;
 
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.*;
@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
+import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 import java.util.Base64;
 
@@ -23,14 +24,14 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
         this.awsKms = awsKms;
     }
 
-    public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationException {
+    public GenerateDataKeyResponse generateDataKey(String encryptionKeyId) throws DataKeyGenerationException {
         try {
             Base64.Encoder encoder = Base64.getEncoder();
             GenerateDataKeyRequest dataKeyRequest = new GenerateDataKeyRequest();
-            dataKeyRequest.setKeyId(keyId);
+            dataKeyRequest.setKeyId(encryptionKeyId);
             dataKeyRequest.setKeySpec("AES_128");
             GenerateDataKeyResult result = awsKms.generateDataKey(dataKeyRequest);
-            return new GenerateDataKeyResponse(result.getKeyId(), encoder.encodeToString(result.getPlaintext().array()),
+            return new GenerateDataKeyResponse(encryptionKeyId, encoder.encodeToString(result.getPlaintext().array()),
                     encoder.encodeToString(result.getCiphertextBlob().array()));
         }
         catch (NotFoundException | DisabledException | KeyUnavailableException | DependencyTimeoutException | InvalidKeyUsageException | InvalidGrantTokenException | KMSInternalException | KMSInvalidStateException ex) {

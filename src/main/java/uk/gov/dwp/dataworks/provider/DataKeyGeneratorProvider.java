@@ -4,6 +4,6 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 
 public interface DataKeyGeneratorProvider extends Dependent {
-    GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationException;
+    GenerateDataKeyResponse generateDataKey(String encryptionKeyId) throws DataKeyGenerationException;
     boolean canSeeDependencies();
 }

@@ -7,20 +7,15 @@ import java.util.Objects;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class DecryptDataKeyResponse {
 
-    @ApiModelProperty(notes="The id of the key used to encrypt/decrypt this data key's ciphertext")
-    public final String dataKeyEncryptionKeyId;
+    @ApiModelProperty(notes="The id of the key used to decrypt this data key's ciphertext")
+    public final String dataKeyDecryptionKeyId;
 
     @ApiModelProperty(notes="The decrypted data key")
     public final String plaintextDataKey;
 
-    public DecryptDataKeyResponse(String dataKeyEncryptionKeyId, String plaintextDataKey) {
-        this.dataKeyEncryptionKeyId = dataKeyEncryptionKeyId;
+    public DecryptDataKeyResponse(String dataKeyDecryptionKeyId, String plaintextDataKey) {
+        this.dataKeyDecryptionKeyId = dataKeyDecryptionKeyId;
         this.plaintextDataKey = plaintextDataKey;
-    }
-
-    @Override public String toString() {
-        return "DecryptDataKeyResponse{" + "dataKeyEncryptionKeyId='" + dataKeyEncryptionKeyId + '\''
-                + ", plaintextDataKey='" + plaintextDataKey + '\'' + '}';
     }
 
     @Override
@@ -30,12 +25,12 @@ public class DecryptDataKeyResponse {
         if (o == null || getClass() != o.getClass())
             return false;
         DecryptDataKeyResponse that = (DecryptDataKeyResponse) o;
-        return Objects.equals(dataKeyEncryptionKeyId, that.dataKeyEncryptionKeyId)
+        return Objects.equals(dataKeyDecryptionKeyId, that.dataKeyDecryptionKeyId)
                 && Objects.equals(plaintextDataKey, that.plaintextDataKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataKeyEncryptionKeyId, plaintextDataKey);
+        return Objects.hash(dataKeyDecryptionKeyId, plaintextDataKey);
     }
 }

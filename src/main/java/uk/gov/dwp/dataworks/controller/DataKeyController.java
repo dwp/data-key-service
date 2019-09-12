@@ -29,10 +29,11 @@ public class DataKeyController {
     @ApiOperation(value="Generate a new data key", response=GenerateDataKeyResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
+            @ApiResponse(code = 403, message = "Login failure"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
     public ResponseEntity<GenerateDataKeyResponse> generate() {
-        return new ResponseEntity<>(dataKeyService.generate(), HttpStatus.CREATED);
+        return new ResponseEntity<>(dataKeyService.generate(dataKeyService.currentKeyId()), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)
@@ -40,6 +41,7 @@ public class DataKeyController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully decrypted the data key"),
             @ApiResponse(code = 400, message = "The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."),
+            @ApiResponse(code = 403, message = "Login failure"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })    public DecryptDataKeyResponse decrypt(
             @RequestParam(value = "keyId") String dataKeyEncryptionKeyId,

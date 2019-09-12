@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.standalone;
 
 import org.junit.Assert;
 import org.junit.Test;

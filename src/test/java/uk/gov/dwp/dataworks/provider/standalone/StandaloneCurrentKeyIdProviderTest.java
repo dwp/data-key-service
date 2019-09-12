@@ -1,4 +1,4 @@
-package uk.gov.dwp.dataworks.provider;
+package uk.gov.dwp.dataworks.provider.standalone;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +13,6 @@ public class StandaloneCurrentKeyIdProviderTest {
 
     @Test
     public void canSeeDependencies() {
-        Assert.assertEquals(true, providerToTest.canSeeDependencies());
+        Assert.assertTrue(providerToTest.canSeeDependencies());
     }
 }
