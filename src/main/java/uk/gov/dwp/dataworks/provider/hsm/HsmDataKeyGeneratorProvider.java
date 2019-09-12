@@ -40,10 +40,5 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         }
     }
 
-    @Override
-    public boolean canSeeDependencies() {
-        return false;
-    }
-
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }
