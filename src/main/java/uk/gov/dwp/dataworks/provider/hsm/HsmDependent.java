@@ -7,7 +7,7 @@ import uk.gov.dwp.dataworks.provider.LoginManager;
 
 import java.util.regex.Matcher;
 
-public class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
+public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
     public HsmDependent(LoginManager loginManager) {
         this.loginManager = loginManager;
