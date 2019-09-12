@@ -21,7 +21,7 @@ public class HsmCredentialsProvider {
 
     private static final String CRYPTO_USER = "_crypto_user";
     private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
-    private static final String CRYPTO_USER_CLUSTERID = "cluster_id";
+    private static final String CRYPTO_USER_CLUSTERID = "hsm_clusterid";
     private static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;

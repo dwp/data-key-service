@@ -31,7 +31,7 @@ public class HSMCredentialsProviderTest {
 
     private static final String DEVELOPMENT_CRYPTO_USER = "development_crypto_user";
     private static final String DEVELOPMENT_CRYPTO_USER_PASSWORD = "development_crypto_user.password";
-    private static final String DEVELOPMENT_CRYPTO_USER_CLUSTER = "cluster_id";
+    private static final String DEVELOPMENT_CRYPTO_USER_CLUSTER = "hsm_clusterid";
 
     @Autowired
     private CacheManager cacheManager;
