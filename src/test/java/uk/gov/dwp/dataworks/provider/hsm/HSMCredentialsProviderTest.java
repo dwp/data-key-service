@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
+@SpringBootTest
 @ActiveProfiles({"UnitTest", "HSM"})
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000"
@@ -60,7 +60,7 @@ public class HSMCredentialsProviderTest {
     }
 
     @Test
-    public void Should_Verify_Cache_Returns_Credentials_When_Invoked_With_In_Cache_Eviction_Interva() {
+    public void Should_Verify_Cache_Returns_Credentials_When_Invoked_With_In_Cache_Eviction_Interval() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -103,6 +103,13 @@ public class HSMCredentialsProviderTest {
     }
 
     @Test
+    public void Should_Return_Null_When_Env_Property_Is_Empty() {
+        ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "");
+        assertEquals(null, hsmCredentialsProvider.getCredentials());
+        ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
+    }
+
+    @Test
     public void Should_Return_Null_When_SSM_Doesnt_Have_All_Values() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
@@ -121,6 +128,32 @@ public class HSMCredentialsProviderTest {
         GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
         GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
+        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        assertEquals(null, hsmCredentialsProvider.getCredentials());
+    }
+
+    @Test
+    public void Should_Return_Null_When_SSM_Has_Pwd_Empty() {
+        String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
+        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
+        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterResult pwdResult = getGetParameterResult("");
+        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
+        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        assertEquals(null, hsmCredentialsProvider.getCredentials());
+    }
+
+    @Test
+    public void Should_Return_Null_When_SSM_Has_ClusterId_Empty() {
+        String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
+        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
+        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
+        GetParameterResult clusterResult = getGetParameterResult("");
+        given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
         assertEquals(null, hsmCredentialsProvider.getCredentials());
     }

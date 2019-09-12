@@ -84,7 +84,7 @@ public class HealthCheckController {
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
             String currentKeyId = this.dataKeyService.currentKeyId();
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
-            GenerateDataKeyResponse encryptResponse = dataKeyService.generate();
+            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId());
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
                                     ! Strings.isNullOrEmpty(encryptResponse.plaintextDataKey);
             canEncryptDataKey = ! Strings.isNullOrEmpty(encryptResponse.ciphertextDataKey);
