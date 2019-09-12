@@ -45,5 +45,5 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         return false;
     }
 
-    private CryptoImplementationSupplier cryptoImplementationSupplier;
+    private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }

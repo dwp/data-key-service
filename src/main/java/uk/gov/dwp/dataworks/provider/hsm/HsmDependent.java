@@ -43,5 +43,5 @@ public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionCon
         }
     }
 
-    protected LoginManager loginManager;
+    final LoginManager loginManager;
 }

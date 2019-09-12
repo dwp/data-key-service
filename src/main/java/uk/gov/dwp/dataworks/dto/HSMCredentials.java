@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class HSMCredentials {
 
-    private String userName;
-    private String passWord;
-    private String clusterId;
+    private final String userName;
+    private final String passWord;
+    private final String clusterId;
     public HSMCredentials(String userName, String passWord, String clusterId) {
         this.userName = userName;
         this.passWord = passWord;

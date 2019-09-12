@@ -34,5 +34,5 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
         }
     }
 
-    private CryptoImplementationSupplier cryptoImplementationSupplier;
+    private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }

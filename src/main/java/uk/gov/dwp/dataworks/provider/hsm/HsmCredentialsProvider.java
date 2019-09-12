@@ -35,7 +35,7 @@ public class HsmCredentialsProvider {
     @Value("${server.environment_name}")
     private String environmentName;
 
-    @Scheduled(fixedRateString = "${cache.eviction.interval:120000}")
+    @Scheduled(fixedRateString = "${credentials.cache.eviction.interval:120000}")
     @CacheEvict(value = HSM_CREDENTIALS_CACHE_NAME, allEntries = true)
     public void clearCache() {
         LOGGER.info("Cache evicted");
@@ -44,7 +44,7 @@ public class HsmCredentialsProvider {
 
     @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME, key = "#root.methodName")
     public HSMCredentials getCredentials() {
-        HSMCredentials hsmCredentials = null;
+        HSMCredentials hsmCredentials;
         try {
             if (!Strings.isNullOrEmpty(environmentName)) {
                 String username = environmentName + CRYPTO_USER;
