@@ -232,13 +232,11 @@ Response code is 200 if everything is OK, 500 otherwise. Example response body:
 ## Infrastructure
 
 * KMS CMK (Master Key), (enabled) for KMS or
-* HSM
-* Parameter Store parameter
-  * named ```data_key_service.currentKeyId```
-  * value set to the full ARN for the KMS master key
+* CloudHSM client and sdk available from
+  https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html
 * AWS user must have permissions for:
   * ```ssm:GetParameter``` on the Parameter store parameter
-  * Create Data Key, Encrypt Data Key, Decrypt Data Key for the KMS CMK
+   * Create Data Key, Encrypt Data Key, Decrypt Data Key for the KMS CMK (if in KMS mode)
 
 
 # Using Docker
