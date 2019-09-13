@@ -6,6 +6,7 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
@@ -25,8 +26,9 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     public String getKeyId() throws CurrentKeyIdException {
         try {
+            LOGGER.info("Looking up  parameter store  with key {}", masterkeyParameterName);
             GetParameterRequest request = new GetParameterRequest()
-                    .withName("data_key_service.currentKeyId")
+                    .withName(masterkeyParameterName)
                     .withWithDecryption(false);
             GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
             return result.getParameter().getValue();
@@ -42,4 +44,8 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
     public boolean canSeeDependencies() {
         return awsSimpleSystemsManagementClient != null;
     }
+
+    @Value("${master.key.parameter.name:data_key_service.currentKeyId}")
+    private String masterkeyParameterName;
+
 }
