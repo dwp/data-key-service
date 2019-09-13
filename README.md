@@ -1,9 +1,14 @@
 # Data Key Service
+
 DataWorks service to manage the generation and decryption of data keys.
 
 # Build requirements
+
 * Java 8 jdk
 * Gradle
+* CloudHSM sdk (force install ignoring missing dependencies) available from
+  https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html
+
 
 # Build instructions
 Gradle will fetch required packages and action all of the building. You can start the process by using the gradle wrapper
@@ -12,7 +17,64 @@ Gradle will fetch required packages and action all of the building. You can star
 ./gradlew build
 ```
 
-# Running locally
+# A word about CloudHSM
+
+## Running with CloudHSM enabled
+
+Note that the application can not be run locally if CloudHSM is selected as the
+backend. This is because an application can only interact with CloudHSM if it is
+running on a EC2 with the CloudHSM client daemon running on it in the same VPC
+as an actual initialised CloudHSM cluster.
+
+The best that can be done is to have the client libraries installed locally,
+with this in place development can be performed in an IDE with all the benefits
+of code completion etc. However to run the code for real a jar must be built,
+placed on an EC2 instance that can interact with CloudHSM and then fired up
+manually.
+
+## CloudHSM api
+
+The application performs 2 actions - it can respond to request for a new datakey
+and it can decrypt the ciphertext of an encrypted datakey. The CloudHSM SDK
+comes with the `Cavium` crypto provider libraries and a Util class for CloudHSM
+specific operations.
+
+### New datakey
+
+This is a three step process -
+
+* Generate a symmetric data key
+* Fetch the public half of the master key pair
+* 'Wrap' the datakey, with the public master key playing the role of the
+  'wrapping' key
+
+In more detail, first a new ephemeral (i.e. non-persistent), 'extractable'
+symmetric key is generated using standard javax.crypto apis (with Cavium as the
+provider). This gives the plaintext version of the key. This plaintext version
+is then encrypted - which in the CloudHSM argot is termed 'wrapping'. To 'wrap'
+the datakey a 'wrapping key' is required - and this is the role played by the
+public half of the master key pair. So the public half of the master key pair
+must be fetched from the HSM and then the datakey is 'wrapped' with it - this
+gives the encrypted version.
+
+The plaintext key, the encrypted ciphertext version of it and the handles (the
+CloudHSM ids) of the private and public master key pair are then returned to the
+client.
+
+Wrapping is done through the CloudHSM `Util` class which provides the method
+`Util.rsaWrapKey` to which you supply the public wrapping key, and the key to
+be wrapped.
+
+### Decrypt datakey
+
+When the time comes to decrypt the key the ciphertext and the handles of the
+public and private key (in a single compound string)) are sent back to the
+application by the client along with the ciphertext. To decrypt, the private key
+half of the master key pair must be fetched and then this and the supplied
+ciphertext must passed to the `Util.rsaUnwrapKey` method
+
+# Running locally (non CloudHSM only)
+
 
 ## Insecure mode
 
@@ -169,13 +231,12 @@ Response code is 200 if everything is OK, 500 otherwise. Example response body:
 
 ## Infrastructure
 
-* KMS CMK (Master Key), (enabled)
-* Parameter Store parameter
-  * named ```data_key_service.currentKeyId```
-  * value set to the full ARN for the KMS master key
+* KMS CMK (Master Key), (enabled) for KMS or
+* CloudHSM client and sdk available from
+  https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html
 * AWS user must have permissions for:
   * ```ssm:GetParameter``` on the Parameter store parameter
-  * Create Data Key, Encrypt Data Key, Decrypt Data Key for the KMS CMK
+   * Create Data Key, Encrypt Data Key, Decrypt Data Key for the KMS CMK (if in KMS mode)
 
 
 # Using Docker
