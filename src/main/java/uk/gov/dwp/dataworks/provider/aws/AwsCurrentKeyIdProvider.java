@@ -40,6 +40,6 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     @Override
     public boolean canSeeDependencies() {
-        return awsSimpleSystemsManagementClient != null;
+        return getKeyId() != null;
     }
 }
