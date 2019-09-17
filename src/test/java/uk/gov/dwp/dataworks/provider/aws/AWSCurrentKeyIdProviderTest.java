@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -55,6 +58,17 @@ public class AWSCurrentKeyIdProviderTest {
     @Test(expected = CurrentKeyIdException.class)
     public void handlesRuntimeException() {
         throwException(RuntimeException.class);
+    }
+
+
+    @Test
+    public void Should_Consider_Default_Value_When_MasterKey_Property_Not_Set() {
+        given(awsSimpleSystemsManagement.getParameter(any())).willReturn(new GetParameterResult().withParameter(new Parameter()));
+        currentKeyIdProvider.getKeyId();
+        ArgumentCaptor<GetParameterRequest> captor = ArgumentCaptor.forClass(GetParameterRequest.class);
+        verify(awsSimpleSystemsManagement).getParameter(captor.capture());
+        GetParameterRequest getParameterRequest = captor.getValue();
+        Assert.assertEquals("data_key_service.currentKeyId", getParameterRequest.getName());
     }
 
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {
