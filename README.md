@@ -71,7 +71,7 @@ When the time comes to decrypt the key the ciphertext and the handles of the
 public and private key (in a single compound string)) are sent back to the
 application by the client along with the ciphertext. To decrypt, the private key
 half of the master key pair must be fetched and then this and the supplied
-ciphertext must passed to the `Util.rsaUnwrapKey` method
+ciphertext must passed to the `Util.rsaUnwrapKey` method.
 
 # Running locally (non CloudHSM only)
 
