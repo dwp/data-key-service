@@ -29,5 +29,4 @@ public class SecureConfiguration extends WebSecurityConfigurerAdapter {
         return username -> new User(username, "",
                 AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
     }
-
 }

@@ -20,7 +20,7 @@ import java.security.*;
 import java.util.Base64;
 
 @Component
-@Profile("AWS")
+@Profile("Cavium")
 public class CaviumCryptoImplementationSupplier implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
 
     static {

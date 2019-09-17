@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
+import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.provider.LoginManager;
 
@@ -15,9 +16,12 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    public HsmDataKeyGeneratorProvider(LoginManager loginManager,  CryptoImplementationSupplier cryptoImplementationSupplier) {
+    public HsmDataKeyGeneratorProvider(CurrentKeyIdProvider currentKeyIdProvider,
+            LoginManager loginManager,
+            CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
+        this.currentKeyIdProvider = currentKeyIdProvider;
     }
 
     @Override
@@ -40,5 +44,12 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         }
     }
 
+    @Override
+    public boolean canSeeDependencies() {
+        String currentKeyId = this.currentKeyIdProvider.getKeyId();
+        return generateDataKey(currentKeyId) != null;
+    }
+
+    private final CurrentKeyIdProvider currentKeyIdProvider;
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }
