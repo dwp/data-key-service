@@ -6,11 +6,11 @@ public class HSMCredentials {
 
     private final String userName;
     private final String passWord;
-    private final String clusterId;
-    public HSMCredentials(String userName, String passWord, String clusterId) {
+    private final String partitionId;
+    public HSMCredentials(String userName, String passWord, String partitionId) {
         this.userName = userName;
         this.passWord = passWord;
-        this.clusterId = clusterId;
+        this.partitionId = partitionId;
     }
 
     @Override
@@ -20,12 +20,12 @@ public class HSMCredentials {
         HSMCredentials that = (HSMCredentials) o;
         return userName.equals(that.userName) &&
                 passWord.equals(that.passWord) &&
-                clusterId.equals(that.clusterId);
+                partitionId.equals(that.partitionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userName, passWord, clusterId);
+        return Objects.hash(userName, passWord, partitionId);
     }
 
     public String getUserName() {
@@ -36,7 +36,7 @@ public class HSMCredentials {
         return passWord;
     }
 
-    public String getClusterId() {
-        return clusterId;
+    public String getPartitionId() {
+        return partitionId;
     }
 }

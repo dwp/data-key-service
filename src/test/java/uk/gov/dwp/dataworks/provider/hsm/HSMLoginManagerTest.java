@@ -28,7 +28,7 @@ public class HSMLoginManagerTest {
 
     private static final String CRYPTO_USER = "development_crypto_user";
     private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
-    private static final String CRYPTO_USER_CLUSTERID = "cluster_id";
+    private static final String CRYPTO_USER_PARTITION_ID = "partition_id";
 
     @MockBean
     private HsmCredentialsProvider hsmCredentialsProvider;
@@ -46,11 +46,11 @@ public class HSMLoginManagerTest {
 
     @Test
     public void Should_Login_When_Credentials_Are_Not_Null() throws CFM2Exception {
-        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER,CRYPTO_USER_PASSWORD,CRYPTO_USER_CLUSTERID);
+        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER,CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
         hsmLoginManager.login();
-        doNothing().when(loginManager).login(CRYPTO_USER_CLUSTERID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
-        verify(loginManager,Mockito.times(1)).login(CRYPTO_USER_CLUSTERID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
+        doNothing().when(loginManager).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
+        verify(loginManager,Mockito.times(1)).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
     }
 
     @Test
