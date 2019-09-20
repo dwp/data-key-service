@@ -31,7 +31,7 @@ public class HSMCredentialsProviderTest {
 
     private static final String DEVELOPMENT_CRYPTO_USER = "development_crypto_user";
     private static final String DEVELOPMENT_CRYPTO_USER_PASSWORD = "development_crypto_user.password";
-    private static final String DEVELOPMENT_CRYPTO_USER_CLUSTER = "hsm_clusterid";
+    private static final String DEVELOPMENT_CRYPTO_USER_PARTITION_ID = "hsm_partitionid";
 
     @Autowired
     private CacheManager cacheManager;
@@ -48,52 +48,52 @@ public class HSMCredentialsProviderTest {
     @Test
     public void Should_Return_Credentials_When_SSM_Has_Values() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
-        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        String expectedPartitionId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterRequest partitionIdrequest = getGetParameterRequest(expectedPartitionId);
         GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
-        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
         assertEquals(expectedPwd, hsmCredentialsProvider.getCredentials().getPassWord());
-        assertEquals(expectedClusterId, hsmCredentialsProvider.getCredentials().getClusterId());
+        assertEquals(expectedPartitionId, hsmCredentialsProvider.getCredentials().getPartitionId());
         assertEquals(DEVELOPMENT_CRYPTO_USER, hsmCredentialsProvider.getCredentials().getUserName());
     }
 
     @Test
     public void Should_Verify_Cache_Returns_Credentials_When_Invoked_With_In_Cache_Eviction_Interval() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
-        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        String expectedPartitionId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterRequest partitionIdRequest = getGetParameterRequest(expectedPartitionId);
         GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
-        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
         hsmCredentialsProvider.getCredentials();
         hsmCredentialsProvider.getCredentials();
         hsmCredentialsProvider.getCredentials();
         // Verification
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(1)).getParameter(pwdRequest);
-        Mockito.verify(awsSimpleSystemsManagement, Mockito.times(1)).getParameter(clusterIdrequest);
+        Mockito.verify(awsSimpleSystemsManagement, Mockito.times(1)).getParameter(partitionIdRequest);
     }
 
     @Test
     public void Should_Verify_Cache_Evicts_At_Specified_Interval() throws InterruptedException {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
-        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        String expectedPartitionId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterRequest partitionIdRequest = getGetParameterRequest(expectedPartitionId);
         GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
-        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
         hsmCredentialsProvider.getCredentials();
         Thread.sleep(2000);
         hsmCredentialsProvider.getCredentials();
         // Verification
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(pwdRequest);
-        Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(clusterIdrequest);
+        Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(partitionIdRequest);
     }
 
     @Test(expected = LoginException.class)
@@ -113,32 +113,32 @@ public class HSMCredentialsProviderTest {
     @Test(expected = LoginException.class)
     public void Should_Throw_LoginException_When_SSM_Doesnt_Have_All_Values() {
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_CLUSTER);
+        GetParameterRequest partitionIdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(null);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
         hsmCredentialsProvider.getCredentials();
     }
 
     @Test(expected = LoginException.class)
     public void Should_Throw_LoginException_When_SSM_Doesnt_Have_Pwd() {
-        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
-        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        GetParameterRequest partitionIdRequest = getGetParameterRequest(expectedClusterId);
+        GetParameterResult partitionResult = getGetParameterResult(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
         hsmCredentialsProvider.getCredentials();
     }
 
     @Test(expected = LoginException.class)
     public void Should_Throw_LoginException_When_SSM_Has_Pwd_Empty() {
-        String expectedClusterId = DEVELOPMENT_CRYPTO_USER_CLUSTER;
+        String expectedPartitionId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(expectedClusterId);
+        GetParameterRequest partitionIdrequest = getGetParameterRequest(expectedPartitionId);
         GetParameterResult pwdResult = getGetParameterResult("");
-        GetParameterResult clusterResult = getGetParameterResult(expectedClusterId);
+        GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -146,11 +146,11 @@ public class HSMCredentialsProviderTest {
     public void Should_Throw_LoginException_When_SSM_Has_ClusterId_Empty() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_CLUSTER);
+        GetParameterRequest partitionIdrequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
-        GetParameterResult clusterResult = getGetParameterResult("");
+        GetParameterResult partitionResult = getGetParameterResult("");
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(clusterResult);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -159,9 +159,9 @@ public class HSMCredentialsProviderTest {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
         GetParameterResult pwdResult = getGetParameterResult(expectedPwd);
-        GetParameterRequest clusterIdrequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_CLUSTER);
+        GetParameterRequest partitionIdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
-        given(awsSimpleSystemsManagement.getParameter(clusterIdrequest)).willReturn(null);
+        given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -178,7 +178,7 @@ public class HSMCredentialsProviderTest {
     }
 
     private GetParameterRequest getGetParameterClusterIdRequest() {
-        return new GetParameterRequest().withName(DEVELOPMENT_CRYPTO_USER_CLUSTER).withWithDecryption(true);
+        return new GetParameterRequest().withName(DEVELOPMENT_CRYPTO_USER_PARTITION_ID).withWithDecryption(true);
     }
 
     @Autowired

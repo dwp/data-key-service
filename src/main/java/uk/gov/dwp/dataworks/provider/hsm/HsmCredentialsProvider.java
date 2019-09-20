@@ -21,7 +21,7 @@ public class HsmCredentialsProvider {
 
     private static final String CRYPTO_USER = "_crypto_user";
     private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
-    private static final String CRYPTO_USER_CLUSTERID = "hsm_clusterid";
+    private static final String CRYPTO_USER_PARTITION_ID = "hsm_partitionid";
     private static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
@@ -52,13 +52,13 @@ public class HsmCredentialsProvider {
                         .withWithDecryption(true);
                 String password = awsSimpleSystemsManagementClient.getParameter(pwdRequest).getParameter().getValue();
 
-                GetParameterRequest clusterIdRequest = new GetParameterRequest()
-                        .withName(CRYPTO_USER_CLUSTERID)
+                GetParameterRequest partitionIdRequest = new GetParameterRequest()
+                        .withName(CRYPTO_USER_PARTITION_ID)
                         .withWithDecryption(true);
-                String clusterId = awsSimpleSystemsManagementClient.getParameter(clusterIdRequest).getParameter().getValue();
+                String partitionId = awsSimpleSystemsManagementClient.getParameter(partitionIdRequest).getParameter().getValue();
 
-                if(!(Strings.isNullOrEmpty(password) || Strings.isNullOrEmpty(clusterId))) {
-                    hsmCredentials = new HSMCredentials(username, password, clusterId);
+                if(!(Strings.isNullOrEmpty(password) || Strings.isNullOrEmpty(partitionId))) {
+                    hsmCredentials = new HSMCredentials(username, password, partitionId);
                 } else {
                     LOGGER.error("Either username or password is null or empty");
                     throw new LoginException("Either username or password is null or empty");

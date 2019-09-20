@@ -26,10 +26,11 @@ public class HsmLoginManager implements LoginManager {
         try {
             HSMCredentials hsmCredentials = hsmCredentialsProvider.getCredentials();
             if (null != hsmCredentials) {
-                loginManager.login(hsmCredentials.getClusterId(), hsmCredentials.getUserName(), hsmCredentials.getPassWord());
+                loginManager.login(hsmCredentials.getPartitionId(), hsmCredentials.getUserName(), hsmCredentials.getPassWord());
             }
         }
         catch (CFM2Exception e) {
+            LOGGER.error(e.getMessage(), e);
             throw new LoginException(e);
         }
     }
