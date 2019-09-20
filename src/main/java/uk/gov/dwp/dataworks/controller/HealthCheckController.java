@@ -65,17 +65,12 @@ public class HealthCheckController {
 
             if (StringUtils.isNoneBlank(trustStorePath, trustStorePassword)) {
                 KeyStore keystore = KeyStore.getInstance("JKS");
-                LOGGER.info("keystore: '{}'.", keystore);
-                LOGGER.info("trustStorePath: '{}'.", trustStorePath);
-                LOGGER.info("trustStorePassword: '{}'.", trustStorePassword);
                 keystore.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
                 Enumeration<String> aliases = keystore.aliases();
                 while (aliases.hasMoreElements()) {
                     String alias = aliases.nextElement();
-                    LOGGER.info("alias: '{}'.", alias);
                     Certificate certificate = keystore.getCertificate(alias);
                     String thumbprint = DigestUtils.sha1Hex(certificate.getEncoded());
-                    LOGGER.info("thumbprint: {}.", thumbprint);
                     trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase());
                 }
             }
