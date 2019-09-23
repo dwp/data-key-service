@@ -7,6 +7,14 @@
             <level>${dks.log.level.console}</level>
         </filter>
     </appender>
+
+    <!--
+    The org.apache http library is used by the aws sdk to perform http requests with the aws backend.
+    This library (the http one) outputs as debug the body of all the responses that come back from aws.
+    If these responses contain sensitive information that will be written to the logs if debug mode is
+    enabled. This occurred when a call to the aws library was executed to get a password out of the
+    parameter store. The following config silences the http library.
+    -->
     <logger name="org.apache" level="ERROR" additivity="true">
         <appender-ref ref="CONSOLE" />
     </logger>
