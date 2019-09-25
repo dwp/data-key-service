@@ -1,0 +1,17 @@
+resources:
+- name: aws-management-infrastructure
+  type: git
+  source:
+    branch: master
+    private_key: ((svc-dip.private_key))
+    uri: git@github.ucds.io:dip/aws-management-infrastructure.git
+  check_every: 720h
+  webhook_token: ((ucfs-github.webhook-token))
+- name: data-key-service
+  type: github-release
+  source:
+    owner: dwp
+    repository: data-key-service
+  check_every: 3m
+
+
