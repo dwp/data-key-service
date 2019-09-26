@@ -1,0 +1,87 @@
+meta:
+  plan:
+    terraform-output:
+      task: terraform-output
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: hashicorp/terraform
+            version: ((terraform.version))
+            tag: ((terraform.version))
+        params:
+          AWS_ACCESS_KEY_ID: ((ci.aws_access_key_id))
+          AWS_SECRET_ACCESS_KEY: ((ci.aws_secret_access_key))
+          TF_INPUT: false
+          TF_CLI_ARGS_apply: -lock-timeout=300s
+          TF_CLI_ARGS_plan:  -lock-timeout=300s
+          TF_VAR_slack_webhook_url: ((slack.webhook_url))
+          TF_WORKSPACE: management
+        run:
+          path: sh
+          dir: aws-management-infrastructure
+          args:
+            - -exc
+            - |
+              terraform init
+              terraform workspace show
+              terraform output artefact_bucket | grep "id = " | awk '{print $3}' > ../bucket_name/bucket_name
+        inputs:
+          - name: aws-management-infrastructure
+        outputs:
+          - name: bucket_name
+    create-aws-profiles:
+      task: create-aws-profiles
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: governmentpaas/awscli
+        outputs:
+          - name: .aws
+        params:
+          AWS_ACCESS_KEY_ID: ((ci.aws_access_key_id))
+          AWS_SECRET_ACCESS_KEY: ((ci.aws_secret_access_key))
+          AWS_REGION: eu-west-2
+          AWS_SHARED_CREDENTIALS_FILE: .aws-init/credentials
+          AWS_CONFIG_FILE: .aws-init/config
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              export AWS_DEFAULT_PROFILE=default
+              mkdir .aws-init
+              cat <<EOF> ${AWS_SHARED_CREDENTIALS_FILE}
+              [default]
+              aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+              aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+              region = ${AWS_REGION}
+              EOF
+              cat <<EOF> ${AWS_CONFIG_FILE}
+              [default]
+              region = ${AWS_REGION}
+              EOF
+
+              export AWS_ACC=`aws ssm get-parameter --name terraform_bootstrap_config | jq -r '.Parameter.Value' | grep state_file_account | awk '{print $2}'`
+              export AWS_PROFILE=ci
+              cat <<EOF> .aws/credentials
+              [default]
+              aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+              aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+              [${AWS_PROFILE}]
+              role_arn = arn:aws:iam::${AWS_ACC}:role/${AWS_PROFILE}
+              source_profile = default
+              EOF
+              cat <<EOF> .aws/config
+              [default]
+              region = ${AWS_REGION}
+              [profile ${AWS_PROFILE}]
+              region = ${AWS_REGION}
+              s3 =
+                max_concurrent_requests = 5
+                signature_version = s3v4
+                addressing_style = virtual
+              EOF

@@ -1,0 +1,17 @@
+spruce:
+  - base: ci/meta.yml
+    prune:
+      - meta
+    merge:
+      - with_in: ci/
+        regexp: ".*yml"
+        except:
+          - credentials.yml.example
+          - credentials.yml
+      - with_in: ci/jobs/
+    to: aviator_pipeline.yml
+fly:
+  name: asset-mgmt-data-key-service
+  target: concourse
+  expose: true
+  config: aviator_pipeline.yml
