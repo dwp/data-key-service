@@ -12,6 +12,7 @@ import com.cavium.provider.CaviumProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
+import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -75,8 +76,19 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
                             SYMMETRIC_KEY_TYPE,
                             Cipher.SECRET_KEY,
                             unwrappingSpec, PADDING);
-            byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
-            return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
+
+            if (unwrappedKey != null) {
+                byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
+                if (exportedUnwrappedKey != null) {
+                    return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
+                }
+                else {
+                    throw new GarbledDataKeyException();
+                }
+            }
+            else {
+                throw new GarbledDataKeyException();
+            }
         }
         catch (CFM2Exception | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
