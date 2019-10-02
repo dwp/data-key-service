@@ -13,6 +13,8 @@ out/
 #Logs
 dks.log.directory_IS_UNDEFINED
 dks.log.*
+logs/
+*.log
 *.jks
 *.pem
 *.crt

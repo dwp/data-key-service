@@ -47,6 +47,14 @@ public class HealthCheckResponse {
         this.trustedCertificates = new HashMap<>();
     }
 
+    public boolean areAllServicesOk() {
+        return encryptionService == Health.OK
+                && masterKey == Health.OK
+                && dataKeyGenerator == Health.OK
+                && encryption == Health.OK
+                && decryption == Health.OK;
+    }
+
     public Health getEncryptionService() {
         return encryptionService;
     }
