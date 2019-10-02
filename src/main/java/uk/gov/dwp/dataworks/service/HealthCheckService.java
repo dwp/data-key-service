@@ -8,21 +8,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.controller.HealthCheckController;
-import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
-import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.HealthCheckResponse;
-import uk.gov.dwp.dataworks.errors.LoginException;
-import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
-import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
-import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 @Service
+@ConditionalOnProperty(value = "scheduling.enabled", havingValue = "true", matchIfMissing = true)
 public class HealthCheckService {
     private final HealthCheckController healthCheckController;
     private final static Logger LOGGER = LoggerFactory.getLogger("healthcheck");

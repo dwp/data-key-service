@@ -24,7 +24,7 @@ import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource(properties = {"healthcheck.interval=1000"})
+@TestPropertySource(properties = {"healthcheck.interval=1000", "scheduling.enabled=true"})
 public class HealthCheckServiceTest {
 
     private ResponseEntity<HealthCheckResponse> mockHealthOkResponse = org.springframework.http.ResponseEntity.ok(new HealthCheckResponse(OK, OK, OK, OK, OK));
