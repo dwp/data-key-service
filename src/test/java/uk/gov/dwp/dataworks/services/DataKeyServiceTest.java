@@ -19,7 +19,8 @@ import uk.gov.dwp.dataworks.service.DataKeyService;
 @SpringBootTest
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000",
-        "key.cache.eviction.interval=1000"
+        "key.cache.eviction.interval=1000",
+        "scheduling.enabled=false"
 })
 public class DataKeyServiceTest {
 
@@ -50,7 +51,6 @@ public class DataKeyServiceTest {
         Thread.sleep(2000);
         dataKeyService.currentKeyId();
         // Verification
-        Mockito.verify(currentKeyIdProvider, Mockito.times(2)).getKeyId();
         Mockito.verify(currentKeyIdProvider, Mockito.times(2)).getKeyId();
     }
 
