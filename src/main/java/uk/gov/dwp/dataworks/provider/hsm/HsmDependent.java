@@ -1,7 +1,6 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
-import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.Dependent;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 

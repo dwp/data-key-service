@@ -13,7 +13,6 @@ import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
-import uk.gov.dwp.dataworks.provider.kms.KMSDataKeyGeneratorProvider;
 
 import java.util.Base64;
 

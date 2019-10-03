@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.BAD;
+import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @SuppressWarnings("unused")
 @RestController
