@@ -36,7 +36,6 @@ public class AWSCurrentKeyIdProviderTest {
         GetParameterRequest request = getGetParameterRequest();
         GetParameterResult result = getGetParameterResult(expectedKeyId);
         given(awsSimpleSystemsManagement.getParameter(request)).willReturn(result);
-        System.err.println("currentKeyIdProvider: '" + currentKeyIdProvider + "'");
         Assert.assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId());
     }
 

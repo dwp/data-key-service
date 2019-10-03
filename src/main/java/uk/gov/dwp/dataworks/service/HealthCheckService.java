@@ -1,7 +1,6 @@
 package uk.gov.dwp.dataworks.service;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -26,10 +25,9 @@ public class HealthCheckService {
         this.healthCheckController = healthCheckController;
     }
 
-    @Scheduled(initialDelay = 1000, fixedRateString = "${healthcheck.interval:6000}")
-    public void logHealthCheck() throws JsonProcessingException {
+    @Scheduled(initialDelay = 1000, fixedRateString = "${healthcheck.interval:10000}")
+    public void logHealthCheck() {
         ResponseEntity<HealthCheckResponse> response = healthCheckController.healthCheck();
-
         JsonFactory factory = new MappingJsonFactory();
         ObjectMapper mapper = new ObjectMapper(factory);
         ObjectNode responseBody = mapper.valueToTree(response.getBody());

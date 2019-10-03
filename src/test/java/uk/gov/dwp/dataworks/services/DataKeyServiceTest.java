@@ -15,6 +15,8 @@ import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
+import java.util.Objects;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource(properties = {"server.environment_name=development",
@@ -32,7 +34,7 @@ public class DataKeyServiceTest {
         Mockito.reset(currentKeyIdProvider);
         //hsmCredentialsProvider.clearCache();
         for (String name : cacheManager.getCacheNames()) {
-            cacheManager.getCache(name).clear();
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
     }
 

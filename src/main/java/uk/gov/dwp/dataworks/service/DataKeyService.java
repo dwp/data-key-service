@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.LoginException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
@@ -43,16 +44,17 @@ public class DataKeyService {
         LOGGER.debug("Key cache evicted.");
     }
 
-    public GenerateDataKeyResponse generate(String keyId) throws LoginException {
+    public GenerateDataKeyResponse generate(String keyId) throws LoginException, MasterKeystoreException {
 
         return dataKeyProvider.generateDataKey(keyId);
     }
 
-    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey) throws LoginException {
+    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey)
+            throws LoginException, MasterKeystoreException {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey);
     }
 
-    public boolean canSeeDependencies() {
+    public boolean canSeeDependencies() throws MasterKeystoreException {
         return dataKeyProvider != null && dataKeyProvider.canSeeDependencies() &&
                 currentKeyIdProvider != null && currentKeyIdProvider.canSeeDependencies() &&
                 dataKeyDecryptionProvider != null && dataKeyDecryptionProvider.canSeeDependencies();

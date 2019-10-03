@@ -9,10 +9,13 @@ import com.cavium.key.CaviumRSAPublicKey;
 import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
 import com.cavium.key.parameter.CaviumKeyGenAlgorithmParameterSpec;
 import com.cavium.provider.CaviumProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -23,6 +26,7 @@ import java.util.Base64;
 @Component
 @Profile("Cavium")
 public class CaviumCryptoImplementationSupplier implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
+
 
     static {
         try {
@@ -48,20 +52,25 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     }
 
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey) throws CryptoImplementationSupplierException {
+    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+            throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
             byte[] wrappedKey = Util.rsaWrapKey(publicKey, (CaviumKey) dataKey, PADDING);
             return Base64.getEncoder().encode(wrappedKey);
         }
-        catch (CFM2Exception | InvalidKeyException e) {
+        catch (InvalidKeyException e) {
             throw new CryptoImplementationSupplierException(e);
+        }
+        catch (CFM2Exception e) {
+            throw new MasterKeystoreException();
         }
     }
 
     @Override
-    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey) throws CryptoImplementationSupplierException {
+    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
+            throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
             CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
@@ -90,8 +99,16 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
                 throw new GarbledDataKeyException();
             }
         }
-        catch (CFM2Exception | InvalidKeyException | NoSuchAlgorithmException e) {
+        catch (NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
         }
+        catch (InvalidKeyException e) {
+            throw new GarbledDataKeyException();
+        }
+        catch (CFM2Exception e) {
+            throw new MasterKeystoreException();
+        }
     }
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 }

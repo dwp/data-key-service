@@ -5,7 +5,6 @@ import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import uk.gov.dwp.dataworks.provider.hsm.CryptoImplementationSupplier;
 

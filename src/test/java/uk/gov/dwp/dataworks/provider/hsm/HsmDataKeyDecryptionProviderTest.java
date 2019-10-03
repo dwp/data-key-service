@@ -15,6 +15,7 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest()
 @ActiveProfiles({"UnitTest", "HSM"})
 @TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000"
+        "cache.eviction.interval=1000",
+        "scheduling.enabled=false"
 })
 public class HsmDataKeyDecryptionProviderTest {
 
@@ -36,7 +38,7 @@ public class HsmDataKeyDecryptionProviderTest {
     }
 
     @Test
-    public void decryptDataKey() throws CryptoImplementationSupplierException {
+    public void decryptDataKey() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
@@ -53,7 +55,7 @@ public class HsmDataKeyDecryptionProviderTest {
     }
 
     @Test(expected = DataKeyDecryptionException.class)
-    public void decryptDataKeyNotOk() throws CryptoImplementationSupplierException {
+    public void decryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
@@ -65,7 +67,7 @@ public class HsmDataKeyDecryptionProviderTest {
     }
 
     @Test(expected = CurrentKeyIdException.class)
-    public void malformedMasterKeyId() {
+    public void malformedMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
@@ -79,5 +81,5 @@ public class HsmDataKeyDecryptionProviderTest {
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean
-    private HsmLoginManager hsmLoginManager;
+    private ImplicitHsmLoginManager hsmLoginManager;
 }

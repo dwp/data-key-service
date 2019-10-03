@@ -28,6 +28,10 @@ import java.security.cert.Certificate;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.BAD;
+import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @SuppressWarnings("unused")
 @RestController
@@ -71,13 +75,13 @@ public class HealthCheckController {
                     String alias = aliases.nextElement();
                     Certificate certificate = keystore.getCertificate(alias);
                     String thumbprint = DigestUtils.sha1Hex(certificate.getEncoded());
-                    trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase());
+                    trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase().replaceAll(":$", ""));
                 }
             }
 
             health.setTrustedCertificates(trustedCertificates);
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
-            String currentKeyId = this.dataKeyService.currentKeyId();
+            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId();
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
             GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId());
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
@@ -89,11 +93,11 @@ public class HealthCheckController {
                     decryptResponse.plaintextDataKey.equals(encryptResponse.plaintextDataKey);
         }
         finally {
-            health.setEncryptionService(canReachDependencies ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setMasterKey(canRetrieveCurrentMasterKeyId ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setDataKeyGenerator(canCreateNewDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setEncryption(canEncryptDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setDecryption(canDecryptDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
+            health.setEncryptionService(canReachDependencies ? OK : BAD);
+            health.setMasterKey(canRetrieveCurrentMasterKeyId ? OK : BAD);
+            health.setDataKeyGenerator(canCreateNewDataKey ? OK : BAD);
+            health.setEncryption(canEncryptDataKey ? OK : BAD);
+            health.setDecryption(canDecryptDataKey ? OK : BAD);
 
             boolean allOk = canReachDependencies && canRetrieveCurrentMasterKeyId &&
                     canCreateNewDataKey && canEncryptDataKey &&  canDecryptDataKey;

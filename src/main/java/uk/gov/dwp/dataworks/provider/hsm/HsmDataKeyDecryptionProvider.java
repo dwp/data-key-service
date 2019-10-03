@@ -1,33 +1,40 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
-import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
-import uk.gov.dwp.dataworks.provider.LoginManager;
+import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 @Service
 @Profile("HSM")
 public class HsmDataKeyDecryptionProvider extends HsmDependent
         implements DataKeyDecryptionProvider, HsmDataKeyDecryptionConstants {
 
+    private final int MAX_ATTEMPTS = 10;
+
     HsmDataKeyDecryptionProvider(CurrentKeyIdProvider currentKeyIdProvider,
             DataKeyGeneratorProvider dataKeyGeneratorProvider,
-            LoginManager loginManager,
+            HsmLoginManager loginManager,
             CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
-        this.currentKeyIdProvider = currentKeyIdProvider;
-        this.dataKeyGeneratorProvider = dataKeyGeneratorProvider;
     }
 
     @Override
-    public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey) {
+    @Retryable(
+            value = { MasterKeystoreException.class },
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = 1_000))
+    public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey)
+            throws MasterKeystoreException {
         try {
             loginManager.login();
             Integer decryptionKeyHandle = privateKeyHandle(decryptionKeyId);
@@ -38,19 +45,14 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             throw new DataKeyDecryptionException();
         }
         finally {
-            loginManager.logout();
+                loginManager.logout();
         }
     }
 
     @Override
     public boolean canSeeDependencies() {
-        String currentKeyId = this.currentKeyIdProvider.getKeyId();
-        GenerateDataKeyResponse generateDataKeyResponse = this.dataKeyGeneratorProvider.generateDataKey(currentKeyId);
-        DecryptDataKeyResponse decryptDataKeyResponse = decryptDataKey(currentKeyId, generateDataKeyResponse.ciphertextDataKey);
-        return decryptDataKeyResponse.plaintextDataKey.equals(generateDataKeyResponse.plaintextDataKey);
+        return this.loginManager != null && this.cryptoImplementationSupplier != null;
     }
 
-    private final CurrentKeyIdProvider currentKeyIdProvider;
-    private final DataKeyGeneratorProvider dataKeyGeneratorProvider;
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }
