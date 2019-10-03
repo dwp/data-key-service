@@ -99,8 +99,11 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
                 throw new GarbledDataKeyException();
             }
         }
-        catch (InvalidKeyException | NoSuchAlgorithmException e) {
+        catch (NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
+        }
+        catch (InvalidKeyException e) {
+            throw new GarbledDataKeyException();
         }
         catch (CFM2Exception e) {
             throw new MasterKeystoreException();

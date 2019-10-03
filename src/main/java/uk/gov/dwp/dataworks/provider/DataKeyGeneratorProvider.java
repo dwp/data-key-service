@@ -7,5 +7,5 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 public interface DataKeyGeneratorProvider extends Dependent {
     GenerateDataKeyResponse generateDataKey(String encryptionKeyId)
             throws DataKeyGenerationException, MasterKeystoreException;
-    boolean canSeeDependencies() throws MasterKeystoreException;
+    boolean canSeeDependencies();
 }

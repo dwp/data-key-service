@@ -1,8 +1,6 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
-import com.cavium.cfm2.CFM2Exception;
 import com.cavium.key.CaviumKey;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +14,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
-import uk.gov.dwp.dataworks.dto.HSMCredentials;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
@@ -33,7 +30,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest()
 @ActiveProfiles({"UnitTest", "HSM"})
 @TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000"
+        "cache.eviction.interval=1000",
+        "scheduling.enabled=false"
 })
 public class HsmDataKeyGeneratorProviderTest {
 

@@ -19,6 +19,8 @@ import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
+import java.util.Objects;
+
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -37,7 +39,7 @@ public class HealthCheckIntegrationTests {
     public void setup() {
         Mockito.reset(currentKeyIdProvider, dataKeyGeneratorProvider, dataKeyDecryptionProvider);
         for (String name : cacheManager.getCacheNames()) {
-            cacheManager.getCache(name).clear();
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
     }
 

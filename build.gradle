@@ -18,6 +18,10 @@ repositories {
     }
 }
 
+tasks.withType(JavaExec) {
+    systemProperties System.properties
+}
+
 bootJar {
     launchScript()
     manifest {

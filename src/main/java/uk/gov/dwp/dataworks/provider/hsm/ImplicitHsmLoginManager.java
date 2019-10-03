@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;
-import uk.gov.dwp.dataworks.errors.LoginException;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 @Component
@@ -32,6 +31,6 @@ public class ImplicitHsmLoginManager implements HsmLoginManager {
     }
 
     @Override
-    public  void logout() throws LoginException {
+    public  void logout() {
     }
 }

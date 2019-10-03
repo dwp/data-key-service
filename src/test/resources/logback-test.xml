@@ -30,7 +30,7 @@
         <appender-ref ref="HEALTHCHECK-FILE"/>
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

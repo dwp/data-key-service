@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.dwp.dataworks.errors.LoginException;
 
+import java.util.Objects;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
@@ -25,7 +27,8 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest
 @ActiveProfiles({"UnitTest", "HSM", "ExplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
-        "credentials.cache.eviction.interval=1000"
+        "credentials.cache.eviction.interval=1000",
+        "scheduling.enabled=false"
 })
 public class HSMCredentialsProviderTest {
 
@@ -41,7 +44,7 @@ public class HSMCredentialsProviderTest {
         Mockito.reset(awsSimpleSystemsManagement);
         //hsmCredentialsProvider.clearCache();
         for (String name : cacheManager.getCacheNames()) {
-            cacheManager.getCache(name).clear();
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
     }
 

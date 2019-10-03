@@ -23,7 +23,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles({"UnitTest", "HSM", "ExplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000"
+        "cache.eviction.interval=1000",
+        "scheduling.enabled=false"
 })
 public class HSMLoginManagerTest {
 

@@ -9,12 +9,13 @@
     </appender>
 
     <appender name="HEALTHCHECK-FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/dks/healthcheck.log</file>
+        <file>${dks.log.directory}/healthcheck.log</file>
         <append>true</append>
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%file:%method:%line] %message%n</pattern>
         </encoder>
     </appender>
+
     <!--
     The org.apache http library is used by the aws sdk to perform http requests with the aws backend.
     This library (the http one) outputs as debug the body of all the responses that come back from aws.

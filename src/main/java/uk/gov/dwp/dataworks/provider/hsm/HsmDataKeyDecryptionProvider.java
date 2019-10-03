@@ -50,7 +50,7 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
     }
 
     @Override
-    public boolean canSeeDependencies() throws MasterKeystoreException {
+    public boolean canSeeDependencies() {
         return this.loginManager != null && this.cryptoImplementationSupplier != null;
     }
 

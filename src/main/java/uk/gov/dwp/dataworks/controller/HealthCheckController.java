@@ -28,6 +28,7 @@ import java.security.cert.Certificate;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.BAD;
@@ -80,7 +81,7 @@ public class HealthCheckController {
 
             health.setTrustedCertificates(trustedCertificates);
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
-            String currentKeyId = this.dataKeyService.currentKeyId();
+            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId();
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
             GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId());
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
