@@ -1,10 +1,13 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
+import com.cavium.cfm2.CFM2Exception;
 import com.cavium.key.CaviumKey;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,9 +16,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.dto.HSMCredentials;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 import java.util.Base64;
@@ -39,7 +44,7 @@ public class HsmDataKeyGeneratorProviderTest {
     }
 
     @Test
-    public void generateDataKey() throws CryptoImplementationSupplierException {
+    public void generateDataKey() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
@@ -60,8 +65,24 @@ public class HsmDataKeyGeneratorProviderTest {
         assertEquals(actual, expected);
     }
 
+    @Test(expected = MasterKeystoreException.class)
+    public void retryDataKey() throws MasterKeystoreException, CryptoImplementationSupplierException {
+        CaviumKey mockKey = Mockito.mock(CaviumKey.class);
+        given(mockKey.getEncoded()).willReturn("some bytes".getBytes());
+        given(cryptoImplementationSupplier
+                .dataKey())
+                .willReturn(mockKey);
+        given(cryptoImplementationSupplier
+                .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .willThrow(MasterKeystoreException.class);
+
+        dataKeyGeneratorProvider.generateDataKey("cloudhsm:1,2");
+        verify(cryptoImplementationSupplier, Mockito.times(10))
+                .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
+    }
+
     @Test(expected = DataKeyGenerationException.class)
-    public void generateDataKeyNotOk() throws CryptoImplementationSupplierException {
+    public void generateDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
         doNothing().when(hsmLoginManager).login();
@@ -75,7 +96,7 @@ public class HsmDataKeyGeneratorProviderTest {
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void encryptDataKeyNotOk() throws CryptoImplementationSupplierException {
+    public void encryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         Integer publicKeyHandle = 2;
         doNothing().when(hsmLoginManager).login();
@@ -90,7 +111,7 @@ public class HsmDataKeyGeneratorProviderTest {
     }
 
     @Test(expected = CurrentKeyIdException.class)
-    public void testBadMasterKeyId() {
+    public void testBadMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "NOT IN THE CORRECT FORMAT";
         dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
     }
@@ -102,6 +123,6 @@ public class HsmDataKeyGeneratorProviderTest {
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean
-    private HsmLoginManager hsmLoginManager;
+    private ImplicitHsmLoginManager hsmLoginManager;
 
 }

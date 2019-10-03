@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles({"UnitTest", "HSM"})
+@ActiveProfiles({"UnitTest", "HSM", "ExplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
         "credentials.cache.eviction.interval=1000"
 })

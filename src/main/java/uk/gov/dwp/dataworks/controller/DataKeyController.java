@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
 @SuppressWarnings("unused")
@@ -31,7 +32,7 @@ public class DataKeyController {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
-    public ResponseEntity<GenerateDataKeyResponse> generate() {
+    public ResponseEntity<GenerateDataKeyResponse> generate() throws MasterKeystoreException {
         return new ResponseEntity<>(dataKeyService.generate(dataKeyService.currentKeyId()), HttpStatus.CREATED);
     }
 
@@ -43,7 +44,7 @@ public class DataKeyController {
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })    public DecryptDataKeyResponse decrypt(
             @RequestParam(value = "keyId") String dataKeyEncryptionKeyId,
-            @RequestBody String ciphertextDataKey) {
+            @RequestBody String ciphertextDataKey) throws MasterKeystoreException {
         return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey);
     }
 
