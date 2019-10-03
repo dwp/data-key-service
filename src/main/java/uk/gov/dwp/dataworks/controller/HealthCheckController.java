@@ -29,6 +29,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
+import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.BAD;
+
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/healthcheck")
@@ -71,7 +74,7 @@ public class HealthCheckController {
                     String alias = aliases.nextElement();
                     Certificate certificate = keystore.getCertificate(alias);
                     String thumbprint = DigestUtils.sha1Hex(certificate.getEncoded());
-                    trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase());
+                    trustedCertificates.put(alias, thumbprint.replaceAll("(..)", "$1:").toUpperCase().replaceAll(":$", ""));
                 }
             }
 
@@ -89,11 +92,11 @@ public class HealthCheckController {
                     decryptResponse.plaintextDataKey.equals(encryptResponse.plaintextDataKey);
         }
         finally {
-            health.setEncryptionService(canReachDependencies ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setMasterKey(canRetrieveCurrentMasterKeyId ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setDataKeyGenerator(canCreateNewDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setEncryption(canEncryptDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
-            health.setDecryption(canDecryptDataKey ? HealthCheckResponse.Health.OK : HealthCheckResponse.Health.BAD);
+            health.setEncryptionService(canReachDependencies ? OK : BAD);
+            health.setMasterKey(canRetrieveCurrentMasterKeyId ? OK : BAD);
+            health.setDataKeyGenerator(canCreateNewDataKey ? OK : BAD);
+            health.setEncryption(canEncryptDataKey ? OK : BAD);
+            health.setDecryption(canDecryptDataKey ? OK : BAD);
 
             boolean allOk = canReachDependencies && canRetrieveCurrentMasterKeyId &&
                     canCreateNewDataKey && canEncryptDataKey &&  canDecryptDataKey;

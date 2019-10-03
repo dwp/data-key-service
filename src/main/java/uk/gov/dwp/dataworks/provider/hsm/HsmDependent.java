@@ -2,14 +2,15 @@ package uk.gov.dwp.dataworks.provider.hsm;
 
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.LoginException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.Dependent;
-import uk.gov.dwp.dataworks.provider.LoginManager;
+import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 import java.util.regex.Matcher;
 
 public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionConstants {
 
-    public HsmDependent(LoginManager loginManager) {
+    public HsmDependent(HsmLoginManager loginManager) {
         this.loginManager = loginManager;
     }
 
@@ -32,16 +33,9 @@ public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionCon
     }
 
     @Override
-    public boolean canSeeDependencies() {
-        try {
-            loginManager.login();
-            loginManager.logout();
-            return true;
-        }
-        catch (LoginException e) {
-            return false;
-        }
+    public boolean canSeeDependencies() throws MasterKeystoreException {
+        return this.loginManager != null;
     }
 
-    final LoginManager loginManager;
+    final HsmLoginManager loginManager;
 }

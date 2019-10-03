@@ -2,13 +2,16 @@ package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.key.CaviumKey;
 import org.springframework.context.annotation.Profile;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
-import uk.gov.dwp.dataworks.provider.LoginManager;
+import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 import java.util.Base64;
 
@@ -16,16 +19,21 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    public HsmDataKeyGeneratorProvider(CurrentKeyIdProvider currentKeyIdProvider,
-            LoginManager loginManager,
+    private final int MAX_ATTEMPTS = 10;
+
+    public HsmDataKeyGeneratorProvider(HsmLoginManager loginManager,
             CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
-        this.currentKeyIdProvider = currentKeyIdProvider;
     }
 
     @Override
-    public GenerateDataKeyResponse generateDataKey(String keyId) throws DataKeyGenerationException {
+    @Retryable(
+            value = { MasterKeystoreException.class },
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = 1_000))
+    public GenerateDataKeyResponse generateDataKey(String keyId)
+            throws DataKeyGenerationException, MasterKeystoreException {
         try {
             loginManager.login();
             int publicKeyHandle = publicKeyHandle(keyId);
@@ -45,11 +53,9 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     }
 
     @Override
-    public boolean canSeeDependencies() {
-        String currentKeyId = this.currentKeyIdProvider.getKeyId();
-        return generateDataKey(currentKeyId) != null;
+    public boolean canSeeDependencies() throws MasterKeystoreException {
+        return this.cryptoImplementationSupplier != null;
     }
 
-    private final CurrentKeyIdProvider currentKeyIdProvider;
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }

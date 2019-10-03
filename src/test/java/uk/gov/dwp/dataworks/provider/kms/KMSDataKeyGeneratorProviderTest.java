@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
+import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 import java.nio.ByteBuffer;
@@ -26,7 +27,7 @@ import static org.mockito.BDDMockito.given;
 public class KMSDataKeyGeneratorProviderTest {
 
     @Test
-    public void generateDataKey() {
+    public void generateDataKey() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "DATAKEYENCRYPTIONKEYID";
         String plainTextKey = "PLAINTEXTKEY";
         String encryptedDataKey = "ENCRYPTEDDATAKEY";
@@ -49,41 +50,41 @@ public class KMSDataKeyGeneratorProviderTest {
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesNotFoundException() {
+    public void handlesNotFoundException() throws MasterKeystoreException {
         throwException(NotFoundException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesDisabledException() {
+    public void handlesDisabledException() throws MasterKeystoreException {
         throwException(DisabledException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesDependencyTimeoutException() {
+    public void handlesDependencyTimeoutException() throws MasterKeystoreException {
         throwException(DependencyTimeoutException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesInvalidKeyUsageException() {
+    public void handlesInvalidKeyUsageException() throws MasterKeystoreException {
         throwException(InvalidKeyUsageException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesInvalidGrantTokenException() {
+    public void handlesInvalidGrantTokenException() throws MasterKeystoreException {
         throwException(InvalidGrantTokenException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesKMSInternalException() {
+    public void handlesKMSInternalException() throws MasterKeystoreException {
         throwException(KMSInternalException.class);
     }
 
     @Test(expected = DataKeyGenerationException.class)
-    public void handlesKMSInvalidStateException() {
+    public void handlesKMSInvalidStateException() throws MasterKeystoreException {
         throwException(KMSInvalidStateException.class);
     }
 
-    private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {
+    private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException, MasterKeystoreException {
         given(awsKms.generateDataKey(ArgumentMatchers.any(GenerateDataKeyRequest.class))).willThrow(e);
         dataKeyGeneratorProvider.generateDataKey("DATAKEYENCRYPTIONKEYID");
     }
