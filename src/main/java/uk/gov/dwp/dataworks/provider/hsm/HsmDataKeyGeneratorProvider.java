@@ -47,7 +47,7 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
                                                 new String(ciphertext));
         }
         catch (CryptoImplementationSupplierException e) {
-            LOGGER.error("Failed to generate a new data key due to an internal error. Try again later.", e);
+            LOGGER.error("Failure encountered trying to generate a new datakey due to an internal error. Try again later.", e);
             throw new DataKeyGenerationException();
         }
         finally {
