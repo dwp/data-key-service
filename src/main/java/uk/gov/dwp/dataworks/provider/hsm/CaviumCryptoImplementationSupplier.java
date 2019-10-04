@@ -47,6 +47,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             return keyGenerator.generateKey();
         }
         catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            LOGGER.error("Failed to create data key", e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
@@ -64,6 +65,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             throw new CryptoImplementationSupplierException(e);
         }
         catch (CFM2Exception e) {
+            LOGGER.warn("Failed to encrypt key, retry will be attempted unless max attempts reached");
             throw new MasterKeystoreException();
         }
     }
@@ -106,6 +108,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             throw new GarbledDataKeyException();
         }
         catch (CFM2Exception e) {
+            LOGGER.warn("Failed to decrypt key, retry will be attempted unless max attempts reached");
             throw new MasterKeystoreException();
         }
     }
