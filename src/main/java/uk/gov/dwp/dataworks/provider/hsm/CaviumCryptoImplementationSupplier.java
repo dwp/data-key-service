@@ -81,6 +81,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
                     CaviumKeyGenAlgorithmParameterSpec(DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
 
+
             CaviumKey unwrappedKey =
                     Util.rsaUnwrapKey(privateKey,
                             decodedCipher,
@@ -91,6 +92,8 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             if (unwrappedKey != null) {
                 byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
                 if (exportedUnwrappedKey != null) {
+                    LOGGER.debug("Removing unwrapped session key.");
+                    cleanupKey(unwrappedKey);
                     return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
                 }
                 else {
@@ -116,7 +119,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     @Override
     public void cleanupKey(Key datakey) {
         try {
-            LOGGER.info("Deleting session key.");
+            LOGGER.debug("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
         }
         catch (CFM2Exception e) {
