@@ -116,6 +116,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     @Override
     public void cleanupKey(Key datakey) {
         try {
+            LOGGER.info("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
         }
         catch (CFM2Exception e) {
