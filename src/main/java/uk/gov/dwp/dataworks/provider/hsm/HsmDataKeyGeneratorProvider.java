@@ -1,5 +1,7 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
+import com.cavium.cfm2.CFM2Exception;
+import com.cavium.cfm2.Util;
 import com.cavium.key.CaviumKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
+import java.security.Key;
 import java.util.Base64;
 
 @Service
@@ -39,9 +42,10 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
         try {
             loginManager.login();
             int publicKeyHandle = publicKeyHandle(keyId);
-            CaviumKey dataKey = (CaviumKey) cryptoImplementationSupplier.dataKey();
+            Key dataKey = cryptoImplementationSupplier.dataKey();
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
+            cryptoImplementationSupplier.cleanupKey(dataKey);
             return new GenerateDataKeyResponse(keyId,
                                                 new String(plaintextDatakey),
                                                 new String(ciphertext));

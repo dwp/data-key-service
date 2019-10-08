@@ -27,7 +27,6 @@ import java.util.Base64;
 @Profile("Cavium")
 public class CaviumCryptoImplementationSupplier implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
 
-
     static {
         try {
             Security.addProvider(new CaviumProvider());
@@ -40,7 +39,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     @Override
     public Key dataKey() throws CryptoImplementationSupplierException {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, PROVIDER);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
             CaviumAESKeyGenParameterSpec aesSpec =
                     new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             keyGenerator.init(aesSpec);
@@ -51,6 +50,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             throw new CryptoImplementationSupplierException(e);
         }
     }
+
 
     @Override
     public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
@@ -110,6 +110,16 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         catch (CFM2Exception e) {
             LOGGER.warn("Failed to decrypt key, retry will be attempted unless max attempts reached");
             throw new MasterKeystoreException();
+        }
+    }
+
+    @Override
+    public void cleanupKey(Key datakey) {
+        try {
+            Util.deleteKey((CaviumKey) datakey);
+        }
+        catch (CFM2Exception e) {
+            LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
     }
 
