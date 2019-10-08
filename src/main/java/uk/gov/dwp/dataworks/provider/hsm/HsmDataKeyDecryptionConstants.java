@@ -10,7 +10,6 @@ public interface HsmDataKeyDecryptionConstants {
     String SYMMETRIC_KEY_TYPE = "AES";
     String DATA_KEY_LABEL = "data_key";
     String CAVIUM_PROVIDER = "Cavium";
-    String BC_PROVIDER = "BC";
 
     String PRIVATE_KEY_GROUP_NAME = "privateKeyHandle";
     String PUBLIC_KEY_GROUP_NAME = "publicKeyHandle";
