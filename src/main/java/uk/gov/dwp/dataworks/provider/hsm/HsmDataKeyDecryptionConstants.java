@@ -9,7 +9,7 @@ public interface HsmDataKeyDecryptionConstants {
     String PADDING = "OAEPPadding";
     String SYMMETRIC_KEY_TYPE = "AES";
     String DATA_KEY_LABEL = "data_key";
-    String PROVIDER = "Cavium";
+    String CAVIUM_PROVIDER = "Cavium";
 
     String PRIVATE_KEY_GROUP_NAME = "privateKeyHandle";
     String PUBLIC_KEY_GROUP_NAME = "publicKeyHandle";
