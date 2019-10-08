@@ -30,6 +30,7 @@ public class ImplicitHsmLoginManager implements HsmLoginManager {
         }
     }
 
+
     @Override
     public  void logout() {
     }
