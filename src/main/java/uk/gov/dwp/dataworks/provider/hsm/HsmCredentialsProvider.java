@@ -17,7 +17,7 @@ import uk.gov.dwp.dataworks.errors.LoginException;
 
 @Service
 @Profile("HSM")
-public class HsmCredentialsProvider {
+public class HsmCredentialsProvider implements HsmDataKeyDecryptionConstants {
 
     private static final String CRYPTO_USER = "_crypto_user";
     private static final String CRYPTO_USER_PASSWORD = CRYPTO_USER + ".password";
@@ -57,7 +57,7 @@ public class HsmCredentialsProvider {
                         .withWithDecryption(true);
                 String partitionId = awsSimpleSystemsManagementClient.getParameter(partitionIdRequest).getParameter().getValue();
 
-                if(!(Strings.isNullOrEmpty(password) || Strings.isNullOrEmpty(partitionId))) {
+                if (!(Strings.isNullOrEmpty(password) || Strings.isNullOrEmpty(partitionId))) {
                     hsmCredentials = new HSMCredentials(username, password, partitionId);
                 } else {
                     LOGGER.error("Either username or password is null or empty");

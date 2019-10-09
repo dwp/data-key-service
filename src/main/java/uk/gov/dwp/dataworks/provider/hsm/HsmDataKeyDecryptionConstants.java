@@ -14,6 +14,9 @@ public interface HsmDataKeyDecryptionConstants {
     String PRIVATE_KEY_GROUP_NAME = "privateKeyHandle";
     String PUBLIC_KEY_GROUP_NAME = "publicKeyHandle";
 
-    Pattern KEY_ID_PATTERN =
-            Pattern.compile("^cloudhsm:(?<" + PRIVATE_KEY_GROUP_NAME + ">\\d+)[/,](?<" + PUBLIC_KEY_GROUP_NAME + ">\\d+)$");
+    Pattern KEY_ID_PATTERN = Pattern.compile("^cloudhsm:(?<" + PRIVATE_KEY_GROUP_NAME + ">\\d+)[/,](?<" + PUBLIC_KEY_GROUP_NAME + ">\\d+)$");
+
+    int MAX_ATTEMPTS = 10;
+    int INITIAL_BACKOFF_MILLIS = 1000;
+    double BACKOFF_MULTIPLIER = 2.0;
 }

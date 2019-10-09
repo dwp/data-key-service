@@ -15,7 +15,7 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 @Component
 @Profile("ExplicitHSMLogin")
-public class ExplicitHsmLoginManager implements HsmLoginManager {
+public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecryptionConstants {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 
     @Autowired
@@ -24,13 +24,11 @@ public class ExplicitHsmLoginManager implements HsmLoginManager {
     @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
 
-    private final int MAX_LOGIN_ATTEMPTS = 10;
-
     @Override
     @Retryable(
             value = { MasterKeystoreException.class },
-            maxAttempts = MAX_LOGIN_ATTEMPTS,
-            backoff = @Backoff(delay = 1_000))
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public  void login() throws MasterKeystoreException {
         try {
             HSMCredentials hsmCredentials = hsmCredentialsProvider.getCredentials();
@@ -48,8 +46,8 @@ public class ExplicitHsmLoginManager implements HsmLoginManager {
     @Override
     @Retryable(
             value = { MasterKeystoreException.class },
-            maxAttempts = 10,
-            backoff = @Backoff(delay = 1_000))
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public  void logout() throws LoginException, MasterKeystoreException {
         try {
             loginManager.logout();
