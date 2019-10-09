@@ -8,4 +8,8 @@ public class MasterKeystoreException extends Exception {
     public MasterKeystoreException() {
         super();
     }
+
+    public MasterKeystoreException(String message) {
+        super(message);
+    }
 }

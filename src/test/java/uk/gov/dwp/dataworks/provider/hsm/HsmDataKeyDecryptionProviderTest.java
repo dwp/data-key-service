@@ -38,7 +38,7 @@ public class HsmDataKeyDecryptionProviderTest {
     }
 
     @Test
-    public void decryptDataKey() throws CryptoImplementationSupplierException, MasterKeystoreException {
+    public void decryptDataKey_happy_case() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
@@ -47,7 +47,9 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willReturn(plaintextDataKey);
+
         DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(cryptoImplementationSupplier, times(1)).decryptedKey(argumentCaptor.capture(), same(encryptedDataKey));
         DecryptDataKeyResponse expected = new DecryptDataKeyResponse(dataKeyEncryptionKeyId, plaintextDataKey);
@@ -63,6 +65,7 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
+
         dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
     }
 
@@ -71,6 +74,7 @@ public class HsmDataKeyDecryptionProviderTest {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
+
         dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
     }
 

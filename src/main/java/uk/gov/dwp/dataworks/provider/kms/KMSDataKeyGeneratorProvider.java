@@ -24,6 +24,7 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
         this.awsKms = awsKms;
     }
 
+    @Override
     public GenerateDataKeyResponse generateDataKey(String encryptionKeyId) throws DataKeyGenerationException {
         try {
             Base64.Encoder encoder = Base64.getEncoder();

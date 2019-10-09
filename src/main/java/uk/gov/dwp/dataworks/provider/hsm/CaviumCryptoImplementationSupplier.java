@@ -65,8 +65,9 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             throw new CryptoImplementationSupplierException(e);
         }
         catch (CFM2Exception e) {
-            LOGGER.warn("Failed to encrypt key, retry will be attempted unless max attempts reached");
-            throw new MasterKeystoreException();
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message);
         }
     }
 
@@ -80,7 +81,6 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             CaviumKeyGenAlgorithmParameterSpec unwrappingSpec = new
                     CaviumKeyGenAlgorithmParameterSpec(DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
-
 
             CaviumKey unwrappedKey =
                     Util.rsaUnwrapKey(privateKey,
@@ -111,8 +111,9 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             throw new GarbledDataKeyException();
         }
         catch (CFM2Exception e) {
-            LOGGER.warn("Failed to decrypt key, retry will be attempted unless max attempts reached");
-            throw new MasterKeystoreException();
+            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message);
         }
     }
 

@@ -19,41 +19,42 @@ public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecry
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 
     @Autowired
-    private com.cavium.cfm2.LoginManager loginManager ;
+    private com.cavium.cfm2.LoginManager loginManager;
 
     @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
+            value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public  void login() throws MasterKeystoreException {
+    public void login() throws MasterKeystoreException {
         try {
             HSMCredentials hsmCredentials = hsmCredentialsProvider.getCredentials();
             if (null != hsmCredentials) {
                 loginManager.login(hsmCredentials.getPartitionId(), hsmCredentials.getUserName(), hsmCredentials.getPassWord());
 
             }
-        }
-        catch (CFM2Exception e) {
-            LOGGER.warn("Failed to login, will retry (unless {} attempts made).", MAX_LOGIN_ATTEMPTS);
-            throw new MasterKeystoreException();
+        } catch (CFM2Exception e) {
+            String message = "Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message);
         }
     }
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
+            value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public  void logout() throws LoginException, MasterKeystoreException {
+    public void logout() throws LoginException, MasterKeystoreException {
         try {
             loginManager.logout();
-        }
-        catch (CFM2Exception e) {
-            throw new MasterKeystoreException();
+        } catch (CFM2Exception e) {
+            String message = "Failed to logout, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message);
         }
     }
 }

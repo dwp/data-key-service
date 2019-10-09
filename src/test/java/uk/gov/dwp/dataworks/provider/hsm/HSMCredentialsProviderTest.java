@@ -42,7 +42,6 @@ public class HSMCredentialsProviderTest {
     @Before
     public void init() {
         Mockito.reset(awsSimpleSystemsManagement);
-        //hsmCredentialsProvider.clearCache();
         for (String name : cacheManager.getCacheNames()) {
             Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
@@ -58,6 +57,7 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
+
         assertEquals(expectedPwd, hsmCredentialsProvider.getCredentials().getPassWord());
         assertEquals(expectedPartitionId, hsmCredentialsProvider.getCredentials().getPartitionId());
         assertEquals(DEVELOPMENT_CRYPTO_USER, hsmCredentialsProvider.getCredentials().getUserName());
@@ -73,9 +73,11 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
+
         hsmCredentialsProvider.getCredentials();
         hsmCredentialsProvider.getCredentials();
         hsmCredentialsProvider.getCredentials();
+
         // Verification
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(1)).getParameter(pwdRequest);
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(1)).getParameter(partitionIdRequest);
@@ -91,9 +93,11 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
+
         hsmCredentialsProvider.getCredentials();
         Thread.sleep(2000);
         hsmCredentialsProvider.getCredentials();
+
         // Verification
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(pwdRequest);
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(partitionIdRequest);
@@ -119,6 +123,7 @@ public class HSMCredentialsProviderTest {
         GetParameterRequest partitionIdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
+
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -130,6 +135,7 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult(expectedClusterId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
+
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -142,6 +148,7 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult(expectedPartitionId);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
+
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -154,6 +161,7 @@ public class HSMCredentialsProviderTest {
         GetParameterResult partitionResult = getGetParameterResult("");
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
+
         hsmCredentialsProvider.getCredentials();
     }
 
@@ -165,6 +173,7 @@ public class HSMCredentialsProviderTest {
         GetParameterRequest partitionIdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
+
         hsmCredentialsProvider.getCredentials();
     }
 
