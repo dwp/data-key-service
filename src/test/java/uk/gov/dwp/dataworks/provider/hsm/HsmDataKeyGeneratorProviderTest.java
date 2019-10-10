@@ -67,7 +67,7 @@ public class HsmDataKeyGeneratorProviderTest {
         assertEquals(actual, expected);
     }
 
-    @Test(expected = MasterKeystoreException.class)
+    @Test
     public void generateDataKey_will_retry_until_maximum_reached() throws MasterKeystoreException, CryptoImplementationSupplierException {
         try {
 
@@ -78,19 +78,17 @@ public class HsmDataKeyGeneratorProviderTest {
                     .willReturn(mockKey);
             given(cryptoImplementationSupplier
                     .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                    .willThrow(MasterKeystoreException.class);
+                    .willThrow(new MasterKeystoreException("Boom"));
 
             dataKeyGeneratorProvider.generateDataKey("cloudhsm:1,2");
-            fail("Should throw exception");
-        } catch (MasterKeystoreException ex){
-            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS))
-                    .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
-            throw ex;
+            fail("Expected a MasterKeystoreException");
+        } catch (MasterKeystoreException ex) {
+            assertEquals("Boom", ex.getMessage());
+            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS)).encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
-
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void generateDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
@@ -102,10 +100,15 @@ public class HsmDataKeyGeneratorProviderTest {
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
         given(cryptoImplementationSupplier.dataKey()).willThrow(CryptoImplementationSupplierException.class);
 
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (DataKeyGenerationException ex){
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void encryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         Integer publicKeyHandle = 2;
@@ -118,13 +121,23 @@ public class HsmDataKeyGeneratorProviderTest {
         given(cryptoImplementationSupplier.dataKey()).willReturn(key);
         given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key)).willThrow(CryptoImplementationSupplierException.class);
 
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (DataKeyGenerationException ex){
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void testBadMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "NOT IN THE CORRECT FORMAT";
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (CurrentKeyIdException ex){
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
     }
 
     @Autowired

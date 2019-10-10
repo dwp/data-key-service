@@ -16,11 +16,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.LoginException;
 
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -103,31 +105,50 @@ public class HSMCredentialsProviderTest {
         Mockito.verify(awsSimpleSystemsManagement, Mockito.times(2)).getParameter(partitionIdRequest);
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_Env_Property_Is_Not_Set() {
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", null);
-        hsmCredentialsProvider.getCredentials();
+
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
+
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_Env_Property_Is_Empty() {
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "");
-        hsmCredentialsProvider.getCredentials();
+
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
+
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_SSM_Doesnt_Have_All_Values() {
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
         GetParameterRequest partitionIdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PARTITION_ID);
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
 
-        hsmCredentialsProvider.getCredentials();
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_SSM_Doesnt_Have_Pwd() {
         String expectedClusterId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
@@ -136,10 +157,15 @@ public class HSMCredentialsProviderTest {
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(null);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(partitionResult);
 
-        hsmCredentialsProvider.getCredentials();
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_SSM_Has_Pwd_Empty() {
         String expectedPartitionId = DEVELOPMENT_CRYPTO_USER_PARTITION_ID;
         GetParameterRequest pwdRequest = getGetParameterRequest(DEVELOPMENT_CRYPTO_USER_PASSWORD);
@@ -149,10 +175,15 @@ public class HSMCredentialsProviderTest {
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
 
-        hsmCredentialsProvider.getCredentials();
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_SSM_Has_ClusterId_Empty() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -162,10 +193,15 @@ public class HSMCredentialsProviderTest {
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdrequest)).willReturn(partitionResult);
 
-        hsmCredentialsProvider.getCredentials();
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
-    @Test(expected = LoginException.class)
+    @Test
     public void Should_Throw_LoginException_When_SSM_Doesnt_Have_ClusterId() {
         String expectedPwd = DEVELOPMENT_CRYPTO_USER_PASSWORD;
         GetParameterRequest pwdRequest = getGetParameterRequest(expectedPwd);
@@ -174,7 +210,12 @@ public class HSMCredentialsProviderTest {
         given(awsSimpleSystemsManagement.getParameter(pwdRequest)).willReturn(pwdResult);
         given(awsSimpleSystemsManagement.getParameter(partitionIdRequest)).willReturn(null);
 
-        hsmCredentialsProvider.getCredentials();
+        try {
+            hsmCredentialsProvider.getCredentials();
+            fail("Expected a LoginException");
+        } catch (LoginException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
     private GetParameterResult getGetParameterResult(String result) {

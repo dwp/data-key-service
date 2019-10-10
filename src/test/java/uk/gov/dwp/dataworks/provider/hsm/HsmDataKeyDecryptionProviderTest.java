@@ -19,6 +19,7 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -66,16 +67,26 @@ public class HsmDataKeyDecryptionProviderTest {
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
 
-        dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+        try {
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+            fail("Expected a DataKeyDecryptionException");
+        } catch (DataKeyDecryptionException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void malformedMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
 
-        dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
+        try {
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
+            fail("Expected a CurrentKeyIdException");
+        } catch (CurrentKeyIdException ex) {
+            assertEquals("xx", ex.getMessage());
+        }
     }
 
     @Autowired

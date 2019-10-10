@@ -67,7 +67,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         catch (CFM2Exception e) {
             String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn(message);
-            throw new MasterKeystoreException(message);
+            throw new MasterKeystoreException(message, e);
         }
     }
 
@@ -113,7 +113,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         catch (CFM2Exception e) {
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn(message);
-            throw new MasterKeystoreException(message);
+            throw new MasterKeystoreException(message, e);
         }
     }
 

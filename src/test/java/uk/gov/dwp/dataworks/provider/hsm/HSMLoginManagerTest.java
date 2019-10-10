@@ -48,6 +48,11 @@ public class HSMLoginManagerTest {
         Mockito.reset(hsmCredentialsProvider);
     }
 
+    static CFM2Exception dummyC2smException() {
+        CFM2Exception exception = new CFM2Exception(1610612865, "dummy-call");
+        return exception;
+    }
+
     @Test
     public void Should_Login_When_Credentials_Are_Not_Null() throws CFM2Exception, MasterKeystoreException {
         HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
@@ -64,12 +69,12 @@ public class HSMLoginManagerTest {
         try {
             HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
             given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-            doThrow(CFM2Exception.class).when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
+            doThrow(dummyC2smException()).when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
 
             hsmLoginManager.login();
         } catch (MasterKeystoreException ex) {
             verify(loginManager, Mockito.times(MAX_ATTEMPTS)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).", ex.getMessage());
+            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).: 1610612865 - Could not find credentials to login to the HSM.", ex.getMessage());
         }
     }
 
@@ -77,7 +82,7 @@ public class HSMLoginManagerTest {
     public void Should_retry_until_login_succeeds_when_error_occurs() throws CFM2Exception, MasterKeystoreException {
         HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-        doThrow(CFM2Exception.class)
+        doThrow(dummyC2smException())
                 .doNothing()
                 .when(loginManager)
                 .login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
