@@ -57,7 +57,7 @@ public class HsmDataKeyDecryptionProviderTest {
         assertEquals(actual, expected);
     }
 
-    @Test(expected = DataKeyDecryptionException.class)
+    @Test
     public void decryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
@@ -71,7 +71,7 @@ public class HsmDataKeyDecryptionProviderTest {
             dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
             fail("Expected a DataKeyDecryptionException");
         } catch (DataKeyDecryptionException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
         }
     }
 
@@ -85,7 +85,7 @@ public class HsmDataKeyDecryptionProviderTest {
             dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
             fail("Expected a CurrentKeyIdException");
         } catch (CurrentKeyIdException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
         }
     }
 

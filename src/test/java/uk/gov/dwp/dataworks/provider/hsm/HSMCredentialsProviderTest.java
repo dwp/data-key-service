@@ -113,7 +113,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
         }
 
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
@@ -127,7 +127,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
         }
 
         ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
@@ -144,7 +144,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: NullPointerException - null", ex.getMessage());
         }
     }
 
@@ -161,7 +161,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
         }
     }
 
@@ -179,7 +179,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
         }
     }
 
@@ -197,7 +197,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
         }
     }
 
@@ -214,7 +214,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("xx", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: NullPointerException - null", ex.getMessage());
         }
     }
 

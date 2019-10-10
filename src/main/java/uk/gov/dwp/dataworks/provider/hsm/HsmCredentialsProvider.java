@@ -68,9 +68,10 @@ public class HsmCredentialsProvider implements HsmDataKeyDecryptionConstants {
                 throw new LoginException("Unknown environment");
             }
 
-        } catch (RuntimeException e) {
-            LOGGER.error("Failed to retrieve the HSM credentials.", e);
-            throw new LoginException(e);
+        } catch (Exception e) {
+            String message = "Failed to retrieve the HSM credentials";
+            LOGGER.error(message, e);
+            throw new LoginException(message + ": " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
         return hsmCredentials;
     }
