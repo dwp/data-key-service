@@ -4,6 +4,7 @@ import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,11 @@ public class HSMCredentialsProviderTest {
         for (String name : cacheManager.getCacheNames()) {
             Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
+    }
+
+    @After
+    public void tearDown(){
+        ReflectionTestUtils.setField(hsmCredentialsProvider, "environmentName", "development");
     }
 
     @Test
@@ -161,7 +167,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: NullPointerException - null", ex.getMessage());
         }
     }
 
@@ -179,7 +185,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Either username or password is null or empty", ex.getMessage());
         }
     }
 
@@ -197,7 +203,7 @@ public class HSMCredentialsProviderTest {
             hsmCredentialsProvider.getCredentials();
             fail("Expected a LoginException");
         } catch (LoginException ex) {
-            assertEquals("Failed to retrieve the HSM credentials: LoginException - Unknown environment", ex.getMessage());
+            assertEquals("Failed to retrieve the HSM credentials: LoginException - Either username or password is null or empty", ex.getMessage());
         }
     }
 
