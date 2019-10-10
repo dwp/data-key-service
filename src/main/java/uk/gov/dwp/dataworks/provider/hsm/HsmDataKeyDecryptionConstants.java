@@ -16,7 +16,7 @@ public interface HsmDataKeyDecryptionConstants {
 
     Pattern KEY_ID_PATTERN = Pattern.compile("^cloudhsm:(?<" + PRIVATE_KEY_GROUP_NAME + ">\\d+)[/,](?<" + PUBLIC_KEY_GROUP_NAME + ">\\d+)$");
 
-    // Will retry at 1s, 2s, 4s, 8, 16 then give up (after a total of 31 secs)
+    // Will retry at 1s, 2s, 4s, 8s, 16s then give up (after a total of 31 secs)
     int MAX_ATTEMPTS = 5;
     int INITIAL_BACKOFF_MILLIS = 1000;
     double BACKOFF_MULTIPLIER = 2.0;
