@@ -23,7 +23,6 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    private final int MAX_ATTEMPTS = 10;
     private final static Logger LOGGER = LoggerFactory.getLogger(HsmDataKeyGeneratorProvider.class);
 
     public HsmDataKeyGeneratorProvider(HsmLoginManager loginManager,
@@ -36,7 +35,7 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     @Retryable(
             value = { MasterKeystoreException.class },
             maxAttempts = MAX_ATTEMPTS,
-            backoff = @Backoff(delay = 1_000))
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public GenerateDataKeyResponse generateDataKey(String keyId)
             throws DataKeyGenerationException, MasterKeystoreException {
         try {

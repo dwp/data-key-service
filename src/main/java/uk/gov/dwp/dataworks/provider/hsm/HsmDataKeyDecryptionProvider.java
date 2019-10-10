@@ -32,7 +32,7 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
     @Retryable(
             value = { MasterKeystoreException.class },
             maxAttempts = MAX_ATTEMPTS,
-            backoff = @Backoff(delay = 1_000))
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey)
             throws MasterKeystoreException {
         try {

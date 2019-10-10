@@ -16,8 +16,10 @@ import uk.gov.dwp.dataworks.dto.HSMCredentials;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.MAX_ATTEMPTS;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -46,40 +48,54 @@ public class HSMLoginManagerTest {
         Mockito.reset(hsmCredentialsProvider);
     }
 
+    static CFM2Exception dummyC2smException() {
+        CFM2Exception exception = new CFM2Exception(1610612865, "dummy-call");
+        return exception;
+    }
+
     @Test
     public void Should_Login_When_Credentials_Are_Not_Null() throws CFM2Exception, MasterKeystoreException {
-        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER,CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
+        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-        hsmLoginManager.login();
-        doNothing().when(loginManager).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
-        verify(loginManager,Mockito.times(1)).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
-    }
+        doNothing().when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
 
-    @Test(expected = MasterKeystoreException.class)
-    public void Should_retry_when_login_fails() throws CFM2Exception, MasterKeystoreException {
-        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER,CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
-        given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-        doThrow(CFM2Exception.class).when(loginManager).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
         hsmLoginManager.login();
-        verify(loginManager,Mockito.times(10)).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
+
+        verify(loginManager, Mockito.times(1)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
     }
 
     @Test
-    public void Should_retry_until_login_succeeds() throws CFM2Exception, MasterKeystoreException {
-        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER,CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
+    public void Should_retry_when_login_fails() throws CFM2Exception, MasterKeystoreException {
+        try {
+            HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
+            given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
+            doThrow(dummyC2smException()).when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
+
+            hsmLoginManager.login();
+        } catch (MasterKeystoreException ex) {
+            verify(loginManager, Mockito.times(MAX_ATTEMPTS)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
+            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).: 1610612865 - Could not find credentials to login to the HSM.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void Should_retry_until_login_succeeds_when_error_occurs() throws CFM2Exception, MasterKeystoreException {
+        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-        doThrow(CFM2Exception.class)
+        doThrow(dummyC2smException())
                 .doNothing()
                 .when(loginManager)
-                .login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
+                .login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
+
         hsmLoginManager.login();
-        verify(loginManager,Mockito.times(2)).login(CRYPTO_USER_PARTITION_ID,CRYPTO_USER,CRYPTO_USER_PASSWORD);
+
+        verify(loginManager, Mockito.times(2)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
     }
 
     @Test
     public void Should_Logout_When_Logout_Is_Invoked() throws CFM2Exception, MasterKeystoreException {
         doNothing().when(loginManager).logout();
         hsmLoginManager.logout();
-        verify(loginManager,Mockito.times(1)).logout();
+        verify(loginManager, Mockito.times(1)).logout();
     }
 }

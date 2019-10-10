@@ -19,6 +19,7 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +39,7 @@ public class HsmDataKeyDecryptionProviderTest {
     }
 
     @Test
-    public void decryptDataKey() throws CryptoImplementationSupplierException, MasterKeystoreException {
+    public void decryptDataKey_happy_case() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
@@ -47,14 +48,16 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willReturn(plaintextDataKey);
+
         DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(cryptoImplementationSupplier, times(1)).decryptedKey(argumentCaptor.capture(), same(encryptedDataKey));
         DecryptDataKeyResponse expected = new DecryptDataKeyResponse(dataKeyEncryptionKeyId, plaintextDataKey);
         assertEquals(actual, expected);
     }
 
-    @Test(expected = DataKeyDecryptionException.class)
+    @Test
     public void decryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         Integer privateKeyHandle = 1;
         int publicKeyHandle = 2;
@@ -63,15 +66,27 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
-        dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+
+        try {
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+            fail("Expected a DataKeyDecryptionException");
+        } catch (DataKeyDecryptionException ex) {
+            assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void malformedMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
-        dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
+
+        try {
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
+            fail("Expected a CurrentKeyIdException");
+        } catch (CurrentKeyIdException ex) {
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
     }
 
     @Autowired

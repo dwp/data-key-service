@@ -15,47 +15,46 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 @Component
 @Profile("ExplicitHSMLogin")
-public class ExplicitHsmLoginManager implements HsmLoginManager {
+public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecryptionConstants {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 
     @Autowired
-    private com.cavium.cfm2.LoginManager loginManager ;
+    private com.cavium.cfm2.LoginManager loginManager;
 
     @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
 
-    private final int MAX_LOGIN_ATTEMPTS = 10;
-
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
-            maxAttempts = MAX_LOGIN_ATTEMPTS,
-            backoff = @Backoff(delay = 1_000))
-    public  void login() throws MasterKeystoreException {
+            value = {MasterKeystoreException.class},
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
+    public void login() throws MasterKeystoreException {
         try {
             HSMCredentials hsmCredentials = hsmCredentialsProvider.getCredentials();
             if (null != hsmCredentials) {
                 loginManager.login(hsmCredentials.getPartitionId(), hsmCredentials.getUserName(), hsmCredentials.getPassWord());
 
             }
-        }
-        catch (CFM2Exception e) {
-            LOGGER.warn("Failed to login, will retry (unless {} attempts made).", MAX_LOGIN_ATTEMPTS);
-            throw new MasterKeystoreException();
+        } catch (CFM2Exception e) {
+            String message = "Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message, e);
         }
     }
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
-            maxAttempts = 10,
-            backoff = @Backoff(delay = 1_000))
-    public  void logout() throws LoginException, MasterKeystoreException {
+            value = {MasterKeystoreException.class},
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
+    public void logout() throws LoginException, MasterKeystoreException {
         try {
             loginManager.logout();
-        }
-        catch (CFM2Exception e) {
-            throw new MasterKeystoreException();
+        } catch (CFM2Exception e) {
+            String message = "Failed to logout, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message, e);
         }
     }
 }

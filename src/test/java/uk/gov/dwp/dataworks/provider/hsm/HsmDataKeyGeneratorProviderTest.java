@@ -23,8 +23,10 @@ import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import java.util.Base64;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.MAX_ATTEMPTS;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -55,7 +57,9 @@ public class HsmDataKeyGeneratorProviderTest {
         given(cryptoImplementationSupplier.dataKey()).willReturn(key);
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
         given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key)).willReturn(encryptedDataKey.getBytes());
+
         GenerateDataKeyResponse actual = dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+
         verify(cryptoImplementationSupplier, times(1)).encryptedKey(argumentCaptor.capture(), same(key));
         assertEquals(argumentCaptor.getValue(), new Integer(publicKeyHandle));
         GenerateDataKeyResponse expected = new GenerateDataKeyResponse(dataKeyEncryptionKeyId, Base64
@@ -63,23 +67,28 @@ public class HsmDataKeyGeneratorProviderTest {
         assertEquals(actual, expected);
     }
 
-    @Test(expected = MasterKeystoreException.class)
-    public void retryDataKey() throws MasterKeystoreException, CryptoImplementationSupplierException {
-        CaviumKey mockKey = Mockito.mock(CaviumKey.class);
-        given(mockKey.getEncoded()).willReturn("some bytes".getBytes());
-        given(cryptoImplementationSupplier
-                .dataKey())
-                .willReturn(mockKey);
-        given(cryptoImplementationSupplier
-                .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .willThrow(MasterKeystoreException.class);
+    @Test
+    public void generateDataKey_will_retry_until_maximum_reached() throws MasterKeystoreException, CryptoImplementationSupplierException {
+        try {
 
-        dataKeyGeneratorProvider.generateDataKey("cloudhsm:1,2");
-        verify(cryptoImplementationSupplier, Mockito.times(10))
-                .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
+            CaviumKey mockKey = Mockito.mock(CaviumKey.class);
+            given(mockKey.getEncoded()).willReturn("some bytes".getBytes());
+            given(cryptoImplementationSupplier
+                    .dataKey())
+                    .willReturn(mockKey);
+            given(cryptoImplementationSupplier
+                    .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                    .willThrow(new MasterKeystoreException("Boom"));
+
+            dataKeyGeneratorProvider.generateDataKey("cloudhsm:1,2");
+            fail("Expected a MasterKeystoreException");
+        } catch (MasterKeystoreException ex) {
+            assertEquals("Boom", ex.getMessage());
+            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS)).encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void generateDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
@@ -90,10 +99,16 @@ public class HsmDataKeyGeneratorProviderTest {
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
         given(cryptoImplementationSupplier.dataKey()).willThrow(CryptoImplementationSupplierException.class);
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (DataKeyGenerationException ex){
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
     }
 
-    @Test(expected = DataKeyGenerationException.class)
+    @Test
     public void encryptDataKeyNotOk() throws CryptoImplementationSupplierException, MasterKeystoreException {
         int privateKeyHandle = 1;
         Integer publicKeyHandle = 2;
@@ -105,13 +120,24 @@ public class HsmDataKeyGeneratorProviderTest {
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
         given(cryptoImplementationSupplier.dataKey()).willReturn(key);
         given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key)).willThrow(CryptoImplementationSupplierException.class);
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (DataKeyGenerationException ex){
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+        }
     }
 
-    @Test(expected = CurrentKeyIdException.class)
+    @Test
     public void testBadMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "NOT IN THE CORRECT FORMAT";
-        dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+        try {
+            dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+            fail("Expected a DataKeyGenerationException");
+        } catch (CurrentKeyIdException ex){
+            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+        }
     }
 
     @Autowired
