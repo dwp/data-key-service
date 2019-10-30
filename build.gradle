@@ -25,7 +25,7 @@ tasks.withType(JavaExec) {
 bootJar {
     launchScript()
     manifest {
-        attributes 'Class-Path': '/opt/dks/config /opt/cloudhsm/java/cloudhsm-2.0.4.jar /opt/cloudhsm/java/log4j-api-2.8.jar /opt/cloudhsm/java/log4j-core-2.8.jar'
+        attributes 'Class-Path': '/opt/dks/config /opt/cloudhsm/java/cloudhsm-3.0.0.jar /opt/cloudhsm/java/log4j-api-2.8.jar /opt/cloudhsm/java/log4j-core-2.8.jar'
     }
 }
 
@@ -43,8 +43,8 @@ dependencies {
     implementation "org.springframework.retry:spring-retry:1.2.4.RELEASE"
     implementation "org.springframework.boot:spring-boot-starter-aop"
 
-    compileOnly    group: "cloudhsm", name: "cloudhsm-2.0.4"
-    testImplementation    group: "cloudhsm", name: "cloudhsm-2.0.4"
+    compileOnly    group: "cloudhsm", name: "cloudhsm-3.0.0"
+    testImplementation    group: "cloudhsm", name: "cloudhsm-3.0.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile "junit:junit:4.12"
