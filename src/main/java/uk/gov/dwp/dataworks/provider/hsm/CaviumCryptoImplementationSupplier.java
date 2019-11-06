@@ -112,7 +112,9 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         }
         catch (CFM2Exception e) {
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
             LOGGER.warn(message);
+
             throw new MasterKeystoreException(message, e);
         }
     }
