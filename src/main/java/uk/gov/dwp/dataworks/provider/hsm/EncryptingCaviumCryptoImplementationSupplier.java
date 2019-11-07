@@ -154,10 +154,12 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
                     return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
                 }
                 else {
+                    LOGGER.warn("Exported unwrapped key is null, unwrappedKey: '{}'", unwrappedKey);
                     throw new GarbledDataKeyException();
                 }
             }
             else {
+                LOGGER.warn("Unwrapped key is null.");
                 throw new GarbledDataKeyException();
             }
         }
@@ -165,6 +167,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             throw new CryptoImplementationSupplierException(e);
         }
         catch (InvalidKeyException e) {
+            LOGGER.warn("Invalid key: {}", e.getMessage(), e);
             throw new GarbledDataKeyException();
         }
         catch (CFM2Exception e) {
