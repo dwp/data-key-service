@@ -108,9 +108,9 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
-            byte[] decryted = cipher.doFinal(decodedCipher);
-            if (decryted != null) {
-                return new String(Base64.getEncoder().encode(decryted));
+            byte[] decrypted = cipher.doFinal(decodedCipher);
+            if (decrypted != null) {
+                return new String(Base64.getEncoder().encode(decrypted));
             }
             else {
                 throw new GarbledDataKeyException();
