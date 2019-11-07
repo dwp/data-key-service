@@ -89,6 +89,7 @@ public class HealthCheckController {
             canEncryptDataKey = ! Strings.isNullOrEmpty(encryptResponse.ciphertextDataKey);
             DecryptDataKeyResponse decryptResponse =
                     dataKeyService.decrypt(encryptResponse.dataKeyEncryptionKeyId, encryptResponse.ciphertextDataKey);
+            System.err.println(decryptResponse);
             canDecryptDataKey = ! Strings.isNullOrEmpty(decryptResponse.plaintextDataKey) &&
                     decryptResponse.plaintextDataKey.equals(encryptResponse.plaintextDataKey);
         }
