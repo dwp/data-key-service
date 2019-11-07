@@ -54,32 +54,36 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     }
 
 //    @Override
-//    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
-//            throws CryptoImplementationSupplierException, MasterKeystoreException {
-//        try {
-//            byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-//            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
-//            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
-//            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-//            return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
-//        }
-//        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
-//                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException  e) {
-//            throw new CryptoImplementationSupplierException(e);
-//        }
-//        catch (CFM2Exception e) {
-//            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
-//            LOGGER.warn(message);
-//            throw new MasterKeystoreException(message, e);
-//        }
-//    }
+    public byte[] encryptedKey2(Integer wrappingKeyHandle, Key dataKey)
+            throws CryptoImplementationSupplierException, MasterKeystoreException {
+        try {
+            LOGGER.info("wrappingKeyHande: '{}'.", wrappingKeyHandle);
+            byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
+            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
+        }
+        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
+                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException  e) {
+            throw new CryptoImplementationSupplierException(e);
+        }
+        catch (CFM2Exception e) {
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message, e);
+        }
+    }
 
     @Override
     public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
+            LOGGER.info("wrappingKeyHande: '{}'.", wrappingKeyHandle);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
             OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
             cipher.init(Cipher.WRAP_MODE, publicKey, spec);
@@ -96,37 +100,38 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
     }
 
-//    @Override
-//    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
-//            throws CryptoImplementationSupplierException, MasterKeystoreException {
-//        try {
-//            byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
-//            CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
-//            CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
-//            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
-//            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-//            byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
-//            byte[] decrypted = cipher.doFinal(decodedCipher);
-//            if (decrypted != null) {
-//                return new String(Base64.getEncoder().encode(decrypted));
-//            }
-//            else {
-//                throw new GarbledDataKeyException();
-//            }
-//        }
-//        catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException  | IllegalBlockSizeException | BadPaddingException e) {
-//            throw new CryptoImplementationSupplierException(e);
-//        }
-//        catch (InvalidKeyException e) {
-//            throw new GarbledDataKeyException();
-//        }
-//        catch (CFM2Exception e) {
-//            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
-//            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
-//            LOGGER.warn(message);
-//            throw new MasterKeystoreException(message, e);
-//        }
-//    }
+    //@Override
+    public String decryptedKey2(Integer decryptionKeyHandle, String ciphertextDataKey)
+            throws CryptoImplementationSupplierException, MasterKeystoreException {
+        try {
+            LOGGER.info("decryptionKeyHandle: '{}'.", decryptionKeyHandle);
+            byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
+            CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
+            CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
+            byte[] decrypted = cipher.doFinal(decodedCipher);
+            if (decrypted != null) {
+                return new String(Base64.getEncoder().encode(decrypted));
+            }
+            else {
+                throw new GarbledDataKeyException();
+            }
+        }
+        catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException  | IllegalBlockSizeException | BadPaddingException e) {
+            throw new CryptoImplementationSupplierException(e);
+        }
+        catch (InvalidKeyException e) {
+            throw new GarbledDataKeyException();
+        }
+        catch (CFM2Exception e) {
+            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            LOGGER.warn(message);
+            throw new MasterKeystoreException(message, e);
+        }
+    }
 
     @Override
     public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
