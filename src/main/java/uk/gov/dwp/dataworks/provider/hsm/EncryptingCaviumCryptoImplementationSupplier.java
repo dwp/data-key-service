@@ -17,11 +17,8 @@ import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 
 import javax.crypto.*;
-import javax.crypto.spec.OAEPParameterSpec;
-import javax.crypto.spec.PSource;
 import java.io.IOException;
 import java.security.*;
-import java.security.spec.MGF1ParameterSpec;
 import java.util.Base64;
 
 import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
@@ -76,30 +73,6 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
     }
 
-//    @Override
-//    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
-//            throws CryptoImplementationSupplierException, MasterKeystoreException {
-//        try {
-//            LOGGER.info("wrappingKeyHande: '{}'.", wrappingKeyHandle);
-//            byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-//            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
-//            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
-//            OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
-//            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
-//            cipher.init(Cipher.WRAP_MODE, publicKey, spec);
-//            return Base64.getEncoder().encode(cipher.wrap(dataKey));
-//        }
-//        catch (NoSuchAlgorithmException | NoSuchProviderException |
-//                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
-//            throw new CryptoImplementationSupplierException(e);
-//        }
-//        catch (CFM2Exception e) {
-//            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
-//            LOGGER.warn(message);
-//            throw new MasterKeystoreException(message, e);
-//        }
-//    }
-
     @Override
     public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
@@ -133,7 +106,31 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
     }
 
-//    @Override
+    //    @Override
+    //    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+    //            throws CryptoImplementationSupplierException, MasterKeystoreException {
+    //        try {
+    //            LOGGER.info("wrappingKeyHande: '{}'.", wrappingKeyHandle);
+    //            byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
+    //            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+    //            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+    //            OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+    //            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
+    //            cipher.init(Cipher.WRAP_MODE, publicKey, spec);
+    //            return Base64.getEncoder().encode(cipher.wrap(dataKey));
+    //        }
+    //        catch (NoSuchAlgorithmException | NoSuchProviderException |
+    //                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
+    //            throw new CryptoImplementationSupplierException(e);
+    //        }
+    //        catch (CFM2Exception e) {
+    //            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+    //            LOGGER.warn(message);
+    //            throw new MasterKeystoreException(message, e);
+    //        }
+    //    }
+
+    //    @Override
 //    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
 //            throws CryptoImplementationSupplierException, MasterKeystoreException {
 //        try {
