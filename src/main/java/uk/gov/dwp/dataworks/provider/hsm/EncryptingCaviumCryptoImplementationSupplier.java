@@ -124,5 +124,5 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     @Value("${cipher.transformation:RSA/ECB/OAEPWithSHA-256ANDMGF1Padding}")
     private String cipherTransformation;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EncryptingCaviumCryptoImplementationSupplier.class);
 }
