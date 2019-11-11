@@ -135,5 +135,5 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         }
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm.class);
 }

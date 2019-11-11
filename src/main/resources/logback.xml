@@ -1,11 +1,11 @@
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${dks.log.directory}/dks.out</file>
+        <append>true</append>
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%file:%method:%line] %message%n</pattern>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>${dks.log.level.console}</level>
-        </filter>
     </appender>
 
     <appender name="HEALTHCHECK-FILE" class="ch.qos.logback.core.FileAppender">
@@ -24,7 +24,7 @@
     parameter store. The following config silences the http library.
     -->
     <logger name="org.apache" level="ERROR" additivity="true">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
     </logger>
 
     <logger name="healthcheck">
@@ -32,6 +32,6 @@
     </logger>
 
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
