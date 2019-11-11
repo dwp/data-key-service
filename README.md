@@ -177,7 +177,7 @@ java -Ddks.log.directory=/var/log/dks -Ddks.log.level.console=WARN \
 
 ## Insecure mode
 
-Occasionally you may want ot bring up DKS in secure mode, for instance to
+Occasionally you may want ot bring up DKS in insecure mode, for instance to
 quickly curl the datakey endpoint to obtain a new datakey for testing purposes.
 
 To do this jump onto the DKS host. Create a file called `application.properties`
