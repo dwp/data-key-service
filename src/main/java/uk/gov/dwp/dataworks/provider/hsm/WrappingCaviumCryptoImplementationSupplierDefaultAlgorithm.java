@@ -7,26 +7,30 @@ import com.cavium.key.CaviumKeyAttributes;
 import com.cavium.key.CaviumRSAPrivateKey;
 import com.cavium.key.CaviumRSAPublicKey;
 import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
+import com.cavium.key.parameter.CaviumKeyGenAlgorithmParameterSpec;
 import com.cavium.provider.CaviumProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.*;
+import java.util.Arrays;
 import java.util.Base64;
 
-import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
-
+@Profile("WrappingCaviumDefaultAlgorithm")
 @Component
-@Profile("Cavium")
-public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
+public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
+        implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
+
 
     static {
         try {
@@ -52,20 +56,17 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
     }
 
+
     @Override
     public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("wrappingKeyHandle: '{}'.", wrappingKeyHandle);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
-            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
-            Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
+            byte[] wrappedKey = Util.rsaWrapKey(publicKey, (CaviumKey) dataKey, PADDING);
+            return Base64.getEncoder().encode(wrappedKey);
         }
-        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
-                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException  e) {
+        catch (InvalidKeyException e) {
             throw new CryptoImplementationSupplierException(e);
         }
         catch (CFM2Exception e) {
@@ -79,22 +80,36 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("decryptionKeyHandle: '{}'.", decryptionKeyHandle);
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
             CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
             CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
-            Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            CaviumKeyGenAlgorithmParameterSpec unwrappingSpec = new
+                    CaviumKeyGenAlgorithmParameterSpec(DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
-            byte[] decrypted = cipher.doFinal(decodedCipher);
-            if (decrypted != null) {
-                return new String(Base64.getEncoder().encode(decrypted));
+
+            CaviumKey unwrappedKey =
+                    Util.rsaUnwrapKey(privateKey,
+                            decodedCipher,
+                            SYMMETRIC_KEY_TYPE,
+                            Cipher.SECRET_KEY,
+                            unwrappingSpec, PADDING);
+
+            if (unwrappedKey != null) {
+                byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
+                if (exportedUnwrappedKey != null) {
+                    LOGGER.debug("Removing unwrapped session key.");
+                    cleanupKey(unwrappedKey);
+                    return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
+                }
+                else {
+                    throw new GarbledDataKeyException();
+                }
             }
             else {
                 throw new GarbledDataKeyException();
             }
         }
-        catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException  | IllegalBlockSizeException | BadPaddingException e) {
+        catch (NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
         }
         catch (InvalidKeyException e) {
@@ -104,6 +119,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
             LOGGER.warn(message);
+
             throw new MasterKeystoreException(message, e);
         }
     }
@@ -117,12 +133,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         catch (CFM2Exception e) {
             LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
-
     }
-
-
-    @Value("${cipher.transformation:RSA/ECB/OAEPWithSHA-256ANDMGF1Padding}")
-    private String cipherTransformation;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 }
