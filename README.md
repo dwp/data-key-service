@@ -46,7 +46,7 @@ This is a three step process -
 
 * Generate a symmetric data key
 * Fetch the public half of the master key pair
-* 'Wrap' the datakey, with the public master key playing the role of the
+* encrypt the datakey, with the public master key playing the role of the
   'wrapping' key
 
 In more detail, first a new ephemeral (i.e. non-persistent), 'extractable'
@@ -62,17 +62,12 @@ The plaintext key, the encrypted ciphertext version of it and the handles (the
 CloudHSM ids) of the private and public master key pair are then returned to the
 client.
 
-Wrapping is done through the CloudHSM `Util` class which provides the method
-`Util.rsaWrapKey` to which you supply the public wrapping key, and the key to
-be wrapped.
-
 ### Decrypt datakey
 
 When the time comes to decrypt the key the ciphertext and the handles of the
 public and private key (in a single compound string)) are sent back to the
 application by the client along with the ciphertext. To decrypt, the private key
-half of the master key pair must be fetched and then this and the supplied
-ciphertext must passed to the `Util.rsaUnwrapKey` method.
+half of the master key pair and the supplied ciphertext are used
 
 # Running locally (non CloudHSM only)
 
@@ -152,6 +147,8 @@ SPRING_PROFILES_ACTIVE=STANDALONE,INSECURE ./gradlew bootRun
 
 # Running non-locally
 
+## Secure mode
+
 For production, or production-like deployments it is expected that you deploy
 this service with certificates issued by a Certificate Authority (rather than
 self-signed certificates as above), with your server's CA cert and client's CA
@@ -177,6 +174,47 @@ The Data Key Service can then be run using a command similar to the following:
 java -Ddks.log.directory=/var/log/dks -Ddks.log.level.console=WARN \
 -Ddks.log.level.file=INFO -jar /opt/dks/dks.jar`
 ```
+
+## Insecure mode
+
+Occasionally you may want ot bring up DKS in secure mode, for instance to
+quickly curl the datakey endpoint to obtain a new datakey for testing purposes.
+
+To do this jump onto the DKS host. Create a file called `application.properties`
+with the following contents:
+
+```
+server.environment_name=development
+master.key.parameter.name=dks.development.master.key.id
+spring.profiles.active=AWS,HSM,INSECURE,Cavium,ImplicitHSMLogin
+healthcheck.interval=60000
+```
+
+The example above assumes that this DKS services the development environment,
+adjust accordingly if this is not the case.
+
+Create a file called `dks.sh` in the same directory with the following:
+
+``` bash
+#!/bin/sh
+java \
+    -Djava.library.path=/opt/cloudhsm/lib \
+    -Djava.net.preferIPv4Stack=true \
+    -Djava.net.preferIPv4Addresses=true \
+    -Ddks.log.directory=./logs \
+    -jar /opt/dks/dks.jar \
+    --logging.level.root=INFO \
+    --spring.config.location=./application.properties
+
+```
+
+Then run `./dks.sh`. You can then use this instance to get a new data key by
+opening a new terminal and saying:
+
+``` bash
+curl http://localhost:8080/datakey
+```
+
 
 # Swagger UI
 
