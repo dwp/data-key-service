@@ -74,7 +74,7 @@ public class HSMLoginManagerTest {
             hsmLoginManager.login();
         } catch (MasterKeystoreException ex) {
             verify(loginManager, Mockito.times(MAX_ATTEMPTS)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).: 1610612865 - Could not find credentials to login to the HSM.", ex.getMessage());
+            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).", ex.getMessage());
         }
     }
 

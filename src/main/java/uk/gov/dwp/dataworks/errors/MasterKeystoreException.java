@@ -1,6 +1,7 @@
 package uk.gov.dwp.dataworks.errors;
 
 import com.cavium.cfm2.CFM2Exception;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -11,7 +12,7 @@ public class MasterKeystoreException extends Exception {
         super(message);
     }
 
-    public MasterKeystoreException(String message, CFM2Exception c2fmError) {
-        this(message + ": " + c2fmError.getStatus() + " - " + c2fmError.getMessage());
+    public MasterKeystoreException(String message, Throwable e) {
+        super(message, e);
     }
 }

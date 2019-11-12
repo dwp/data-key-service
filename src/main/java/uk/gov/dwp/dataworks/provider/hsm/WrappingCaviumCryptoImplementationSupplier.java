@@ -59,11 +59,12 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
         public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
                 throws CryptoImplementationSupplierException, MasterKeystoreException {
             try {
-                LOGGER.info("wrappingKeyHande: '{}'.", wrappingKeyHandle);
+                LOGGER.info("wrappingKeyHandle: '{}'.", wrappingKeyHandle);
                 byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
                 CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
                 LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
-                OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1",
+                        MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
                 Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
                 cipher.init(Cipher.WRAP_MODE, publicKey, spec);
                 return Base64.getEncoder().encode(cipher.wrap(dataKey));

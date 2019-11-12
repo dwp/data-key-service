@@ -39,7 +39,7 @@ public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecry
         } catch (CFM2Exception e) {
             String message = "Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).";
             LOGGER.warn(message);
-            throw new MasterKeystoreException(message, e);
+            throw new MasterKeystoreException(message);
         }
     }
 
