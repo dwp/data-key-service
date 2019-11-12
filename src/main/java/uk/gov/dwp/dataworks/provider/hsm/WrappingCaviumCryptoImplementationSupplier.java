@@ -85,13 +85,13 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             LOGGER.info("decryptionKeyHandle: '{}'.", decryptionKeyHandle);
+            byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
+            CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
+            CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
             OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256",
                     "MGF1",
                     MGF1ParameterSpec.SHA256,
                     PSource.PSpecified.DEFAULT);
-            byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
-            CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
-            CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
             Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
             cipher.init(Cipher.UNWRAP_MODE, privateKey, spec);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
