@@ -89,6 +89,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                 return decryptedKey(jceCipher, ciphertextDataKey);
             }
             catch (Exception e) {
+                LOGGER.warn("SunJCE cipher failed: '" + e.getMessage() + "'.");
                 try {
                     Cipher bcCipher = bouncyCastleCompatibleCipher(Cipher.DECRYPT_MODE, privateKey);
                     LOGGER.info("SunJCE failed trying bouncy castle compatible cipher.");
@@ -111,7 +112,12 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
 
     public String decryptedKey(Cipher cipher, String ciphertextDataKey) {
         try {
-            LOGGER.info("Decrypting with '{}/{}/{}'.", cipher.getProvider(), cipher.getAlgorithm(), cipher.getParameters());
+            System.err.println(cipher.getParameters());
+            LOGGER.info("Decrypting with '{}/{}/{}'.",
+                    cipher.getProvider(),
+                    cipher.getAlgorithm(),
+                    cipher.getParameters());
+
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
             byte[] decrypted = cipher.doFinal(decodedCipher);
             if (decrypted != null) {
@@ -155,6 +161,11 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                 mgf1ParameterSpec,
                 PSource.PSpecified.DEFAULT);
     }
+
+//    fun oaepParameterSpec() =
+//    OAEPParameterSpec("SHA-256", "MGF1",
+//                      MGF1ParameterSpec.SHA1,
+//                      PSource.PSpecified.DEFAULT);
 
     private CaviumRSAPrivateKey privateKey(Integer decryptionKeyHandle) throws CryptoImplementationSupplierException {
         try {

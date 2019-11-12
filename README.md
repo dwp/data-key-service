@@ -42,7 +42,7 @@ specific operations.
 
 ### New datakey
 
-This is a three step process -
+This is a three step process:
 
 * Generate a symmetric data key
 * Fetch the public half of the master key pair
