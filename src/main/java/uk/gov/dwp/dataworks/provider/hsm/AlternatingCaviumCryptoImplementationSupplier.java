@@ -84,7 +84,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             CaviumRSAPrivateKey privateKey = privateKey(decryptionKeyHandle);
             //Cipher jceCipher = sunJceCompatibleCipher(Cipher.DECRYPT_MODE, privateKey);
             OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1",
-                    MGF1ParameterSpec.SHA256,
+                    MGF1ParameterSpec.SHA1,
                     PSource.PSpecified.DEFAULT);
 
             Cipher jceCipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
