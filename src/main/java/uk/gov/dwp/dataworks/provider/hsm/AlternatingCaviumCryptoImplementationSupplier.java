@@ -88,7 +88,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                     PSource.PSpecified.DEFAULT);
 
             Cipher jceCipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            jceCipher.init(Cipher.DECRYPT_MODE, privateKey, spec);
+            jceCipher.init(Cipher.UNWRAP_MODE, privateKey, spec);
 
             try {
                 LOGGER.info("Trying SunJCE compatible cipher.");
