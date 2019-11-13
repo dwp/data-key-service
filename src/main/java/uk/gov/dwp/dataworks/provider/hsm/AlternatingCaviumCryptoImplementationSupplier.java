@@ -92,7 +92,8 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
 
             try {
                 LOGGER.info("Trying SunJCE compatible cipher.");
-                return decryptedKey(jceCipher, ciphertextDataKey);
+//                return decryptedKey(jceCipher, ciphertextDataKey);
+                return unwrappedKey(jceCipher, ciphertextDataKey);
             }
             catch (Exception e) {
                 LOGGER.warn("SunJCE cipher failed: '" + e.getMessage() + "'.");
@@ -140,6 +141,29 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
         }
     }
 
+    public String unwrappedKey(Cipher cipher, String ciphertextDataKey) {
+        try {
+            System.err.println(cipher.getParameters());
+            LOGGER.info("Decrypting with '{}/{}/{}'.",
+                    cipher.getProvider(),
+                    cipher.getAlgorithm(),
+                    cipher.getParameters());
+
+            byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
+            Key key = cipher.unwrap(decodedCipher, "AES", Cipher.SECRET_KEY);
+            if (key != null) {
+                return new String(Base64.getEncoder().encode(key.getEncoded()));
+            }
+            else {
+                LOGGER.warn("Decrypting key '{}' yielded null.", ciphertextDataKey);
+                throw new GarbledDataKeyException();
+            }
+        }
+        catch (InvalidKeyException | NoSuchAlgorithmException e) {
+            LOGGER.warn("Failed to decrypt key: '{}'.", e.getMessage());
+            throw new GarbledDataKeyException();
+        }
+    }
     private Cipher sunJceCompatibleCipher(int mode, Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException {
         return compatibleCipher(sunJceOaepParameterSpec(), mode, key);
     }
