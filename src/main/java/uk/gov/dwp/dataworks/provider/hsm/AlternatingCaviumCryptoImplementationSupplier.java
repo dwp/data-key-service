@@ -29,7 +29,7 @@ import java.util.Base64;
 import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
 
 @Component
-@Profile("Cavium")
+@Profile("AlternatingCavium")
 public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
 
     static {
@@ -88,12 +88,12 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                     PSource.PSpecified.DEFAULT);
 
             Cipher jceCipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            jceCipher.init(Cipher.UNWRAP_MODE, privateKey, spec);
+            jceCipher.init(Cipher.DECRYPT_MODE, privateKey, spec);
 
             try {
                 LOGGER.info("Trying SunJCE compatible cipher with unwrap.");
-//                return decryptedKey(jceCipher, ciphertextDataKey);
-                return unwrappedKey(jceCipher, ciphertextDataKey);
+                return decryptedKey(jceCipher, ciphertextDataKey);
+//                return unwrappedKey(jceCipher, ciphertextDataKey);
             }
             catch (Exception e) {
                 LOGGER.warn("SunJCE cipher failed: '" + e.getMessage() + "'.");

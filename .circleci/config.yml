@@ -34,6 +34,10 @@ jobs:
     - run:
         name: run gradle
         command: |
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+          VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          sed -i s/version=.*/version=$VERSION/ gradle.properties
           wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_latest_amd64.deb
           sudo dpkg --force-all -i cloudhsm-client-jce_latest_amd64.deb
           gradle build
@@ -63,14 +67,18 @@ jobs:
     - run:
         name: "Publish Release on GitHub"
         command: |
-          echo GITHUB_TOKEN: \'$GITHUB_TOKEN\'.
-          VERSION=0.0.1
-          ghr \
-          -t ${GITHUB_TOKEN} \
-          -u ${CIRCLE_PROJECT_USERNAME} \
-          -r ${CIRCLE_PROJECT_REPONAME} \
-          -c ${CIRCLE_SHA1} -delete \
-          ${VERSION} ./artifacts/
+            set -u
+            set -o pipefail
+            ls -l ./artifacts
+            LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+            VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+            ghr \
+              -t ${GITHUB_TOKEN} \
+              -u ${CIRCLE_PROJECT_USERNAME} \
+              -r ${CIRCLE_PROJECT_REPONAME} \
+              -c ${CIRCLE_SHA1} -delete \
+              ${VERSION} ./artifacts/
 workflows:
   version: 2
   build-and-deploy:
@@ -79,6 +87,6 @@ workflows:
     - publish-github-release:
         requires:
         - build
-#        filters:
-#          branches:
-#            only: master
+        filters:
+          branches:
+            only: master

@@ -25,7 +25,7 @@ import java.util.Base64;
 import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
 
 @Component
-@Profile("EncryptingCavium")
+@Profile("Cavium")
 public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
 
     static {
