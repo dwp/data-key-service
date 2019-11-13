@@ -91,7 +91,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             jceCipher.init(Cipher.UNWRAP_MODE, privateKey, spec);
 
             try {
-                LOGGER.info("Trying SunJCE compatible cipher.");
+                LOGGER.info("Trying SunJCE compatible cipher with unwrap.");
 //                return decryptedKey(jceCipher, ciphertextDataKey);
                 return unwrappedKey(jceCipher, ciphertextDataKey);
             }
