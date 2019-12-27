@@ -7,9 +7,9 @@ meta:
         image_resource:
           type: docker-image
           source:
-            repository: hashicorp/terraform
-            version: ((terraform.version))
-            tag: ((terraform.version))
+            repository: ((terraform.repository))
+            version: 0.12.16
+            tag: 0.12.16
         params:
           AWS_ACCESS_KEY_ID: ((ci.aws_access_key_id))
           AWS_SECRET_ACCESS_KEY: ((ci.aws_secret_access_key))
@@ -26,7 +26,7 @@ meta:
             - |
               terraform init
               terraform workspace show
-              terraform output artefact_bucket | grep "id = " | awk '{print $3}' > ../bucket_name/bucket_name
+              terraform output artefact_bucket | grep "\"id\" = " | awk '{print $3}' | sed 's/"//g' > ../bucket_name/bucket_name
         inputs:
           - name: aws-management-infrastructure
         outputs:
