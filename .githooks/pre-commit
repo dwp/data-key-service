@@ -11,7 +11,7 @@ declare -a patterns=(
 
 declare -a descriptions=(
   "AWS access key ID"
-  "AWS secret acess key"
+  "AWS secret access key"
   "AWS account number"
   "16 byte hex (e.g. S3 bucket name)"
   "NINO"
