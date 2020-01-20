@@ -22,7 +22,7 @@ match=0
 for i in "${!patterns[@]}"
 do
   git diff-index -p -M --cached HEAD -- |
-  grep '^+' | grep -Eq "${patterns[$i]}" &&
+  grep '^+[^+]' | grep -Eq "${patterns[$i]}" &&
   echo "Blocking commit: ${descriptions[$i]} detected in patch" &&
   ((match++))
 done
