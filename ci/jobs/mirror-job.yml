@@ -21,7 +21,9 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: governmentpaas/awscli
+              repository: ((docker-awscli.repository))
+              version: ((docker-awscli.version))
+              tag: ((docker-awscli.version))
           inputs:
             - name: bucket_name
             - name: .aws
