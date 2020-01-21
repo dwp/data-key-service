@@ -38,7 +38,9 @@ meta:
         image_resource:
           type: docker-image
           source:
-            repository: governmentpaas/awscli
+            repository: ((docker-awscli.repository))
+            version: ((docker-awscli.version))
+            tag: ((docker-awscli.version))
         outputs:
           - name: .aws
         params:
