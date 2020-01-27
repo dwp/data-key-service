@@ -56,8 +56,6 @@ public class HealthCheckController {
     })
 
     public ResponseEntity<HealthCheckResponse> healthCheck() {
-
-
         boolean canReachDependencies = false;
         boolean canRetrieveCurrentMasterKeyId = false;
         boolean canCreateNewDataKey = false;

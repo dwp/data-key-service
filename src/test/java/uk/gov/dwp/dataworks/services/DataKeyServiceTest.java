@@ -26,13 +26,10 @@ import java.util.Objects;
 })
 public class DataKeyServiceTest {
 
-    @Autowired
-    private CacheManager cacheManager;
-
     @Before
     public void init() {
         Mockito.reset(currentKeyIdProvider);
-        //hsmCredentialsProvider.clearCache();
+
         for (String name : cacheManager.getCacheNames()) {
             Objects.requireNonNull(cacheManager.getCache(name)).clear();
         }
@@ -43,7 +40,7 @@ public class DataKeyServiceTest {
         dataKeyService.currentKeyId();
         dataKeyService.currentKeyId();
         dataKeyService.currentKeyId();
-        // Verification
+
         Mockito.verify(currentKeyIdProvider, Mockito.times(1)).getKeyId();
     }
 
@@ -52,9 +49,12 @@ public class DataKeyServiceTest {
         dataKeyService.currentKeyId();
         Thread.sleep(2000);
         dataKeyService.currentKeyId();
-        // Verification
+
         Mockito.verify(currentKeyIdProvider, Mockito.times(2)).getKeyId();
     }
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Autowired
     private DataKeyService dataKeyService;

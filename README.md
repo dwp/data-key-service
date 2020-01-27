@@ -11,6 +11,32 @@ DataWorks service to manage the generation and decryption of data keys.
   * See versions in See https://docs.aws.amazon.com/cloudhsm/latest/userguide/client-history.html
   * Must match those used in aws infrastructure
 
+## On a unix machine
+Follow the instructions on the AWS link above:
+```bash
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/EL6/cloudhsm-client-jce-latest.el6.x86_64.rpm
+sudo yum install -y ./cloudhsm-client-jce-latest.el6.x86_64.rpm
+```
+or
+```bash
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_latest_amd64.deb
+sudo dpkg -i cloudhsm-client-jce_latest_amd64.deb
+```
+
+## On a Mac
+You need to get the rpm, extract the files, and put them in the right place yourself
+```bash
+brew install wget
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/EL6/cloudhsm-client-jce-latest.el6.x86_64.rpm
+tar -xvzf cloudhsm-client-jce-latest.el6.x86_64.rpm
+cp -R opt/cloudhsm /opt/cloudhsm/
+chmod -R a+rwx /opt/cloudhsm
+```
+You can also use other mac utilities like `rpm2cpio`:
+```bash
+rpm2cpio cloudhsm-client-jce-latest.el6.x86_64.rpm | cpio -i -d 
+```
+
 # Build instructions
 Gradle will fetch required packages and action all of the building. You can start the process by using the gradle wrapper
 
