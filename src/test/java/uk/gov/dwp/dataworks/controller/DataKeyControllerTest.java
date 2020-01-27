@@ -19,7 +19,7 @@ public class DataKeyControllerTest {
         dataKeyController.generate(dksCorrelationId);
 
         verify(mockDataKeyService, times(1)).currentKeyId();
-        verify(mockDataKeyService, times(1)).generate(eq(keyId));
+        verify(mockDataKeyService, times(1)).generate(eq(keyId), eq(dksCorrelationId));
         verifyNoMoreInteractions(mockDataKeyService);
     }
 
@@ -33,7 +33,7 @@ public class DataKeyControllerTest {
 
         dataKeyController.decrypt(keyId, dksCorrelationId, ciphertextDataKey);
 
-        verify(mockDataKeyService, times(1)).decrypt(keyId, ciphertextDataKey);
+        verify(mockDataKeyService, times(1)).decrypt(eq(keyId), eq(ciphertextDataKey), eq(dksCorrelationId));
         verifyNoMoreInteractions(mockDataKeyService);
     }
 }

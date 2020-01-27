@@ -16,6 +16,8 @@ import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.service.HealthCheckService;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @RunWith(SpringRunner.class)
@@ -42,15 +44,15 @@ public class HealthCheckServiceTest {
 
     @Test
     public void Should_Run_Healthcheck_Initially_After_One_Second() throws InterruptedException  {
-        Mockito.when(healthCheckController.healthCheck()).thenReturn(mockHealthOkResponse);
+        when(healthCheckController.healthCheck(anyString())).thenReturn(mockHealthOkResponse);
         Thread.sleep(1000);
-        Mockito.verify(healthCheckController, Mockito.times(1)).healthCheck();
+        verify(healthCheckController, times(1)).healthCheck(anyString());
     }
 
     @Test
     public void Should_Run_Healthcheck_At_Specified_Interval() throws InterruptedException {
-        Mockito.when(healthCheckController.healthCheck()).thenReturn(mockHealthOkResponse);
+        when(healthCheckController.healthCheck(anyString())).thenReturn(mockHealthOkResponse);
         Thread.sleep(3000);
-        Mockito.verify(healthCheckController, Mockito.times(3)).healthCheck();
+        verify(healthCheckController, times(3)).healthCheck(anyString());
     }
 }

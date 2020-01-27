@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
@@ -55,7 +56,8 @@ public class HealthCheckController {
             @ApiResponse(code = 500, message = "Service is unhealthy, one or more dependencies can't be fullfilled. Response body indicates which.")
     })
 
-    public ResponseEntity<HealthCheckResponse> healthCheck() {
+    public ResponseEntity<HealthCheckResponse> healthCheck(
+            @RequestParam(name = "dksCorrelationId", defaultValue = "NOT_SET") String dksCorrelationId) {
         boolean canReachDependencies = false;
         boolean canRetrieveCurrentMasterKeyId = false;
         boolean canCreateNewDataKey = false;
@@ -81,12 +83,12 @@ public class HealthCheckController {
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
             String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId();
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
-            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId());
+            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId(), dksCorrelationId);
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
                                     ! Strings.isNullOrEmpty(encryptResponse.plaintextDataKey);
             canEncryptDataKey = ! Strings.isNullOrEmpty(encryptResponse.ciphertextDataKey);
             DecryptDataKeyResponse decryptResponse =
-                    dataKeyService.decrypt(encryptResponse.dataKeyEncryptionKeyId, encryptResponse.ciphertextDataKey);
+                    dataKeyService.decrypt(encryptResponse.dataKeyEncryptionKeyId, encryptResponse.ciphertextDataKey, dksCorrelationId);
             canDecryptDataKey = ! Strings.isNullOrEmpty(decryptResponse.plaintextDataKey) &&
                     decryptResponse.plaintextDataKey.equals(encryptResponse.plaintextDataKey);
         }

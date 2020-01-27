@@ -44,12 +44,12 @@ public class DataKeyService {
         LOGGER.debug("Key cache evicted.");
     }
 
-    public GenerateDataKeyResponse generate(String keyId) throws LoginException, MasterKeystoreException {
+    public GenerateDataKeyResponse generate(String keyId, String dksCorrelationId) throws LoginException, MasterKeystoreException {
 
         return dataKeyProvider.generateDataKey(keyId);
     }
 
-    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey)
+    public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey, String dksCorrelationId)
             throws LoginException, MasterKeystoreException {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey);
     }
