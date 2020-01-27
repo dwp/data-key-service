@@ -45,7 +45,6 @@ public class DataKeyService {
     }
 
     public GenerateDataKeyResponse generate(String keyId, String dksCorrelationId) throws LoginException, MasterKeystoreException {
-
         return dataKeyProvider.generateDataKey(keyId);
     }
 
