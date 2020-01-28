@@ -106,7 +106,7 @@ public class HsmDataKeyGeneratorProviderTest {
             dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
             fail("Expected a DataKeyGenerationException");
         } catch (DataKeyGenerationException ex){
-            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later. correlation_id: correlation", ex.getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ public class HsmDataKeyGeneratorProviderTest {
             dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
             fail("Expected a DataKeyGenerationException");
         } catch (DataKeyGenerationException ex){
-            assertEquals("Failed to generate a new data key due to an internal error. Try again later.", ex.getMessage());
+            assertEquals("Failed to generate a new data key due to an internal error. Try again later. correlation_id: correlation", ex.getMessage());
         }
     }
 
@@ -138,7 +138,7 @@ public class HsmDataKeyGeneratorProviderTest {
             dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
             fail("Expected a DataKeyGenerationException");
         } catch (CurrentKeyIdException ex){
-            assertEquals("Failed to retrieve the current key id.", ex.getMessage());
+            assertEquals("Failed to retrieve the current key id. correlation_id: correlation", ex.getMessage());
         }
     }
 
