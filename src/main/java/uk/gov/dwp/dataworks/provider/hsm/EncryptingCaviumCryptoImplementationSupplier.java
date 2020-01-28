@@ -31,8 +31,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     static {
         try {
             Security.addProvider(new CaviumProvider());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Cavium provider not available: '" + e.getMessage() + "'", e);
         }
     }
@@ -45,8 +44,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
                     new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
-        }
-        catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             LOGGER.error("Failed to create data key", e);
             throw new CryptoImplementationSupplierException(e);
         }
@@ -58,17 +56,15 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         try {
             LOGGER.info("wrappingKeyHandle: '{}'.", wrappingKeyHandle);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
             LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
             Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
-        }
-        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
-                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException  e) {
+        } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException |
+                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
@@ -89,18 +85,14 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             byte[] decrypted = cipher.doFinal(decodedCipher);
             if (decrypted != null) {
                 return new String(Base64.getEncoder().encode(decrypted));
-            }
-            else {
+            } else {
                 throw new GarbledDataKeyException();
             }
-        }
-        catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException  | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (InvalidKeyException e) {
+        } catch (InvalidKeyException e) {
             throw new GarbledDataKeyException();
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
             LOGGER.warn(message);
@@ -113,8 +105,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         try {
             LOGGER.debug("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
 

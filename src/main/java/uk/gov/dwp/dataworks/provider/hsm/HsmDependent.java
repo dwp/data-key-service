@@ -24,8 +24,7 @@ public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionCon
         Matcher matcher = KEY_ID_PATTERN.matcher(keyId);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(groupName));
-        }
-        else {
+        } else {
             throw new CurrentKeyIdException();
         }
     }

@@ -35,8 +35,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
     static {
         try {
             Security.addProvider(new CaviumProvider());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Cavium provider not available: '" + e.getMessage() + "'", e);
         }
     }
@@ -49,8 +48,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                     new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
-        }
-        catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             LOGGER.error("Failed to create data key", e);
             throw new CryptoImplementationSupplierException(e);
         }
@@ -64,12 +62,10 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
             Cipher cipher = bouncyCastleCompatibleCipher(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
-        }
-        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
+        } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException |
                 NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
@@ -87,19 +83,16 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             try {
                 LOGGER.info("Trying SunJCE compatible cipher.");
                 return decryptedKey(jceCipher, ciphertextDataKey);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 try {
                     Cipher bcCipher = bouncyCastleCompatibleCipher(Cipher.DECRYPT_MODE, privateKey);
                     LOGGER.info("SunJCE failed trying bouncy castle compatible cipher.");
                     return decryptedKey(bcCipher, ciphertextDataKey);
-                }
-                catch (Exception e2) {
+                } catch (Exception e2) {
                     throw new GarbledDataKeyException();
                 }
             }
-        }
-        catch (InvalidKeyException |
+        } catch (InvalidKeyException |
                 NoSuchPaddingException |
                 NoSuchAlgorithmException |
                 NoSuchProviderException |
@@ -116,13 +109,11 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             byte[] decrypted = cipher.doFinal(decodedCipher);
             if (decrypted != null) {
                 return new String(Base64.getEncoder().encode(decrypted));
-            }
-            else {
+            } else {
                 LOGGER.warn("Decrypting key '{}' yielded null.", ciphertextDataKey);
                 throw new GarbledDataKeyException();
             }
-        }
-        catch (BadPaddingException | IllegalBlockSizeException e) {
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
             LOGGER.warn("Failed to decrypt key: '{}'.", e.getMessage());
             throw new GarbledDataKeyException();
         }
@@ -170,7 +161,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
     private CaviumRSAPublicKey publicKey(Integer wrappingKeyHandle) throws CFM2Exception {
         LOGGER.info("publicKeyHandle: '{}'.", wrappingKeyHandle);
         byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-        return new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+        return new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
     }
 
     @Override
@@ -178,8 +169,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
         try {
             LOGGER.debug("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
 

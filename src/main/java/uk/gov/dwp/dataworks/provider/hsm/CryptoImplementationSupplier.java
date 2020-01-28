@@ -7,8 +7,10 @@ import java.security.Key;
 
 public interface CryptoImplementationSupplier {
     Key dataKey() throws CryptoImplementationSupplierException;
+
     byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException;
+
     String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
             throws CryptoImplementationSupplierException, MasterKeystoreException;
 

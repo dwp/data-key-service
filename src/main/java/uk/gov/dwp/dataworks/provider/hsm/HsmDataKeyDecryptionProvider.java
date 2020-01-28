@@ -21,16 +21,16 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
     private final int MAX_ATTEMPTS = 10;
 
     HsmDataKeyDecryptionProvider(CurrentKeyIdProvider currentKeyIdProvider,
-            DataKeyGeneratorProvider dataKeyGeneratorProvider,
-            HsmLoginManager loginManager,
-            CryptoImplementationSupplier cryptoImplementationSupplier) {
+                                 DataKeyGeneratorProvider dataKeyGeneratorProvider,
+                                 HsmLoginManager loginManager,
+                                 CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
+            value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey)
@@ -40,12 +40,10 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             Integer decryptionKeyHandle = privateKeyHandle(decryptionKeyId);
             String decryptedKey = cryptoImplementationSupplier.decryptedKey(decryptionKeyHandle, ciphertextDataKey);
             return new DecryptDataKeyResponse(decryptionKeyId, decryptedKey);
-        }
-        catch (CryptoImplementationSupplierException e) {
+        } catch (CryptoImplementationSupplierException e) {
             throw new DataKeyDecryptionException();
-        }
-        finally {
-                loginManager.logout();
+        } finally {
+            loginManager.logout();
         }
     }
 
