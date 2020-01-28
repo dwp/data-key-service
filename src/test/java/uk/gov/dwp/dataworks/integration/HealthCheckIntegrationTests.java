@@ -34,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class HealthCheckIntegrationTests {
 
+    private final String correlationId = "correlation";
+
     @Autowired
     private CacheManager cacheManager;
 
@@ -159,9 +161,10 @@ public class HealthCheckIntegrationTests {
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
         given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
         GenerateDataKeyResponse response =
-                new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY);
+                new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY)
+                .withDksCorrelationId(correlationId);
 
-        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID, "correlationid")).willReturn(response);
+        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID, correlationId)).willReturn(response);
 
         given(dataKeyDecryptionProvider.decryptDataKey(eq(ENCRYPTION_KEY_ID), eq(CIPHER_TEXT_DATA_KEY), anyString()))
                 .willThrow(RuntimeException.class);
@@ -170,15 +173,16 @@ public class HealthCheckIntegrationTests {
                 HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.OK,
-                HealthCheckResponse.Health.BAD);
+                HealthCheckResponse.Health.BAD)
+                .withDksCorrelationId(correlationId);
 
-        mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
+        mockMvc.perform(get(HEALTHCHECK_ENDPOINT + "?dksCorrelationId={correlationId}", correlationId))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
-    public void shouldGiveServerErrorWhenDecryptedKeyDoesntMatch() throws Exception {
+    public void shouldGiveServerErrorWhenDecryptedKeyDoesNotMatch() throws Exception {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
