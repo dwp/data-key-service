@@ -26,14 +26,14 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     private final static Logger LOGGER = LoggerFactory.getLogger(HsmDataKeyGeneratorProvider.class);
 
     public HsmDataKeyGeneratorProvider(HsmLoginManager loginManager,
-            CryptoImplementationSupplier cryptoImplementationSupplier) {
+                                       CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
+            value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
     public GenerateDataKeyResponse generateDataKey(String keyId)
@@ -46,14 +46,12 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
             cryptoImplementationSupplier.cleanupKey(dataKey);
             return new GenerateDataKeyResponse(keyId,
-                                                new String(plaintextDatakey),
-                                                new String(ciphertext));
-        }
-        catch (CryptoImplementationSupplierException e) {
+                    new String(plaintextDatakey),
+                    new String(ciphertext));
+        } catch (CryptoImplementationSupplierException e) {
             LOGGER.error("Failure encountered trying to generate a new datakey due to an internal error. Try again later.", e);
             throw new DataKeyGenerationException();
-        }
-        finally {
+        } finally {
             loginManager.logout();
         }
     }
@@ -62,5 +60,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     public boolean canSeeDependencies() {
         return this.cryptoImplementationSupplier != null;
     }
+
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }

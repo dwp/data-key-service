@@ -63,7 +63,7 @@ public class HealthCheckController {
         boolean canCreateNewDataKey = false;
         boolean canEncryptDataKey = false;
         boolean canDecryptDataKey = false;
-        HealthCheckResponse health = new HealthCheckResponse();
+        HealthCheckResponse health = new HealthCheckResponse().withDksCorrelationId(dksCorrelationId);
         try {
             Map<String, String> trustedCertificates = new HashMap<>();
 
