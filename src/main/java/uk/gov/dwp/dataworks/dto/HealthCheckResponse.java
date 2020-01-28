@@ -26,7 +26,7 @@ public class HealthCheckResponse {
     private Health decryption;
 
     @ApiModelProperty(notes = "DKS Correlation Id passed in from the client call")
-    private String dksCorrelationId = "NOT_SET";
+    private String correlationId = "NOT_SET";
 
     private Map<String, String> trustedCertificates;
 
@@ -108,16 +108,16 @@ public class HealthCheckResponse {
         this.trustedCertificates = trustedCertificates;
     }
 
-    public String getDksCorrelationId() {
-        return dksCorrelationId;
+    public String getcorrelationId() {
+        return correlationId;
     }
 
-    public void setDksCorrelationId(String dksCorrelationId) {
-        this.dksCorrelationId = dksCorrelationId;
+    public void setcorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
-    public HealthCheckResponse withDksCorrelationId(String dksCorrelationId) {
-        this.dksCorrelationId = dksCorrelationId;
+    public HealthCheckResponse withcorrelationId(String correlationId) {
+        this.correlationId = correlationId;
         return this;
     }
 

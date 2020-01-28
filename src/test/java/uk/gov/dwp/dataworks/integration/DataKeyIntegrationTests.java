@@ -90,17 +90,17 @@ public class DataKeyIntegrationTests {
                 new GenerateDataKeyResponse("encryptionId",
                         "plainKey",
                         "cipherKey")
-                .withDksCorrelationId(correlationId);
+                .withcorrelationId(correlationId);
 
         given(dataKeyGeneratorProvider.generateDataKey(eq("myKeyId"), eq(correlationId)))
                 .willReturn(response);
 
-        mockMvc.perform(get("/datakey?dksCorrelationId={correlationId}", correlationId))
+        mockMvc.perform(get("/datakey?correlationId={correlationId}", correlationId))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
 
         // Must also allow a trailing slash
-        mockMvc.perform(get("/datakey/?dksCorrelationId={correlationId}", correlationId))
+        mockMvc.perform(get("/datakey/?correlationId={correlationId}", correlationId))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
     }
@@ -126,14 +126,14 @@ public class DataKeyIntegrationTests {
     public void shouldReturnDecryptedKeyWhenRequestedWithSpecifiedCorrelationId() throws Exception {
         DecryptDataKeyResponse response =
                 new DecryptDataKeyResponse("decryptKeyId", "plaintextDataKey")
-                        .withDksCorrelationId(correlationId);
+                        .withcorrelationId(correlationId);
 
         String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
         String encryptedDataKey = "blah blah blah";
         given(dataKeyDecryptionProvider.decryptDataKey(eq(dataKeyEncryptionKeyId), eq(encryptedDataKey), eq(correlationId)))
                 .willReturn(response);
 
-        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}&dksCorrelationId={correlationId}", dataKeyEncryptionKeyId, correlationId)
+        mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}&correlationId={correlationId}", dataKeyEncryptionKeyId, correlationId)
                 .content(encryptedDataKey))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
@@ -150,7 +150,7 @@ public class DataKeyIntegrationTests {
     public void shouldReturnServiceUnavailableWhenCurrentKeyIdIsUnavailableWithSpecifiedCorrelationId() throws Exception {
         given(currentKeyIdProvider.getKeyId(eq(correlationId))).willThrow(CurrentKeyIdException.class);
 
-        mockMvc.perform(get("/datakey?dksCorrelationId={correlationId}", correlationId)).andExpect(status().isServiceUnavailable());
+        mockMvc.perform(get("/datakey?correlationId={correlationId}", correlationId)).andExpect(status().isServiceUnavailable());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class DataKeyIntegrationTests {
         given(currentKeyIdProvider.getKeyId(eq(correlationId))).willReturn("key-id");
         given(dataKeyGeneratorProvider.generateDataKey(eq("key-id"), eq(correlationId))).willThrow(DataKeyGenerationException.class);
 
-        mockMvc.perform(get("/datakey?dksCorrelationId={correlationId}", correlationId)).andExpect(status().isServiceUnavailable());
+        mockMvc.perform(get("/datakey?correlationId={correlationId}", correlationId)).andExpect(status().isServiceUnavailable());
     }
 
     @Test

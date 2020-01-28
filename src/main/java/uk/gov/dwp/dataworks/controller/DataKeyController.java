@@ -33,9 +33,9 @@ public class DataKeyController {
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
     public ResponseEntity<GenerateDataKeyResponse> generate(
-            @RequestParam(name = "dksCorrelationId", defaultValue = "NOT_SET") String dksCorrelationId) throws MasterKeystoreException {
-        String keyId = dataKeyService.currentKeyId(dksCorrelationId);
-        return new ResponseEntity<>(dataKeyService.generate(keyId, dksCorrelationId), HttpStatus.CREATED);
+            @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId) throws MasterKeystoreException {
+        String keyId = dataKeyService.currentKeyId(correlationId);
+        return new ResponseEntity<>(dataKeyService.generate(keyId, correlationId), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)
@@ -47,9 +47,9 @@ public class DataKeyController {
     })
     public DecryptDataKeyResponse decrypt(
             @RequestParam(name = "keyId") String dataKeyEncryptionKeyId,
-            @RequestParam(name = "dksCorrelationId", defaultValue = "NOT_SET") String dksCorrelationId,
+            @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId,
             @RequestBody String ciphertextDataKey) throws MasterKeystoreException {
-        return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey, dksCorrelationId);
+        return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey, correlationId);
     }
 
 }

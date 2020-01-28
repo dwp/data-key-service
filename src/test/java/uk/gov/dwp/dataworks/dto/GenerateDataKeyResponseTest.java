@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotEquals;
 public class GenerateDataKeyResponseTest {
 
     @Test
-    public void testThatDksCorrelationIdIsNotInEquality()  {
+    public void testThatcorrelationIdIsNotInEquality()  {
         GenerateDataKeyResponse response1 = new GenerateDataKeyResponse("key", "plain", "cypher");
         GenerateDataKeyResponse response2 = new GenerateDataKeyResponse("key", "plain", "cypher");
 
@@ -16,16 +16,16 @@ public class GenerateDataKeyResponseTest {
         assertEquals(response1.toString(), response2.toString());
         assertEquals(response1.hashCode(), response2.hashCode());
 
-        response1.setDksCorrelationId("correlation-1");
-        response2.setDksCorrelationId("correlation-2");
+        response1.setcorrelationId("correlation-1");
+        response2.setcorrelationId("correlation-2");
 
         assertEquals(response1, response2);
         assertEquals(response1.toString(), response2.toString());
         assertEquals(response1.hashCode(), response2.hashCode());
 
         GenerateDataKeyResponse response3 = new GenerateDataKeyResponse("keyX", "valueX", "cypherX");
-        response1.setDksCorrelationId("correlation-X");
-        response3.setDksCorrelationId(response1.getDksCorrelationId());
+        response1.setcorrelationId("correlation-X");
+        response3.setcorrelationId(response1.getcorrelationId());
 
         assertNotEquals(response1, response3);
         assertNotEquals(response1.toString(), response3.toString());

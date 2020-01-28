@@ -57,13 +57,13 @@ public class HealthCheckController {
     })
 
     public ResponseEntity<HealthCheckResponse> healthCheck(
-            @RequestParam(name = "dksCorrelationId", defaultValue = "NOT_SET") String dksCorrelationId) {
+            @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId) {
         boolean canReachDependencies = false;
         boolean canRetrieveCurrentMasterKeyId = false;
         boolean canCreateNewDataKey = false;
         boolean canEncryptDataKey = false;
         boolean canDecryptDataKey = false;
-        HealthCheckResponse health = new HealthCheckResponse().withDksCorrelationId(dksCorrelationId);
+        HealthCheckResponse health = new HealthCheckResponse().withcorrelationId(correlationId);
         try {
             Map<String, String> trustedCertificates = new HashMap<>();
 
@@ -81,15 +81,15 @@ public class HealthCheckController {
 
             health.setTrustedCertificates(trustedCertificates);
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
-            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId(dksCorrelationId);
+            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId(correlationId);
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
-            String keyId = dataKeyService.currentKeyId(dksCorrelationId);
-            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(keyId, dksCorrelationId);
+            String keyId = dataKeyService.currentKeyId(correlationId);
+            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(keyId, correlationId);
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
                                     ! Strings.isNullOrEmpty(encryptResponse.plaintextDataKey);
             canEncryptDataKey = ! Strings.isNullOrEmpty(encryptResponse.ciphertextDataKey);
             DecryptDataKeyResponse decryptResponse =
-                    dataKeyService.decrypt(encryptResponse.dataKeyEncryptionKeyId, encryptResponse.ciphertextDataKey, dksCorrelationId);
+                    dataKeyService.decrypt(encryptResponse.dataKeyEncryptionKeyId, encryptResponse.ciphertextDataKey, correlationId);
             canDecryptDataKey = ! Strings.isNullOrEmpty(decryptResponse.plaintextDataKey) &&
                     decryptResponse.plaintextDataKey.equals(encryptResponse.plaintextDataKey);
         }

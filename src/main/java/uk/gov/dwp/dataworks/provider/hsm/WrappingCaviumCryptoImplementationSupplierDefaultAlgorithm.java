@@ -28,7 +28,6 @@ import java.util.Base64;
 public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
 
-
     static {
         try {
             Security.addProvider(new CaviumProvider());
@@ -38,7 +37,7 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
     }
 
     @Override
-    public Key dataKey() throws CryptoImplementationSupplierException {
+    public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
             CaviumAESKeyGenParameterSpec aesSpec =
@@ -46,14 +45,13 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+            LOGGER.error("Failed to create data key. correlation_id: {}", correlationId, e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
 
-
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
@@ -63,14 +61,14 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         } catch (InvalidKeyException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (CFM2Exception e) {
-            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }
     }
 
     @Override
-    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
+    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
@@ -90,24 +88,23 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
             if (unwrappedKey != null) {
                 byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
                 if (exportedUnwrappedKey != null) {
-                    LOGGER.debug("Removing unwrapped session key.");
+                    LOGGER.debug("Removing unwrapped session key. correlation_id: {}", correlationId);
                     cleanupKey(unwrappedKey);
                     return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
                 } else {
-                    throw new GarbledDataKeyException();
+                    throw new GarbledDataKeyException(correlationId);
                 }
             } else {
-                throw new GarbledDataKeyException();
+                throw new GarbledDataKeyException(correlationId);
             }
         } catch (NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (InvalidKeyException e) {
-            throw new GarbledDataKeyException();
+            throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
-
             throw new MasterKeystoreException(message, e);
         }
     }

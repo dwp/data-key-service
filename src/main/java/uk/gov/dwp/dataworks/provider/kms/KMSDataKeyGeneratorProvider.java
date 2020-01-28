@@ -25,7 +25,7 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
     }
 
     @Override
-    public GenerateDataKeyResponse generateDataKey(String encryptionKeyId, String dksCorrelationId) throws DataKeyGenerationException {
+    public GenerateDataKeyResponse generateDataKey(String encryptionKeyId, String correlationId) throws DataKeyGenerationException {
         try {
             Base64.Encoder encoder = Base64.getEncoder();
             GenerateDataKeyRequest dataKeyRequest = new GenerateDataKeyRequest();
@@ -36,8 +36,9 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
                     encoder.encodeToString(result.getCiphertextBlob().array()));
         }
         catch (NotFoundException | DisabledException | KeyUnavailableException | DependencyTimeoutException | InvalidKeyUsageException | InvalidGrantTokenException | KMSInternalException | KMSInvalidStateException ex) {
-            LOGGER.error("Failed to generate a new data key due to an internal error. Try again later.", ex);
-            throw new DataKeyGenerationException();
+            DataKeyGenerationException wrapper = new DataKeyGenerationException(correlationId);
+            LOGGER.error(wrapper.getMessage(), ex);
+            throw wrapper;
         }
     }
 

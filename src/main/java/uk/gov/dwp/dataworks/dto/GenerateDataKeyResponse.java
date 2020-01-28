@@ -16,7 +16,7 @@ public class GenerateDataKeyResponse {
     public final String ciphertextDataKey;
 
     @ApiModelProperty(notes = "DKS Correlation Id passed in from the client call")
-    public String dksCorrelationId = "NOT_SET";
+    public String correlationId = "NOT_SET";
 
     public GenerateDataKeyResponse(String dataKeyEncryptionKeyId, String plaintextDataKey, String ciphertextDataKey) {
         this.dataKeyEncryptionKeyId = dataKeyEncryptionKeyId;
@@ -24,16 +24,16 @@ public class GenerateDataKeyResponse {
         this.ciphertextDataKey = ciphertextDataKey;
     }
 
-    public String getDksCorrelationId() {
-        return dksCorrelationId;
+    public String getcorrelationId() {
+        return correlationId;
     }
 
-    public void setDksCorrelationId(String dksCorrelationId) {
-        this.dksCorrelationId = dksCorrelationId;
+    public void setcorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
-    public GenerateDataKeyResponse withDksCorrelationId(String dksCorrelationId) {
-        this.dksCorrelationId = dksCorrelationId;
+    public GenerateDataKeyResponse withcorrelationId(String correlationId) {
+        this.correlationId = correlationId;
         return this;
     }
 

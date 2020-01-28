@@ -24,7 +24,7 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 
-    public String getKeyId(String dksCorrelationId) throws CurrentKeyIdException {
+    public String getKeyId(String correlationId) throws CurrentKeyIdException {
         try {
             GetParameterRequest request = new GetParameterRequest()
                     .withName(masterkeyParameterName)
@@ -32,8 +32,9 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
             GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
             return result.getParameter().getValue();
         } catch (RuntimeException e) {
-            LOGGER.error("Failed to retrieve the current key id.", e);
-            throw new CurrentKeyIdException();
+            CurrentKeyIdException wrapper = new CurrentKeyIdException(correlationId);
+            LOGGER.error(wrapper.getMessage(), e);
+            throw wrapper;
         }
     }
 

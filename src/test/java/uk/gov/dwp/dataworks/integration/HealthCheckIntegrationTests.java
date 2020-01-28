@@ -162,7 +162,7 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
         GenerateDataKeyResponse response =
                 new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY)
-                .withDksCorrelationId(correlationId);
+                .withcorrelationId(correlationId);
 
         given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID, correlationId)).willReturn(response);
 
@@ -174,9 +174,9 @@ public class HealthCheckIntegrationTests {
                 HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.BAD)
-                .withDksCorrelationId(correlationId);
+                .withcorrelationId(correlationId);
 
-        mockMvc.perform(get(HEALTHCHECK_ENDPOINT + "?dksCorrelationId={correlationId}", correlationId))
+        mockMvc.perform(get(HEALTHCHECK_ENDPOINT + "?correlationId={correlationId}", correlationId))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
     }

@@ -12,20 +12,20 @@ public abstract class HsmDependent implements Dependent, HsmDataKeyDecryptionCon
         this.loginManager = loginManager;
     }
 
-    int privateKeyHandle(String keyId) {
-        return keyHandle(keyId, PRIVATE_KEY_GROUP_NAME);
+    int privateKeyHandle(String keyId, String correlationId) {
+        return keyHandle(keyId, PRIVATE_KEY_GROUP_NAME, correlationId);
     }
 
-    int publicKeyHandle(String keyId) {
-        return keyHandle(keyId, PUBLIC_KEY_GROUP_NAME);
+    int publicKeyHandle(String keyId, String correlationId) {
+        return keyHandle(keyId, PUBLIC_KEY_GROUP_NAME, correlationId);
     }
 
-    private int keyHandle(String keyId, String groupName) {
+    private int keyHandle(String keyId, String groupName, String correlationId) {
         Matcher matcher = KEY_ID_PATTERN.matcher(keyId);
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(groupName));
         } else {
-            throw new CurrentKeyIdException();
+            throw new CurrentKeyIdException(correlationId);
         }
     }
 

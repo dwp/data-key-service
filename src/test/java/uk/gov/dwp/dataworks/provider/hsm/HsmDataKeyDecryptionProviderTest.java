@@ -49,12 +49,13 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
-        given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willReturn(plaintextDataKey);
+        given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey, correlationId)).willReturn(plaintextDataKey);
 
         DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);
 
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(cryptoImplementationSupplier, times(1)).decryptedKey(argumentCaptor.capture(), same(encryptedDataKey));
+        verify(cryptoImplementationSupplier, times(1))
+                .decryptedKey(argumentCaptor.capture(), same(encryptedDataKey), eq(correlationId));
         DecryptDataKeyResponse expected = new DecryptDataKeyResponse(dataKeyEncryptionKeyId, plaintextDataKey);
         assertEquals(actual, expected);
     }
@@ -67,7 +68,8 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).login();
         doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
-        given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
+        given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey, correlationId))
+                .willThrow(CryptoImplementationSupplierException.class);
 
         try {
             dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);

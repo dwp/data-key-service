@@ -56,14 +56,14 @@ public class HsmDataKeyGeneratorProviderTest {
         doNothing().when(hsmLoginManager).logout();
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
-        given(cryptoImplementationSupplier.dataKey()).willReturn(key);
+        given(cryptoImplementationSupplier.dataKey(correlationId)).willReturn(key);
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key)).willReturn(encryptedDataKey.getBytes());
+        given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key, correlationId)).willReturn(encryptedDataKey.getBytes());
 
         GenerateDataKeyResponse actual = dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
 
-        verify(cryptoImplementationSupplier, times(1)).encryptedKey(argumentCaptor.capture(), same(key));
-        assertEquals(argumentCaptor.getValue(), new Integer(publicKeyHandle));
+        verify(cryptoImplementationSupplier, times(1)).encryptedKey(argumentCaptor.capture(), same(key), eq(correlationId));
+        assertEquals(argumentCaptor.getValue(), Integer.valueOf(publicKeyHandle));
         GenerateDataKeyResponse expected = new GenerateDataKeyResponse(dataKeyEncryptionKeyId, Base64
                 .getEncoder().encodeToString(plainTextKey.getBytes()), encryptedDataKey);
         assertEquals(actual, expected);
@@ -76,17 +76,17 @@ public class HsmDataKeyGeneratorProviderTest {
             CaviumKey mockKey = Mockito.mock(CaviumKey.class);
             given(mockKey.getEncoded()).willReturn("some bytes".getBytes());
             given(cryptoImplementationSupplier
-                    .dataKey())
+                    .dataKey(eq(correlationId)))
                     .willReturn(mockKey);
             given(cryptoImplementationSupplier
-                    .encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                    .encryptedKey(any(), any(), eq(correlationId)))
                     .willThrow(new MasterKeystoreException("Boom"));
 
             dataKeyGeneratorProvider.generateDataKey("cloudhsm:1,2", correlationId);
             fail("Expected a MasterKeystoreException");
         } catch (MasterKeystoreException ex) {
             assertEquals("Boom", ex.getMessage());
-            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS)).encryptedKey(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS)).encryptedKey(any(), any(), eq(correlationId));
         }
     }
 
@@ -100,7 +100,7 @@ public class HsmDataKeyGeneratorProviderTest {
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
-        given(cryptoImplementationSupplier.dataKey()).willThrow(CryptoImplementationSupplierException.class);
+        given(cryptoImplementationSupplier.dataKey(correlationId)).willThrow(CryptoImplementationSupplierException.class);
 
         try {
             dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
@@ -120,8 +120,8 @@ public class HsmDataKeyGeneratorProviderTest {
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
-        given(cryptoImplementationSupplier.dataKey()).willReturn(key);
-        given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key)).willThrow(CryptoImplementationSupplierException.class);
+        given(cryptoImplementationSupplier.dataKey(correlationId)).willReturn(key);
+        given(cryptoImplementationSupplier.encryptedKey(publicKeyHandle, key, correlationId)).willThrow(CryptoImplementationSupplierException.class);
 
         try {
             dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);

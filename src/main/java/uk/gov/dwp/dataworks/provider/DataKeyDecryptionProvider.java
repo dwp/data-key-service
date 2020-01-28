@@ -6,5 +6,5 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 public interface DataKeyDecryptionProvider extends Dependent {
     int MAX_PAYLOAD_SIZE = 32000;
 
-    DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey, String dksCorrelationId) throws MasterKeystoreException;
+    DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey, String correlationId) throws MasterKeystoreException;
 }

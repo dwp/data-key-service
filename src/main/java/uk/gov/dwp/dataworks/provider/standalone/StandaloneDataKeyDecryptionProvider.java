@@ -22,7 +22,7 @@ public class StandaloneDataKeyDecryptionProvider implements DataKeyDecryptionPro
     }
 
     @Override
-    public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey, String dksCorrelationId) {
+    public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey, String correlationId) {
         ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
         byte[] decrypted = ciphertextDataKeyBuffer.array();
         ArrayUtils.reverse(decrypted);

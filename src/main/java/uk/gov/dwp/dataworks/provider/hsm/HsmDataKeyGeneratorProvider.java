@@ -33,21 +33,22 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
             value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public GenerateDataKeyResponse generateDataKey(String keyId, String dksCorrelationId)
+    public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId)
             throws DataKeyGenerationException, MasterKeystoreException {
         try {
             loginManager.login();
-            int publicKeyHandle = publicKeyHandle(keyId);
-            Key dataKey = cryptoImplementationSupplier.dataKey();
+            int publicKeyHandle = publicKeyHandle(keyId, correlationId);
+            Key dataKey = cryptoImplementationSupplier.dataKey(correlationId);
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
-            byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
+            byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey, correlationId);
             cryptoImplementationSupplier.cleanupKey(dataKey);
             return new GenerateDataKeyResponse(keyId,
                     new String(plaintextDatakey),
                     new String(ciphertext));
         } catch (CryptoImplementationSupplierException e) {
-            LOGGER.error("Failure encountered trying to generate a new datakey due to an internal error. Try again later.", e);
-            throw new DataKeyGenerationException();
+            DataKeyGenerationException wrapper = new DataKeyGenerationException(correlationId);
+            LOGGER.error(wrapper.getMessage(), e);
+            throw wrapper;
         } finally {
             loginManager.logout();
         }

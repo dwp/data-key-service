@@ -43,7 +43,7 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
     }
 
     @Override
-    public Key dataKey() throws CryptoImplementationSupplierException {
+    public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
             CaviumAESKeyGenParameterSpec aesSpec =
@@ -51,17 +51,16 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+            LOGGER.error("Failed to create data key. correlation_id: {}", correlationId);
             throw new CryptoImplementationSupplierException(e);
         }
     }
 
-
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("wrappingKeyHandle: '{}'.", wrappingKeyHandle);
+            LOGGER.info("wrappingKeyHandle: '{}'. correlation_id: {}", wrappingKeyHandle, correlationId);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
             LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
@@ -74,17 +73,17 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
                 NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (CFM2Exception e) {
-            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }
     }
 
     @Override
-    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
+    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("decryptionKeyHandle: '{}'.", decryptionKeyHandle);
+            LOGGER.info("decryptionKeyHandle: '{}'. correlation_id: {}", decryptionKeyHandle, correlationId);
             OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256",
                     "MGF1",
                     MGF1ParameterSpec.SHA256,
@@ -99,25 +98,25 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
             if (unwrappedKey != null) {
                 byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
                 if (exportedUnwrappedKey != null) {
-                    LOGGER.debug("Removing unwrapped session key.");
+                    LOGGER.debug("Removing unwrapped session key. correlation_id: {}", correlationId);
                     cleanupKey(unwrappedKey);
                     return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
                 } else {
-                    LOGGER.warn("Exported unwrapped key is null, unwrappedKey: '{}'", unwrappedKey);
-                    throw new GarbledDataKeyException();
+                    LOGGER.warn("Exported unwrapped key is null, unwrappedKey: '{}'. correlation_id: {}", unwrappedKey, correlationId);
+                    throw new GarbledDataKeyException(correlationId);
                 }
             } else {
-                LOGGER.warn("Unwrapped key is null.");
-                throw new GarbledDataKeyException();
+                LOGGER.warn("Unwrapped key is null. correlation_id: {}", correlationId);
+                throw new GarbledDataKeyException(correlationId);
             }
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (InvalidKeyException e) {
-            LOGGER.warn("Invalid key: {}", e.getMessage(), e);
-            throw new GarbledDataKeyException();
+            LOGGER.warn("Invalid key: {}. correlation_id: {}", e.getMessage(), correlationId, e);
+            throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
             LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }

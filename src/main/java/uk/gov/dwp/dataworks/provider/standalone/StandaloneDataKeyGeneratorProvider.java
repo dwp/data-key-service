@@ -21,7 +21,7 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
     }
 
     @Override
-    public GenerateDataKeyResponse generateDataKey(String keyId, String dksCorrelationId) {
+    public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId) {
 
         // Generate a random key
         int keySize = 128 / 8;
