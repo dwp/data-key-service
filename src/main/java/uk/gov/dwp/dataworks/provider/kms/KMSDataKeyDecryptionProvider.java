@@ -33,7 +33,7 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
         this.awsKms = awsKms;
     }
 
-    public DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey) {
+    public DecryptDataKeyResponse decryptDataKey(String keyId, String ciphertextDataKey, String dksCorrelationId) {
         try {
             if (Strings.isNullOrEmpty(keyId) || Strings.isNullOrEmpty(ciphertextDataKey) ||
                     ciphertextDataKey.getBytes().length > DataKeyDecryptionProvider.MAX_PAYLOAD_SIZE) {
@@ -45,18 +45,15 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
             DecryptResult result = this.awsKms.decrypt(request);
             return new DecryptDataKeyResponse(result.getKeyId(),
                     encoder.encodeToString(result.getPlaintext().array()));
-        }
-        catch (UnusableParameterException e) {
+        } catch (UnusableParameterException e) {
             LOGGER.error("The supplied key or cyphertext are unusable.", e);
             throw e;
-        }
-        catch (IllegalArgumentException | InvalidCiphertextException ex) {
+        } catch (IllegalArgumentException | InvalidCiphertextException ex) {
 
             LOGGER.error("The supplied data key could not be decrypted. " +
                     "Either the ciphertext is invalid or the data key encryption key is incorrect.", ex);
             throw new GarbledDataKeyException();
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             LOGGER.error("Failed to decrypt this data key due to an internal error. Try again later.", ex);
             throw new DataKeyDecryptionException();
         }

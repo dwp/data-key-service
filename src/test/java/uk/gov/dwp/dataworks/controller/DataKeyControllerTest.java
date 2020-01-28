@@ -8,18 +8,19 @@ import static org.mockito.Mockito.*;
 
 public class DataKeyControllerTest {
 
+    private final String correlationId = "correlation";
+
     @Test
     public void generateWillPassParametersToTheDataKeyService() throws MasterKeystoreException {
         DataKeyService mockDataKeyService = mock(DataKeyService.class);
         DataKeyController dataKeyController = new DataKeyController(mockDataKeyService);
         String keyId = "I am a key Id";
-        String dksCorrelationId = "aaa111";
-        when(mockDataKeyService.currentKeyId()).thenReturn(keyId);
+        when(mockDataKeyService.currentKeyId(correlationId)).thenReturn(keyId);
 
-        dataKeyController.generate(dksCorrelationId);
+        dataKeyController.generate(correlationId);
 
-        verify(mockDataKeyService, times(1)).currentKeyId();
-        verify(mockDataKeyService, times(1)).generate(eq(keyId), eq(dksCorrelationId));
+        verify(mockDataKeyService, times(1)).currentKeyId(eq(correlationId));
+        verify(mockDataKeyService, times(1)).generate(eq(keyId), eq(correlationId));
         verifyNoMoreInteractions(mockDataKeyService);
     }
 
@@ -29,11 +30,9 @@ public class DataKeyControllerTest {
         DataKeyController dataKeyController = new DataKeyController(mockDataKeyService);
         String keyId = "I am a key Id";
         String ciphertextDataKey = "I am a ciphertext Data Key";
-        String dksCorrelationId = "aaa111";
+        dataKeyController.decrypt(keyId, correlationId, ciphertextDataKey);
 
-        dataKeyController.decrypt(keyId, dksCorrelationId, ciphertextDataKey);
-
-        verify(mockDataKeyService, times(1)).decrypt(eq(keyId), eq(ciphertextDataKey), eq(dksCorrelationId));
+        verify(mockDataKeyService, times(1)).decrypt(eq(keyId), eq(ciphertextDataKey), eq(correlationId));
         verifyNoMoreInteractions(mockDataKeyService);
     }
 }

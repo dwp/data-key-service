@@ -17,12 +17,12 @@ public class StandaloneDataKeyDecryptionProvider implements DataKeyDecryptionPro
     private final Base64.Decoder decoder = Base64.getDecoder();
 
     @Autowired
-    public StandaloneDataKeyDecryptionProvider(){
+    public StandaloneDataKeyDecryptionProvider() {
 
     }
 
     @Override
-    public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey) {
+    public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey, String dksCorrelationId) {
         ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
         byte[] decrypted = ciphertextDataKeyBuffer.array();
         ArrayUtils.reverse(decrypted);

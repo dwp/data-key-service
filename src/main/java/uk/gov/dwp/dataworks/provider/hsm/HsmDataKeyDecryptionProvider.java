@@ -33,7 +33,7 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey)
+    public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey, String dksCorrelationId)
             throws MasterKeystoreException {
         try {
             loginManager.login();

@@ -25,6 +25,8 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles({"KMS", "UnitTest"})
 public class AWSCurrentKeyIdProviderTest {
 
+    private final String correlationId = "correlation";
+
     @Before
     public void init() {
         Mockito.reset(awsSimpleSystemsManagement);
@@ -36,7 +38,7 @@ public class AWSCurrentKeyIdProviderTest {
         GetParameterRequest request = getGetParameterRequest();
         GetParameterResult result = getGetParameterResult(expectedKeyId);
         given(awsSimpleSystemsManagement.getParameter(request)).willReturn(result);
-        Assert.assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId());
+        Assert.assertEquals(expectedKeyId, currentKeyIdProvider.getKeyId(correlationId));
     }
 
     @Test(expected = CurrentKeyIdException.class)
@@ -63,7 +65,7 @@ public class AWSCurrentKeyIdProviderTest {
     @Test
     public void Should_Consider_Default_Value_When_MasterKey_Property_Not_Set() {
         given(awsSimpleSystemsManagement.getParameter(any())).willReturn(new GetParameterResult().withParameter(new Parameter()));
-        currentKeyIdProvider.getKeyId();
+        currentKeyIdProvider.getKeyId(correlationId);
         ArgumentCaptor<GetParameterRequest> captor = ArgumentCaptor.forClass(GetParameterRequest.class);
         verify(awsSimpleSystemsManagement).getParameter(captor.capture());
         GetParameterRequest getParameterRequest = captor.getValue();
@@ -73,7 +75,7 @@ public class AWSCurrentKeyIdProviderTest {
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException {
         given(awsSimpleSystemsManagement.getParameter(ArgumentMatchers.any(GetParameterRequest.class))).willThrow(e);
         System.err.println("currentKeyIdProvider: '" + currentKeyIdProvider + "'");
-        currentKeyIdProvider.getKeyId();
+        currentKeyIdProvider.getKeyId(correlationId);
     }
 
     private GetParameterResult getGetParameterResult(String expectedKeyId) {

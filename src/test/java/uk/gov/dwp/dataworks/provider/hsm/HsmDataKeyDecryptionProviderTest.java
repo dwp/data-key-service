@@ -32,6 +32,8 @@ import static org.mockito.Mockito.*;
 })
 public class HsmDataKeyDecryptionProviderTest {
 
+    private final String correlationId = "correlation";
+
     @Before
     public void init() {
         Mockito.reset(cryptoImplementationSupplier);
@@ -49,7 +51,7 @@ public class HsmDataKeyDecryptionProviderTest {
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willReturn(plaintextDataKey);
 
-        DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+        DecryptDataKeyResponse actual = dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);
 
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(cryptoImplementationSupplier, times(1)).decryptedKey(argumentCaptor.capture(), same(encryptedDataKey));
@@ -68,7 +70,7 @@ public class HsmDataKeyDecryptionProviderTest {
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey)).willThrow(CryptoImplementationSupplierException.class);
 
         try {
-            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);
             fail("Expected a DataKeyDecryptionException");
         } catch (DataKeyDecryptionException ex) {
             assertEquals("Failed to decrypt this data key due to an internal error. Try again later.", ex.getMessage());
@@ -82,7 +84,7 @@ public class HsmDataKeyDecryptionProviderTest {
         doNothing().when(hsmLoginManager).logout();
 
         try {
-            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED");
+            dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED", correlationId);
             fail("Expected a CurrentKeyIdException");
         } catch (CurrentKeyIdException ex) {
             assertEquals("Failed to retrieve the current key id.", ex.getMessage());

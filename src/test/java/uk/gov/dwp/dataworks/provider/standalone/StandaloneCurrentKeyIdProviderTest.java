@@ -5,10 +5,9 @@ import org.junit.Test;
 
 public class StandaloneCurrentKeyIdProviderTest {
     private final StandaloneCurrentKeyIdProvider providerToTest = new StandaloneCurrentKeyIdProvider();
-
     @Test
     public void getKeyId() {
-        Assert.assertEquals("Must be STANDALONE", "STANDALONE", providerToTest.getKeyId());
+        Assert.assertEquals("Must be STANDALONE", "STANDALONE", providerToTest.getKeyId("correlation"));
     }
 
     @Test

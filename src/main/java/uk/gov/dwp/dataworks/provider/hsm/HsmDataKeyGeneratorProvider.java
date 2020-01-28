@@ -33,7 +33,7 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
             value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public GenerateDataKeyResponse generateDataKey(String keyId)
+    public GenerateDataKeyResponse generateDataKey(String keyId, String dksCorrelationId)
             throws DataKeyGenerationException, MasterKeystoreException {
         try {
             loginManager.login();

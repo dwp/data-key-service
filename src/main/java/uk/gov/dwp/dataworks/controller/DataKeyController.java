@@ -34,7 +34,7 @@ public class DataKeyController {
     })
     public ResponseEntity<GenerateDataKeyResponse> generate(
             @RequestParam(name = "dksCorrelationId", defaultValue = "NOT_SET") String dksCorrelationId) throws MasterKeystoreException {
-        return new ResponseEntity<>(dataKeyService.generate(dataKeyService.currentKeyId(), dksCorrelationId), HttpStatus.CREATED);
+        return new ResponseEntity<>(dataKeyService.generate(dataKeyService.currentKeyId(dksCorrelationId), dksCorrelationId), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)

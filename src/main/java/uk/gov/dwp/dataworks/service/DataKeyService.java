@@ -34,8 +34,8 @@ public class DataKeyService {
     }
 
     @Cacheable(value = KEY_CACHE, key = "#root.methodName")
-    public String currentKeyId() {
-        return currentKeyIdProvider.getKeyId();
+    public String currentKeyId(String dksCorrelationId) {
+        return currentKeyIdProvider.getKeyId(dksCorrelationId);
     }
 
     @Scheduled(fixedRateString = "${key.cache.eviction.interval:120000}")
@@ -45,12 +45,12 @@ public class DataKeyService {
     }
 
     public GenerateDataKeyResponse generate(String keyId, String dksCorrelationId) throws LoginException, MasterKeystoreException {
-        return dataKeyProvider.generateDataKey(keyId);
+        return dataKeyProvider.generateDataKey(keyId, dksCorrelationId);
     }
 
     public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey, String dksCorrelationId)
             throws LoginException, MasterKeystoreException {
-        return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey);
+        return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey, dksCorrelationId);
     }
 
     public boolean canSeeDependencies() throws MasterKeystoreException {

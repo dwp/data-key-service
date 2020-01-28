@@ -26,6 +26,8 @@ import static org.mockito.BDDMockito.given;
 @ActiveProfiles({ "UnitTest", "KMS" })
 public class KMSDataKeyGeneratorProviderTest {
 
+    private final String correlationId = "correlation";
+
     @Test
     public void generateDataKey() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "DATAKEYENCRYPTIONKEYID";
@@ -44,7 +46,7 @@ public class KMSDataKeyGeneratorProviderTest {
         GenerateDataKeyResponse expected = new GenerateDataKeyResponse(dataKeyEncryptionKeyId,
                 encoder.encodeToString(plainTextKey.getBytes()), encoder.encodeToString(encryptedDataKey.getBytes()));
 
-        GenerateDataKeyResponse actual = dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId);
+        GenerateDataKeyResponse actual = dataKeyGeneratorProvider.generateDataKey(dataKeyEncryptionKeyId, correlationId);
 
         assertEquals(expected, actual);
     }
@@ -86,7 +88,7 @@ public class KMSDataKeyGeneratorProviderTest {
 
     private void throwException(Class<? extends Exception> e) throws CurrentKeyIdException, MasterKeystoreException {
         given(awsKms.generateDataKey(ArgumentMatchers.any(GenerateDataKeyRequest.class))).willThrow(e);
-        dataKeyGeneratorProvider.generateDataKey("DATAKEYENCRYPTIONKEYID");
+        dataKeyGeneratorProvider.generateDataKey("DATAKEYENCRYPTIONKEYID", correlationId);
     }
 
     @Autowired

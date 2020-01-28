@@ -21,7 +21,8 @@ import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 import java.util.Objects;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -59,14 +60,14 @@ public class DataKeyIntegrationTests {
 
     @Test
     public void shouldReturnADataKeyWhenRequestingKeyGeneration() throws Exception {
-        given(currentKeyIdProvider.getKeyId()).willReturn("myKeyId");
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn("myKeyId");
 
         GenerateDataKeyResponse response =
                 new GenerateDataKeyResponse("encryptionId",
                         "plainKey",
                         "cipherKey");
 
-        given(dataKeyGeneratorProvider.generateDataKey("myKeyId"))
+        given(dataKeyGeneratorProvider.generateDataKey(eq("myKeyId"), anyString()))
                 .willReturn(response);
 
         mockMvc.perform(get("/datakey"))
@@ -87,7 +88,7 @@ public class DataKeyIntegrationTests {
 
         String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
         String encryptedDataKey = "blah blah blah";
-        given(dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey))
+        given(dataKeyDecryptionProvider.decryptDataKey(eq(dataKeyEncryptionKeyId), eq(encryptedDataKey), anyString()))
                 .willReturn(response);
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}",
@@ -98,20 +99,20 @@ public class DataKeyIntegrationTests {
 
     @Test
     public void shouldReturnServiceUnavailableWhenCurrentKeyIdIsUnavailable() throws Exception {
-        given(currentKeyIdProvider.getKeyId()).willThrow(CurrentKeyIdException.class);
+        given(currentKeyIdProvider.getKeyId(anyString())).willThrow(CurrentKeyIdException.class);
         mockMvc.perform(get("/datakey")).andExpect(status().isServiceUnavailable());
     }
 
     @Test
     public void shouldReturnServiceUnavailableWhenDataKeyGenerationFails() throws Exception {
-        given(dataKeyGeneratorProvider.generateDataKey(any())).willThrow(DataKeyGenerationException.class);
+        given(dataKeyGeneratorProvider.generateDataKey(anyString(), anyString())).willThrow(DataKeyGenerationException.class);
         mockMvc.perform(get("/datakey")).andExpect(status().isServiceUnavailable());
     }
 
     @Test
     public void shouldReturnServiceUnavailableWhenDataKeyDecryptionFails() throws Exception {
         String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
-        given(dataKeyDecryptionProvider.decryptDataKey(any(), any()))
+        given(dataKeyDecryptionProvider.decryptDataKey(anyString(), anyString(), anyString()))
                 .willThrow(DataKeyDecryptionException.class);
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", dataKeyEncryptionKeyId)
@@ -121,7 +122,7 @@ public class DataKeyIntegrationTests {
 
     @Test
     public void shouldReturnBadRequestWhenEncryptedDataKeyIsInvalid() throws Exception {
-        given(dataKeyDecryptionProvider.decryptDataKey(any(), any()))
+        given(dataKeyDecryptionProvider.decryptDataKey(anyString(), anyString(), anyString()))
                 .willThrow(GarbledDataKeyException.class);
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "DATAKEYID")
@@ -131,7 +132,7 @@ public class DataKeyIntegrationTests {
 
     @Test
     public void shouldReturnBadRequestWhenEncryptedDataKeyTooLarge() throws Exception {
-        given(dataKeyDecryptionProvider.decryptDataKey("DATAKEYID", "my garbled content to decrypt"))
+        given(dataKeyDecryptionProvider.decryptDataKey(eq("DATAKEYID"), eq("my garbled content to decrypt"), anyString()))
                 .willThrow(UnusableParameterException.class);
 
         mockMvc.perform(post("/datakey/actions/decrypt?keyId={keyId}", "DATAKEYID")

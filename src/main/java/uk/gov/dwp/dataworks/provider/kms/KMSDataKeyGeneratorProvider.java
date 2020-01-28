@@ -25,7 +25,7 @@ public class KMSDataKeyGeneratorProvider implements DataKeyGeneratorProvider {
     }
 
     @Override
-    public GenerateDataKeyResponse generateDataKey(String encryptionKeyId) throws DataKeyGenerationException {
+    public GenerateDataKeyResponse generateDataKey(String encryptionKeyId, String dksCorrelationId) throws DataKeyGenerationException {
         try {
             Base64.Encoder encoder = Base64.getEncoder();
             GenerateDataKeyRequest dataKeyRequest = new GenerateDataKeyRequest();

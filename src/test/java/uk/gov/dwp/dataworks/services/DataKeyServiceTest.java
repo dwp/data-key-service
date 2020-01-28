@@ -26,6 +26,8 @@ import java.util.Objects;
 })
 public class DataKeyServiceTest {
 
+    private final String correlationId = "correlation";
+
     @Before
     public void init() {
         Mockito.reset(currentKeyIdProvider);
@@ -37,20 +39,20 @@ public class DataKeyServiceTest {
 
     @Test
     public void Should_Verify_Cache_Returns_Key_Id_When_Invoked_With_In_Cache_Eviction_Interval() {
-        dataKeyService.currentKeyId();
-        dataKeyService.currentKeyId();
-        dataKeyService.currentKeyId();
+        dataKeyService.currentKeyId(correlationId);
+        dataKeyService.currentKeyId(correlationId);
+        dataKeyService.currentKeyId(correlationId);
 
-        Mockito.verify(currentKeyIdProvider, Mockito.times(1)).getKeyId();
+        Mockito.verify(currentKeyIdProvider, Mockito.times(1)).getKeyId(correlationId);
     }
 
     @Test
     public void Should_Verify_Cache_Evicts_At_Specified_Interval() throws InterruptedException {
-        dataKeyService.currentKeyId();
+        dataKeyService.currentKeyId(correlationId);
         Thread.sleep(2000);
-        dataKeyService.currentKeyId();
+        dataKeyService.currentKeyId(correlationId);
 
-        Mockito.verify(currentKeyIdProvider, Mockito.times(2)).getKeyId();
+        Mockito.verify(currentKeyIdProvider, Mockito.times(2)).getKeyId(correlationId);
     }
 
     @Autowired

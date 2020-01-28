@@ -29,6 +29,8 @@ import static org.mockito.BDDMockito.given;
 @ActiveProfiles({"UnitTest", "KMS"})
 public class KMSDataKeyDecryptionProviderTest {
 
+    private final String correlationId = "correlation";
+
     @Before
     public void init() {
         Mockito.reset(awsKms);
@@ -48,7 +50,7 @@ public class KMSDataKeyDecryptionProviderTest {
         result.setPlaintext(ByteBuffer.wrap(plainTextDataKey.getBytes()));
         given(awsKms.decrypt(ArgumentMatchers.any(DecryptRequest.class))).willReturn(result);
         DecryptDataKeyResponse actual =
-                kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+                kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);
         assertEquals(expected, actual);
     }
 
@@ -57,7 +59,7 @@ public class KMSDataKeyDecryptionProviderTest {
         byte[] largeAmountOfCypherText = new byte[DataKeyDecryptionProvider.MAX_PAYLOAD_SIZE + 1];
         Arrays.fill(largeAmountOfCypherText, (byte) 48);
         String decryptionArg = new String(largeAmountOfCypherText);
-        kmsDataKeyDecryptionProvider.decryptDataKey("DATAKEYENCRYPTIONKEYID", decryptionArg);
+        kmsDataKeyDecryptionProvider.decryptDataKey("DATAKEYENCRYPTIONKEYID", decryptionArg, correlationId);
     }
 
     @Test
@@ -76,7 +78,7 @@ public class KMSDataKeyDecryptionProviderTest {
         result.setPlaintext(ByteBuffer.wrap(plainTextDataKey.getBytes()));
         given(awsKms.decrypt(ArgumentMatchers.any(DecryptRequest.class))).willReturn(result);
         DecryptDataKeyResponse actual =
-                kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, decryptionArg);
+                kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, decryptionArg, correlationId);
         assertEquals(expected, actual);
     }
 
@@ -134,7 +136,7 @@ public class KMSDataKeyDecryptionProviderTest {
         String encryptedDataKey = "ENCRYPTEDDATAKEY";
         String dataKeyEncryptionKeyId = "DATAKEYENCRYPTIONKEYID";
         given(awsKms.decrypt(ArgumentMatchers.any(DecryptRequest.class))).willThrow(exceptionClass);
-        kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey);
+        kmsDataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, encryptedDataKey, correlationId);
     }
 
     @Autowired

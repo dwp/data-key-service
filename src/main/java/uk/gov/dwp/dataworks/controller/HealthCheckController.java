@@ -81,9 +81,10 @@ public class HealthCheckController {
 
             health.setTrustedCertificates(trustedCertificates);
             canReachDependencies = dataKeyService != null && dataKeyService.canSeeDependencies();
-            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId();
+            String currentKeyId = Objects.requireNonNull(this.dataKeyService).currentKeyId(dksCorrelationId);
             canRetrieveCurrentMasterKeyId = ! Strings.isNullOrEmpty(currentKeyId);
-            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(dataKeyService.currentKeyId(), dksCorrelationId);
+            String keyId = dataKeyService.currentKeyId(dksCorrelationId);
+            GenerateDataKeyResponse encryptResponse = dataKeyService.generate(keyId, dksCorrelationId);
             canCreateNewDataKey = ! Strings.isNullOrEmpty(encryptResponse.dataKeyEncryptionKeyId) &&
                                     ! Strings.isNullOrEmpty(encryptResponse.plaintextDataKey);
             canEncryptDataKey = ! Strings.isNullOrEmpty(encryptResponse.ciphertextDataKey);

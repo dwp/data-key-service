@@ -21,6 +21,8 @@ import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 
 import java.util.Objects;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -103,7 +105,7 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willThrow(RuntimeException.class);
+        given(currentKeyIdProvider.getKeyId(anyString())).willThrow(RuntimeException.class);
 
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.BAD,
@@ -120,7 +122,7 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willReturn("");
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn("");
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.BAD,
                 HealthCheckResponse.Health.BAD,
@@ -136,8 +138,8 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willReturn(ENCRYPTION_KEY_ID);
-        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID)).willThrow(RuntimeException.class);
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
+        given(dataKeyGeneratorProvider.generateDataKey(eq(ENCRYPTION_KEY_ID), anyString())).willThrow(RuntimeException.class);
 
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
                 HealthCheckResponse.Health.OK,
@@ -155,13 +157,13 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willReturn(ENCRYPTION_KEY_ID);
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
         GenerateDataKeyResponse response =
                 new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY);
 
-        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID)).willReturn(response);
+        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID, "correlationid")).willReturn(response);
 
-        given(dataKeyDecryptionProvider.decryptDataKey(ENCRYPTION_KEY_ID, CIPHER_TEXT_DATA_KEY))
+        given(dataKeyDecryptionProvider.decryptDataKey(eq(ENCRYPTION_KEY_ID), eq(CIPHER_TEXT_DATA_KEY), anyString()))
                 .willThrow(RuntimeException.class);
 
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
@@ -180,15 +182,15 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willReturn(ENCRYPTION_KEY_ID);
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
         GenerateDataKeyResponse response =
                 new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY);
 
-        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID)).willReturn(response);
+        given(dataKeyGeneratorProvider.generateDataKey(eq(ENCRYPTION_KEY_ID), anyString())).willReturn(response);
 
         DecryptDataKeyResponse decryptResponse = new DecryptDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY);
 
-        given(dataKeyDecryptionProvider.decryptDataKey(ENCRYPTION_KEY_ID, CIPHER_TEXT_DATA_KEY + "_CHANGE"))
+        given(dataKeyDecryptionProvider.decryptDataKey(eq(ENCRYPTION_KEY_ID), eq(CIPHER_TEXT_DATA_KEY + "_CHANGE"), anyString()))
                 .willReturn(decryptResponse);
 
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
@@ -208,15 +210,15 @@ public class HealthCheckIntegrationTests {
         given(currentKeyIdProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyGeneratorProvider.canSeeDependencies()).willReturn(true);
         given(dataKeyDecryptionProvider.canSeeDependencies()).willReturn(true);
-        given(currentKeyIdProvider.getKeyId()).willReturn(ENCRYPTION_KEY_ID);
+        given(currentKeyIdProvider.getKeyId(anyString())).willReturn(ENCRYPTION_KEY_ID);
 
         GenerateDataKeyResponse response =
                 new GenerateDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY, CIPHER_TEXT_DATA_KEY);
 
-        given(dataKeyGeneratorProvider.generateDataKey(ENCRYPTION_KEY_ID)).willReturn(response);
+        given(dataKeyGeneratorProvider.generateDataKey(eq(ENCRYPTION_KEY_ID), anyString())).willReturn(response);
         DecryptDataKeyResponse decryptResponse = new DecryptDataKeyResponse(ENCRYPTION_KEY_ID, PLAIN_TEXT_KEY);
 
-        given(dataKeyDecryptionProvider.decryptDataKey(ENCRYPTION_KEY_ID, CIPHER_TEXT_DATA_KEY))
+        given(dataKeyDecryptionProvider.decryptDataKey(eq(ENCRYPTION_KEY_ID), eq(CIPHER_TEXT_DATA_KEY), anyString()))
                 .willReturn(decryptResponse);
 
         HealthCheckResponse healthCheckResponse = new HealthCheckResponse(HealthCheckResponse.Health.OK,
