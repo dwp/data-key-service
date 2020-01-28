@@ -10,20 +10,23 @@ public class HealthCheckResponse {
 
     public enum Health {OK, BAD}
 
-    @ApiModelProperty(notes="Can the controller see its dependencies.")
+    @ApiModelProperty(notes = "Can the controller see its dependencies.")
     private Health encryptionService;
 
-    @ApiModelProperty(notes="Can the controller fetch the current master key.")
+    @ApiModelProperty(notes = "Can the controller fetch the current master key.")
     private Health masterKey;
 
-    @ApiModelProperty(notes="Can the controller generate a new data key.")
+    @ApiModelProperty(notes = "Can the controller generate a new data key.")
     private Health dataKeyGenerator;
 
-    @ApiModelProperty(notes="Can the controller encrypt a new data key.")
+    @ApiModelProperty(notes = "Can the controller encrypt a new data key.")
     private Health encryption;
 
-    @ApiModelProperty(notes="Can the controller decrypt an encrypted data key.")
+    @ApiModelProperty(notes = "Can the controller decrypt an encrypted data key.")
     private Health decryption;
+
+    @ApiModelProperty(notes = "DKS Correlation Id passed in from the client call")
+    private String correlationId = "NOT_SET";
 
     private Map<String, String> trustedCertificates;
 
@@ -37,8 +40,10 @@ public class HealthCheckResponse {
     }
 
     public HealthCheckResponse(Health encryptionService,
-            Health masterKey, Health dataKeyGenerator, Health encryption,
-            Health decryption) {
+                               Health masterKey,
+                               Health dataKeyGenerator,
+                               Health encryption,
+                               Health decryption) {
         this.encryptionService = encryptionService;
         this.masterKey = masterKey;
         this.dataKeyGenerator = dataKeyGenerator;
@@ -102,4 +107,18 @@ public class HealthCheckResponse {
     public void setTrustedCertificates(Map<String, String> trustedCertificates) {
         this.trustedCertificates = trustedCertificates;
     }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public HealthCheckResponse withCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+        return this;
+    }
+
 }

@@ -35,71 +35,64 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
     static {
         try {
             Security.addProvider(new CaviumProvider());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Cavium provider not available: '" + e.getMessage() + "'", e);
         }
     }
 
     @Override
-    public Key dataKey() throws CryptoImplementationSupplierException {
+    public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
             CaviumAESKeyGenParameterSpec aesSpec =
                     new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
-        }
-        catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            LOGGER.error("Failed to create data key. correlation_id: " + correlationId, e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
 
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             CaviumRSAPublicKey publicKey = publicKey(wrappingKeyHandle);
-            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+            String key = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+            LOGGER.info("Public key bytes: '{}'. correlation_id: {}", key, correlationId);
             Cipher cipher = bouncyCastleCompatibleCipher(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
-        }
-        catch (BadPaddingException| NoSuchAlgorithmException | NoSuchProviderException |
+        } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException |
                 NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (CFM2Exception e) {
-            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+        } catch (CFM2Exception e) {
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }
     }
 
-
     @Override
-    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
+    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            CaviumRSAPrivateKey privateKey = privateKey(decryptionKeyHandle);
+            CaviumRSAPrivateKey privateKey = privateKey(decryptionKeyHandle, correlationId);
             Cipher jceCipher = sunJceCompatibleCipher(Cipher.DECRYPT_MODE, privateKey);
 
             try {
                 LOGGER.info("Trying SunJCE compatible cipher.");
-                return decryptedKey(jceCipher, ciphertextDataKey);
-            }
-            catch (Exception e) {
+                return decryptedKey(jceCipher, ciphertextDataKey, correlationId);
+            } catch (Exception e) {
                 try {
                     Cipher bcCipher = bouncyCastleCompatibleCipher(Cipher.DECRYPT_MODE, privateKey);
                     LOGGER.info("SunJCE failed trying bouncy castle compatible cipher.");
-                    return decryptedKey(bcCipher, ciphertextDataKey);
-                }
-                catch (Exception e2) {
-                    throw new GarbledDataKeyException();
+                    return decryptedKey(bcCipher, ciphertextDataKey, correlationId);
+                } catch (Exception e2) {
+                    throw new GarbledDataKeyException(correlationId);
                 }
             }
-        }
-        catch (InvalidKeyException |
+        } catch (InvalidKeyException |
                 NoSuchPaddingException |
                 NoSuchAlgorithmException |
                 NoSuchProviderException |
@@ -108,23 +101,20 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
         }
     }
 
-
-    public String decryptedKey(Cipher cipher, String ciphertextDataKey) {
+    public String decryptedKey(Cipher cipher, String ciphertextDataKey, String correlationId) {
         try {
-            LOGGER.info("Decrypting with '{}/{}/{}'.", cipher.getProvider(), cipher.getAlgorithm(), cipher.getParameters());
+            LOGGER.info("Decrypting with '{}/{}/{}'. correlation_id: {}", cipher.getProvider(), cipher.getAlgorithm(), cipher.getParameters(), correlationId);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
             byte[] decrypted = cipher.doFinal(decodedCipher);
             if (decrypted != null) {
                 return new String(Base64.getEncoder().encode(decrypted));
+            } else {
+                LOGGER.warn("Decrypting key '{}' yielded null. correlation_id: {}", ciphertextDataKey, correlationId);
+                throw new GarbledDataKeyException(correlationId);
             }
-            else {
-                LOGGER.warn("Decrypting key '{}' yielded null.", ciphertextDataKey);
-                throw new GarbledDataKeyException();
-            }
-        }
-        catch (BadPaddingException | IllegalBlockSizeException e) {
-            LOGGER.warn("Failed to decrypt key: '{}'.", e.getMessage());
-            throw new GarbledDataKeyException();
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            LOGGER.warn("Failed to decrypt key: '{}'. correlation_id: {}", e.getMessage(), correlationId);
+            throw new GarbledDataKeyException(correlationId);
         }
     }
 
@@ -156,21 +146,21 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
                 PSource.PSpecified.DEFAULT);
     }
 
-    private CaviumRSAPrivateKey privateKey(Integer decryptionKeyHandle) throws CryptoImplementationSupplierException {
+    private CaviumRSAPrivateKey privateKey(Integer decryptionKeyHandle, String correlationId) throws CryptoImplementationSupplierException {
         try {
-            LOGGER.info("decryptionKeyHandle: '{}'.", decryptionKeyHandle);
+            LOGGER.info("decryptionKeyHandle: '{}'. correlation_id: {}", decryptionKeyHandle, correlationId);
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
             CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
             return new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
         } catch (CFM2Exception e) {
-            throw new UnusableParameterException();
+            throw new UnusableParameterException(correlationId);
         }
     }
 
     private CaviumRSAPublicKey publicKey(Integer wrappingKeyHandle) throws CFM2Exception {
         LOGGER.info("publicKeyHandle: '{}'.", wrappingKeyHandle);
         byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-        return new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+        return new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
     }
 
     @Override
@@ -178,8 +168,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
         try {
             LOGGER.debug("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
 

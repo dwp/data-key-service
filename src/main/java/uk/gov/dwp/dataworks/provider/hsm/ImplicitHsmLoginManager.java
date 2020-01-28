@@ -14,13 +14,13 @@ public class ImplicitHsmLoginManager implements HsmLoginManager {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImplicitHsmLoginManager.class);
 
     @Autowired
-    private com.cavium.cfm2.LoginManager loginManager ;
+    private com.cavium.cfm2.LoginManager loginManager;
 
     @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
 
     @Override
-    public  void login() {
+    public void login() {
         HSMCredentials hsmCredentials = hsmCredentialsProvider.getCredentials();
         if (null != hsmCredentials) {
             LOGGER.info("Setting implicit login details");
@@ -32,6 +32,6 @@ public class ImplicitHsmLoginManager implements HsmLoginManager {
 
 
     @Override
-    public  void logout() {
+    public void logout() {
     }
 }

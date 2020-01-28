@@ -24,23 +24,23 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
         this.awsSimpleSystemsManagementClient = awsSimpleSystemsManagementClient;
     }
 
-    public String getKeyId() throws CurrentKeyIdException {
+    public String getKeyId(String correlationId) throws CurrentKeyIdException {
         try {
             GetParameterRequest request = new GetParameterRequest()
                     .withName(masterkeyParameterName)
                     .withWithDecryption(false);
             GetParameterResult result = awsSimpleSystemsManagementClient.getParameter(request);
             return result.getParameter().getValue();
-        }
-        catch (RuntimeException e) {
-            LOGGER.error("Failed to retrieve the current key id.", e);
-            throw new CurrentKeyIdException();
+        } catch (RuntimeException e) {
+            CurrentKeyIdException wrapper = new CurrentKeyIdException(correlationId);
+            LOGGER.error(wrapper.getMessage(), e);
+            throw wrapper;
         }
     }
 
     @Override
     public boolean canSeeDependencies() {
-        return getKeyId() != null;
+        return getKeyId("NOT_SET") != null;
     }
 
     @Value("${master.key.parameter.name:data_key_service.currentKeyId}")

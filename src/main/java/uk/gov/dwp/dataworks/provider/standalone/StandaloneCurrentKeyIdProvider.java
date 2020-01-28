@@ -10,7 +10,7 @@ import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 public class StandaloneCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     @Override
-    public String getKeyId() throws CurrentKeyIdException {
+    public String getKeyId(String correlationId) throws CurrentKeyIdException {
         return "STANDALONE";
     }
 

@@ -18,12 +18,9 @@ import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.*;
-import java.util.Arrays;
 import java.util.Base64;
 
 @Profile("WrappingCaviumDefaultAlgorithm")
@@ -31,53 +28,47 @@ import java.util.Base64;
 public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         implements CryptoImplementationSupplier, HsmDataKeyDecryptionConstants {
 
-
     static {
         try {
             Security.addProvider(new CaviumProvider());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Cavium provider not available: '" + e.getMessage() + "'", e);
         }
     }
 
     @Override
-    public Key dataKey() throws CryptoImplementationSupplierException {
+    public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
             CaviumAESKeyGenParameterSpec aesSpec =
                     new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
-        }
-        catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            LOGGER.error("Failed to create data key. correlation_id: {}", correlationId, e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
 
-
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey)
+    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle,  new CaviumKeyAttributes(keyAttribute));
+            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
             byte[] wrappedKey = Util.rsaWrapKey(publicKey, (CaviumKey) dataKey, PADDING);
             return Base64.getEncoder().encode(wrappedKey);
-        }
-        catch (InvalidKeyException e) {
+        } catch (InvalidKeyException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (CFM2Exception e) {
-            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached";
+        } catch (CFM2Exception e) {
+            String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }
     }
 
     @Override
-    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey)
+    public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
@@ -97,29 +88,23 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
             if (unwrappedKey != null) {
                 byte[] exportedUnwrappedKey = unwrappedKey.getEncoded();
                 if (exportedUnwrappedKey != null) {
-                    LOGGER.debug("Removing unwrapped session key.");
+                    LOGGER.debug("Removing unwrapped session key. correlation_id: {}", correlationId);
                     cleanupKey(unwrappedKey);
                     return new String(Base64.getEncoder().encode(exportedUnwrappedKey));
+                } else {
+                    throw new GarbledDataKeyException(correlationId);
                 }
-                else {
-                    throw new GarbledDataKeyException();
-                }
+            } else {
+                throw new GarbledDataKeyException(correlationId);
             }
-            else {
-                throw new GarbledDataKeyException();
-            }
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new CryptoImplementationSupplierException(e);
-        }
-        catch (InvalidKeyException e) {
-            throw new GarbledDataKeyException();
-        }
-        catch (CFM2Exception e) {
-            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached";
-            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+        } catch (InvalidKeyException e) {
+            throw new GarbledDataKeyException(correlationId);
+        } catch (CFM2Exception e) {
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'. correlation_id= {}", e.getMessage(), e.getStatus(), e.getClass().getSimpleName(), correlationId);
+            String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
-
             throw new MasterKeystoreException(message, e);
         }
     }
@@ -129,8 +114,7 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         try {
             LOGGER.debug("Deleting session key.");
             Util.deleteKey((CaviumKey) datakey);
-        }
-        catch (CFM2Exception e) {
+        } catch (CFM2Exception e) {
             LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
         }
     }

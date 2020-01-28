@@ -16,15 +16,15 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
     private final Base64.Encoder encoder = Base64.getEncoder();
 
     @Autowired
-    public StandaloneDataKeyGeneratorProvider(){
+    public StandaloneDataKeyGeneratorProvider() {
 
     }
 
     @Override
-    public GenerateDataKeyResponse generateDataKey(String keyId) {
+    public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId) {
 
         // Generate a random key
-        int keySize = 128/8;
+        int keySize = 128 / 8;
         byte[] key = new byte[keySize];
         new Random().nextBytes(key);
         String plaintextKey = encoder.encodeToString(key);

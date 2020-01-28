@@ -13,9 +13,25 @@ public class DecryptDataKeyResponse {
     @ApiModelProperty(notes="The decrypted data key")
     public final String plaintextDataKey;
 
+    @ApiModelProperty(notes="DKS Correlation Id passed in from the client call")
+    public String correlationId = "NOT_SET";
+
     public DecryptDataKeyResponse(String dataKeyDecryptionKeyId, String plaintextDataKey) {
         this.dataKeyDecryptionKeyId = dataKeyDecryptionKeyId;
         this.plaintextDataKey = plaintextDataKey;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public DecryptDataKeyResponse withCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+        return this;
     }
 
     @Override

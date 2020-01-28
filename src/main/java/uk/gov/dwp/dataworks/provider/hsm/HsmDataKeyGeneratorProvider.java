@@ -1,8 +1,5 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
-import com.cavium.cfm2.CFM2Exception;
-import com.cavium.cfm2.Util;
-import com.cavium.key.CaviumKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -26,34 +23,33 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     private final static Logger LOGGER = LoggerFactory.getLogger(HsmDataKeyGeneratorProvider.class);
 
     public HsmDataKeyGeneratorProvider(HsmLoginManager loginManager,
-            CryptoImplementationSupplier cryptoImplementationSupplier) {
+                                       CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
     @Override
     @Retryable(
-            value = { MasterKeystoreException.class },
+            value = {MasterKeystoreException.class},
             maxAttempts = MAX_ATTEMPTS,
             backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
-    public GenerateDataKeyResponse generateDataKey(String keyId)
+    public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId)
             throws DataKeyGenerationException, MasterKeystoreException {
         try {
             loginManager.login();
-            int publicKeyHandle = publicKeyHandle(keyId);
-            Key dataKey = cryptoImplementationSupplier.dataKey();
+            int publicKeyHandle = publicKeyHandle(keyId, correlationId);
+            Key dataKey = cryptoImplementationSupplier.dataKey(correlationId);
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
-            byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey);
+            byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey, correlationId);
             cryptoImplementationSupplier.cleanupKey(dataKey);
             return new GenerateDataKeyResponse(keyId,
-                                                new String(plaintextDatakey),
-                                                new String(ciphertext));
-        }
-        catch (CryptoImplementationSupplierException e) {
-            LOGGER.error("Failure encountered trying to generate a new datakey due to an internal error. Try again later.", e);
-            throw new DataKeyGenerationException();
-        }
-        finally {
+                    new String(plaintextDatakey),
+                    new String(ciphertext));
+        } catch (CryptoImplementationSupplierException e) {
+            DataKeyGenerationException wrapper = new DataKeyGenerationException(correlationId);
+            LOGGER.error(wrapper.getMessage(), e);
+            throw wrapper;
+        } finally {
             loginManager.logout();
         }
     }
@@ -62,5 +58,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     public boolean canSeeDependencies() {
         return this.cryptoImplementationSupplier != null;
     }
+
     private final CryptoImplementationSupplier cryptoImplementationSupplier;
 }

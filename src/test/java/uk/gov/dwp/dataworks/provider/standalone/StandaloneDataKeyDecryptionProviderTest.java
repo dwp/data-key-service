@@ -11,14 +11,16 @@ public class StandaloneDataKeyDecryptionProviderTest {
     private final StandaloneDataKeyDecryptionProvider decryptionProvider = new StandaloneDataKeyDecryptionProvider();
 
     @Test
-    public void canDecryptKeys(){
+    public void canDecryptKeys() {
         // Create key
-        GenerateDataKeyResponse keys = generatorProvider.generateDataKey(currentKeyIdProvider.getKeyId());
+        String correlationId = "correlation";
+        GenerateDataKeyResponse keys = generatorProvider.generateDataKey(currentKeyIdProvider.getKeyId(correlationId), correlationId);
 
         // Decrypt key
         DecryptDataKeyResponse decrypted = decryptionProvider.decryptDataKey(
                 keys.dataKeyEncryptionKeyId,
-                keys.ciphertextDataKey);
+                keys.ciphertextDataKey,
+                correlationId);
 
         // What went in, must come out
         Assert.assertEquals(keys.plaintextDataKey, decrypted.plaintextDataKey);
