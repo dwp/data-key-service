@@ -16,16 +16,16 @@ public class GenerateDataKeyResponseTest {
         assertEquals(response1.toString(), response2.toString());
         assertEquals(response1.hashCode(), response2.hashCode());
 
-        response1.setcorrelationId("correlation-1");
-        response2.setcorrelationId("correlation-2");
+        response1.setCorrelationId("correlation-1");
+        response2.setCorrelationId("correlation-2");
 
         assertEquals(response1, response2);
         assertEquals(response1.toString(), response2.toString());
         assertEquals(response1.hashCode(), response2.hashCode());
 
         GenerateDataKeyResponse response3 = new GenerateDataKeyResponse("keyX", "valueX", "cypherX");
-        response1.setcorrelationId("correlation-X");
-        response3.setcorrelationId(response1.getcorrelationId());
+        response1.setCorrelationId("correlation-X");
+        response3.setCorrelationId(response1.getCorrelationId());
 
         assertNotEquals(response1, response3);
         assertNotEquals(response1.toString(), response3.toString());

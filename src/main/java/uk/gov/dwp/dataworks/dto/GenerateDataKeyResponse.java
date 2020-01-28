@@ -24,15 +24,15 @@ public class GenerateDataKeyResponse {
         this.ciphertextDataKey = ciphertextDataKey;
     }
 
-    public String getcorrelationId() {
+    public String getCorrelationId() {
         return correlationId;
     }
 
-    public void setcorrelationId(String correlationId) {
+    public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
     }
 
-    public GenerateDataKeyResponse withcorrelationId(String correlationId) {
+    public GenerateDataKeyResponse withCorrelationId(String correlationId) {
         this.correlationId = correlationId;
         return this;
     }

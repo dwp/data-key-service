@@ -21,15 +21,15 @@ public class DecryptDataKeyResponse {
         this.plaintextDataKey = plaintextDataKey;
     }
 
-    public String getcorrelationId() {
+    public String getCorrelationId() {
         return correlationId;
     }
 
-    public void setcorrelationId(String correlationId) {
+    public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
     }
 
-    public DecryptDataKeyResponse withcorrelationId(String correlationId) {
+    public DecryptDataKeyResponse withCorrelationId(String correlationId) {
         this.correlationId = correlationId;
         return this;
     }

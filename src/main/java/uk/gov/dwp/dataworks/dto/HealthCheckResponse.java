@@ -108,15 +108,15 @@ public class HealthCheckResponse {
         this.trustedCertificates = trustedCertificates;
     }
 
-    public String getcorrelationId() {
+    public String getCorrelationId() {
         return correlationId;
     }
 
-    public void setcorrelationId(String correlationId) {
+    public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
     }
 
-    public HealthCheckResponse withcorrelationId(String correlationId) {
+    public HealthCheckResponse withCorrelationId(String correlationId) {
         this.correlationId = correlationId;
         return this;
     }

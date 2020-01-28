@@ -90,7 +90,7 @@ public class DataKeyIntegrationTests {
                 new GenerateDataKeyResponse("encryptionId",
                         "plainKey",
                         "cipherKey")
-                .withcorrelationId(correlationId);
+                .withCorrelationId(correlationId);
 
         given(dataKeyGeneratorProvider.generateDataKey(eq("myKeyId"), eq(correlationId)))
                 .willReturn(response);
@@ -126,7 +126,7 @@ public class DataKeyIntegrationTests {
     public void shouldReturnDecryptedKeyWhenRequestedWithSpecifiedCorrelationId() throws Exception {
         DecryptDataKeyResponse response =
                 new DecryptDataKeyResponse("decryptKeyId", "plaintextDataKey")
-                        .withcorrelationId(correlationId);
+                        .withCorrelationId(correlationId);
 
         String dataKeyEncryptionKeyId = "dataKeyEncryptionKeyId";
         String encryptedDataKey = "blah blah blah";
