@@ -102,7 +102,7 @@ public class WrappingCaviumCryptoImplementationSupplierDefaultAlgorithm
         } catch (InvalidKeyException e) {
             throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'. correlation_id= {}", e.getMessage(), e.getStatus(), e.getClass().getSimpleName(), correlationId);
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);

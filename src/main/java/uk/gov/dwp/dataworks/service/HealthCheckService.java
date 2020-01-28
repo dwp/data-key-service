@@ -35,10 +35,10 @@ public class HealthCheckService {
         ObjectNode responseBody = mapper.valueToTree(response.getBody());
         responseBody.remove("trustedCertificates");
         if(response.getStatusCode().value() == 200) {
-            LOGGER.info("HEALTHCHECK: {}, dks_correlation_id: {}", responseBody, correlationId);
+            LOGGER.info("HEALTHCHECK: {}, correlation_id: {}", responseBody, correlationId);
         }
         else {
-            LOGGER.warn("HEALTHCHECK: {}, dks_correlation_id: {}", responseBody, correlationId);
+            LOGGER.warn("HEALTHCHECK: {}, correlation_id: {}", responseBody, correlationId);
         }
     }
 }

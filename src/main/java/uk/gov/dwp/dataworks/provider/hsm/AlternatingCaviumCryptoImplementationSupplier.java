@@ -49,7 +49,7 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+            LOGGER.error("Failed to create data key. correlation_id: " + correlationId, e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
@@ -59,7 +59,8 @@ public class AlternatingCaviumCryptoImplementationSupplier implements CryptoImpl
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
             CaviumRSAPublicKey publicKey = publicKey(wrappingKeyHandle);
-            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+            String key = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+            LOGGER.info("Public key bytes: '{}'. correlation_id: {}", key, correlationId);
             Cipher cipher = bouncyCastleCompatibleCipher(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
         } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException |

@@ -63,7 +63,8 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
             LOGGER.info("wrappingKeyHandle: '{}'. correlation_id: {}", wrappingKeyHandle, correlationId);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
-            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+            String key = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+            LOGGER.info("Public key bytes: '{}'. correlation_id: {}", key, correlationId);
             OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1",
                     MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256ANDMGF1Padding", "Cavium");
@@ -115,7 +116,7 @@ public class WrappingCaviumCryptoImplementationSupplier implements CryptoImpleme
             LOGGER.warn("Invalid key: {}. correlation_id: {}", e.getMessage(), correlationId, e);
             throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'. correlation_id: {}", e.getMessage(), e.getStatus(), e.getClass().getSimpleName(), correlationId);
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);

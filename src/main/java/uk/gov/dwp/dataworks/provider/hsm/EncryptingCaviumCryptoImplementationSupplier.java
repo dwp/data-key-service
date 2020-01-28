@@ -45,7 +45,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key", e);
+            LOGGER.error("Failed to create data key. correlation_id: " + correlationId, e);
             throw new CryptoImplementationSupplierException(e);
         }
     }
@@ -54,10 +54,11 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("wrappingKeyHandle: '{}'.", wrappingKeyHandle);
+            LOGGER.info("wrappingKeyHandle: '{}'. correlation_id: {}", wrappingKeyHandle, correlationId);
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
-            LOGGER.info("Public key bytes: '{}'.", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+            String encoded = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+            LOGGER.info("Public key bytes: '{}'. correlation_id: {}", encoded, correlationId);
             Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
@@ -93,7 +94,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         } catch (InvalidKeyException e) {
             throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'", e.getMessage(), e.getStatus(), e.getClass().getSimpleName());
+            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'. correlation_id: {}", e.getMessage(), e.getStatus(), e.getClass().getSimpleName(), correlationId);
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
             LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
