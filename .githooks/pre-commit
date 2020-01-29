@@ -7,15 +7,17 @@ declare -a patterns=(
   "\b[a-z0-9]{32}\b"
   "\b[A-Z]{2}[0-9]{6}[A-Z]{1}\b"
   "\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
+  "PRIVATE KEY-----"
 )
 
 declare -a descriptions=(
   "AWS access key ID"
-  "AWS secret access key"
+  "40 character random (e.g. AWS secret access key, PAT)"
   "AWS account number"
   "16 byte hex (e.g. S3 bucket name)"
   "NINO"
   "IP address"
+  "Private key (e.g. rsa private key, openssh private key)"
 )
 
 match=0
