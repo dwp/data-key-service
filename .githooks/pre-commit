@@ -8,6 +8,8 @@ declare -a patterns=(
   "\b[A-Z]{2}[0-9]{6}[A-Z]{1}\b"
   "\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
   "PRIVATE KEY-----"
+  "\b[A-Za-z0-9._%+-]{1,}@[A-Za-z0-9]{1,}.[A-Za-z0-9]{1,4}.[A-Za-z0-9]{1,4}\b"
+  "\b.[a-z]{2}-[a-z]{4,9}-[0-9]{1}.\b"
 )
 
 declare -a descriptions=(
@@ -18,6 +20,8 @@ declare -a descriptions=(
   "NINO"
   "IP address"
   "Private key (e.g. rsa private key, openssh private key)"
+  "Email addresses"
+  "Regions embedded as part of resource descriptions"
 )
 
 match=0
