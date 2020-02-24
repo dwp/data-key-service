@@ -24,6 +24,11 @@ declare -a descriptions=(
   "Regions embedded as part of resource descriptions"
 )
 
+count=`ls -1 *.secret 2>/dev/null | wc -l`
+if [ count != 0 ]; then
+    git secret hide
+fi
+
 match=0
 for i in "${!patterns[@]}"
 do
