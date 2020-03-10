@@ -49,8 +49,7 @@ public class HSMLoginManagerTest {
     }
 
     static CFM2Exception dummyC2smException() {
-        CFM2Exception exception = new CFM2Exception(1610612865, "dummy-call");
-        return exception;
+        return new CFM2Exception(1610612865, "dummy-call");
     }
 
     @Test
