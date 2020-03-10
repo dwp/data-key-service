@@ -1,5 +1,13 @@
 <configuration>
 
+     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%file:%method:%line] %message%n</pattern>
+        </encoder>
+    </appender>
+
+
+
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${dks.log.directory}/dks.out</file>
         <append>true</append>
@@ -32,6 +40,6 @@
     </logger>
 
     <root level="INFO">
-        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

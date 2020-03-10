@@ -18,14 +18,17 @@ import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 
 import javax.crypto.*;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import java.io.IOException;
 import java.security.*;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.Base64;
 
 import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
 
 @Component
-@Profile("EncryptingCavium")
+@Profile("Cavium")
 public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
 
     static {
@@ -59,11 +62,9 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
             String encoded = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
             LOGGER.info("Public key bytes: '{}'. correlation_id: {}", encoded, correlationId);
-            Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            Cipher cipher = cipher(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
-        } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException |
-                NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+        } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (CFM2Exception e) {
             String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
@@ -80,8 +81,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
             CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
             CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
-            Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            Cipher cipher = cipher(Cipher.DECRYPT_MODE, privateKey);
             byte[] decodedCipher = Base64.getDecoder().decode(ciphertextDataKey.getBytes());
             byte[] decrypted = cipher.doFinal(decodedCipher);
             if (decrypted != null) {
@@ -89,7 +89,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
             } else {
                 throw new GarbledDataKeyException(correlationId);
             }
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (InvalidKeyException e) {
             throw new GarbledDataKeyException(correlationId);
@@ -101,6 +101,28 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
     }
 
+    private Cipher cipher(int mode, Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException {
+        Cipher cipher = Cipher.getInstance(cipherTransformation, CAVIUM_PROVIDER);
+        cipher.init(mode, key, oaepParameterSpec());
+        return cipher;
+    }
+
+    private OAEPParameterSpec oaepParameterSpec() {
+        return new OAEPParameterSpec(hashingAlgorithm,
+                generationFunction,
+                MGF1ParameterSpec.SHA256,
+                PSource.PSpecified.DEFAULT);
+    }
+
+    @Value("${cipher.transformation:RSA/ECB/OAEPWithSHA-256ANDMGF1Padding}")
+    private String cipherTransformation;
+
+    @Value("${hashing.algorithm:SHA-256}")
+    private String hashingAlgorithm;
+
+    @Value("${generation.function:MGF1}")
+    private String generationFunction;
+
     @Override
     public void cleanupKey(Key datakey) {
         try {
@@ -111,9 +133,5 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
 
     }
-
-    @Value("${cipher.transformation:RSA/ECB/OAEPWithSHA-256ANDMGF1Padding}")
-    private String cipherTransformation;
-
     private final static Logger LOGGER = LoggerFactory.getLogger(EncryptingCaviumCryptoImplementationSupplier.class);
 }
