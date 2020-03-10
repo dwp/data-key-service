@@ -29,7 +29,7 @@ import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
 
 @Component
 @Profile("Cavium")
-public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
+public class CaviumCryptoImplementationSupplier implements CryptoImplementationSupplier {
 
     static {
         try {
@@ -108,8 +108,7 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     }
 
     private OAEPParameterSpec oaepParameterSpec() {
-        return new OAEPParameterSpec(hashingAlgorithm,
-                generationFunction,
+        return new OAEPParameterSpec(hashingAlgorithm, maskGenerationAlgorithm,
                 MGF1ParameterSpec.SHA256,
                 PSource.PSpecified.DEFAULT);
     }
@@ -120,8 +119,8 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
     @Value("${hashing.algorithm:SHA-256}")
     private String hashingAlgorithm;
 
-    @Value("${generation.function:MGF1}")
-    private String generationFunction;
+    @Value("${mask.generation.algorithm:MGF1}")
+    private String maskGenerationAlgorithm;
 
     @Override
     public void cleanupKey(Key datakey) {
@@ -133,5 +132,5 @@ public class EncryptingCaviumCryptoImplementationSupplier implements CryptoImple
         }
 
     }
-    private final static Logger LOGGER = LoggerFactory.getLogger(EncryptingCaviumCryptoImplementationSupplier.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CaviumCryptoImplementationSupplier.class);
 }

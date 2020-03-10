@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
-import uk.gov.dwp.dataworks.provider.hsm.EncryptingCaviumCryptoImplementationSupplier;
 import uk.gov.dwp.dataworks.util.ArrayUtils;
 
 import java.nio.ByteBuffer;

@@ -20,3 +20,4 @@ logs/
 *.crt
 *.p12
 .idea
+*.crl
