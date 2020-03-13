@@ -19,18 +19,11 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecryptionConstants {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 
+    @Autowired
     private com.cavium.cfm2.LoginManager loginManager;
 
-    private HsmCredentialsProvider hsmCredentialsProvider;
-
-    public ExplicitHsmLoginManager(HsmCredentialsProvider hsmCredentialsProvider) {
-        this.hsmCredentialsProvider = hsmCredentialsProvider;
-    }
-
     @Autowired
-    public ExplicitHsmLoginManager(LoginManager loginManager) {
-        this.loginManager = loginManager;
-    }
+    private HsmCredentialsProvider hsmCredentialsProvider;
 
     @Override
     @Retryable(
