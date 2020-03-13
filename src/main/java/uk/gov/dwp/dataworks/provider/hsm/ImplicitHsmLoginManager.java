@@ -1,5 +1,6 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
+import com.cavium.cfm2.LoginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,19 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 public class ImplicitHsmLoginManager implements HsmLoginManager {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImplicitHsmLoginManager.class);
 
-    @Autowired
     private com.cavium.cfm2.LoginManager loginManager;
 
-    @Autowired
+
+    public ImplicitHsmLoginManager(HsmCredentialsProvider hsmCredentialsProvider) {
+        this.hsmCredentialsProvider = hsmCredentialsProvider;
+    }
+
     private HsmCredentialsProvider hsmCredentialsProvider;
+
+    @Autowired
+    public ImplicitHsmLoginManager(LoginManager loginManager) {
+        this.loginManager = loginManager;
+    }
 
     @Override
     public void login() {

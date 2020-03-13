@@ -1,6 +1,7 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.cfm2.CFM2Exception;
+import com.cavium.cfm2.LoginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

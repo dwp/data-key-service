@@ -1,7 +1,5 @@
 package uk.gov.dwp.dataworks.errors;
 
-import com.cavium.cfm2.CFM2Exception;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

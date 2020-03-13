@@ -49,8 +49,7 @@ public class HSMLoginManagerTest {
     }
 
     static CFM2Exception dummyC2smException() {
-        CFM2Exception exception = new CFM2Exception(1610612865, "dummy-call");
-        return exception;
+        return new CFM2Exception(1610612865, "dummy-call");
     }
 
     @Test
@@ -65,7 +64,7 @@ public class HSMLoginManagerTest {
     }
 
     @Test
-    public void Should_retry_when_login_fails() throws CFM2Exception, MasterKeystoreException {
+    public void Should_retry_when_login_fails() throws CFM2Exception {
         try {
             HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
             given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);

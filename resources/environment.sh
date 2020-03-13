@@ -1,5 +1,8 @@
 #!/bin/bash
 
+stderr() {
+    echo $@ >&2
+}
 
 make_keystore() {
     local keystore="${1:?Usage: $FUNCNAME keystore common-name}"
@@ -34,7 +37,7 @@ extract_public_certificate() {
 }
 
 extract_pems() {
-    local keystore="${1:?Usage: $FUNCNAME keystore [output_file]}"
+    local keystore="${1:-keystore.jks}"
     local key="${2:-key.pem}"
     local certificate="${3:-certificate.pem}"
 
@@ -43,34 +46,36 @@ extract_pems() {
     [[ -f "${intermediate_store}" ]] && rm -v "${intermediate_store}"
     [[ -f "${key}" ]] && rm -v "${key}"
 
-    keytool -importkeystore \
-            -srckeystore "${keystore}" \
-            -srcstorepass "$(password)" \
-            -srckeypass "$(password)" \
-            -srcalias "$(alias)" \
-            -destalias "$(alias)" \
-            -destkeystore "${intermediate_store}" \
-            -deststoretype PKCS12 \
-            -deststorepass "$(password)" \
-            -destkeypass "$(password)"
+    if keytool -importkeystore \
+               -srckeystore "${keystore}" \
+               -srcstorepass "$(password)" \
+               -srckeypass "$(password)" \
+               -srcalias "$(alias)" \
+               -destalias "$(alias)" \
+               -destkeystore "${intermediate_store}" \
+               -deststoretype PKCS12 \
+               -deststorepass "$(password)" \
+               -destkeypass "$(password)"; then
+        local pwd=$(password)
+        export pwd
 
-    local pwd=$(password)
-    export pwd
+        openssl pkcs12 \
+                -in "${intermediate_store}" \
+                -nodes \
+                -nocerts \
+                -password env:pwd \
+                -out "${key}"
 
-    openssl pkcs12 \
-            -in "${intermediate_store}" \
-            -nodes \
-            -nocerts \
-            -password env:pwd \
-            -out "${key}"
+        openssl pkcs12 \
+                -in "${intermediate_store}" \
+                -nokeys \
+                -out "${certificate}" \
+                -password env:pwd
 
-    openssl pkcs12 \
-            -in "${intermediate_store}" \
-            -nokeys \
-            -out "${certificate}" \
-            -password env:pwd
-
-    unset pwd
+        unset pwd
+    else
+        stderr Failed to generate intermediate keystore
+    fi
 }
 
 
