@@ -53,7 +53,7 @@ public class DataKeyService {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey, correlationId);
     }
 
-    public boolean canSeeDependencies() throws MasterKeystoreException {
+    public boolean canSeeDependencies() {
         return dataKeyProvider != null && dataKeyProvider.canSeeDependencies() &&
                 currentKeyIdProvider != null && currentKeyIdProvider.canSeeDependencies() &&
                 dataKeyDecryptionProvider != null && dataKeyDecryptionProvider.canSeeDependencies();

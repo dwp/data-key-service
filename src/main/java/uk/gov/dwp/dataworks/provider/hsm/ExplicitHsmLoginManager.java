@@ -1,6 +1,7 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.cfm2.CFM2Exception;
+import com.cavium.cfm2.LoginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,18 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 public class ExplicitHsmLoginManager implements HsmLoginManager, HsmDataKeyDecryptionConstants {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExplicitHsmLoginManager.class);
 
-    @Autowired
     private com.cavium.cfm2.LoginManager loginManager;
 
-    @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
+
+    public ExplicitHsmLoginManager(HsmCredentialsProvider hsmCredentialsProvider) {
+        this.hsmCredentialsProvider = hsmCredentialsProvider;
+    }
+
+    @Autowired
+    public ExplicitHsmLoginManager(LoginManager loginManager) {
+        this.loginManager = loginManager;
+    }
 
     @Override
     @Retryable(

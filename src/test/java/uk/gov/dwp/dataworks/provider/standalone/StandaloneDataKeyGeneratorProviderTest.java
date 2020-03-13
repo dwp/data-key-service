@@ -9,12 +9,12 @@ public class StandaloneDataKeyGeneratorProviderTest {
     private final StandaloneCurrentKeyIdProvider currentKeyIdProvider = new StandaloneCurrentKeyIdProvider();
     private final StandaloneDataKeyGeneratorProvider generatorProvider = new StandaloneDataKeyGeneratorProvider();
 
-    private final String correlationId = "correlation";
-
     @Test
     public void canGenerateKeys() {
         // Create a key
-        GenerateDataKeyResponse keys = generatorProvider.generateDataKey(currentKeyIdProvider.getKeyId(correlationId), correlationId);
+        String correlationId = "correlation";
+        GenerateDataKeyResponse keys = generatorProvider.generateDataKey(currentKeyIdProvider.getKeyId(correlationId),
+                correlationId);
         Assert.assertEquals(keys.dataKeyEncryptionKeyId, currentKeyIdProvider.getKeyId(correlationId));
         Assert.assertNotNull(keys.ciphertextDataKey);
         Assert.assertNotNull(keys.plaintextDataKey);

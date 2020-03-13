@@ -64,7 +64,7 @@ public class HSMLoginManagerTest {
     }
 
     @Test
-    public void Should_retry_when_login_fails() throws CFM2Exception, MasterKeystoreException {
+    public void Should_retry_when_login_fails() throws CFM2Exception {
         try {
             HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
             given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);

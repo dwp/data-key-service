@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.LoginException;
 
 import java.util.Objects;
