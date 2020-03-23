@@ -24,7 +24,7 @@
     parameter store. The following config silences the http library.
     -->
     <logger name="org.apache" level="ERROR" additivity="true">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
     </logger>
 
     <logger name="healthcheck">
@@ -32,6 +32,6 @@
     </logger>
 
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
