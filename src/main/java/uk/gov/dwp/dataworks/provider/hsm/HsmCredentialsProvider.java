@@ -3,8 +3,6 @@ package uk.gov.dwp.dataworks.provider.hsm;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;
 import uk.gov.dwp.dataworks.errors.LoginException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 
 @Service
 @Profile("HSM")
@@ -25,7 +24,7 @@ public class HsmCredentialsProvider implements HsmDataKeyDecryptionConstants {
     private static final String HSM_CREDENTIALS_CACHE_NAME = "hsmcredentials";
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
-    private final static Logger LOGGER = LoggerFactory.getLogger(HsmCredentialsProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(HsmCredentialsProvider.class.toString());
 
     @Autowired
     public HsmCredentialsProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {

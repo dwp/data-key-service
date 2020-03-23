@@ -1,7 +1,5 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -10,6 +8,7 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyGenerationException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
@@ -20,7 +19,7 @@ import java.util.Base64;
 @Profile("HSM")
 public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKeyGeneratorProvider {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(HsmDataKeyGeneratorProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(HsmDataKeyGeneratorProvider.class.toString());
 
     public HsmDataKeyGeneratorProvider(HsmLoginManager loginManager,
                                        CryptoImplementationSupplier cryptoImplementationSupplier) {

@@ -3,13 +3,13 @@ package uk.gov.dwp.dataworks.provider.aws;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 
 @Service
@@ -17,7 +17,7 @@ import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
 
     private final AWSSimpleSystemsManagement awsSimpleSystemsManagementClient;
-    private final static Logger LOGGER = LoggerFactory.getLogger(AwsCurrentKeyIdProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(AwsCurrentKeyIdProvider.class.toString());
 
     @Autowired
     public AwsCurrentKeyIdProvider(AWSSimpleSystemsManagement awsSimpleSystemsManagementClient) {
@@ -33,7 +33,7 @@ public class AwsCurrentKeyIdProvider implements CurrentKeyIdProvider {
             return result.getParameter().getValue();
         } catch (RuntimeException e) {
             CurrentKeyIdException wrapper = new CurrentKeyIdException(correlationId);
-            LOGGER.error(wrapper.getMessage(), e);
+            LOGGER.error(wrapper.getMessage(), e, new Pair("correlation_id", correlationId));
             throw wrapper;
         }
     }
