@@ -8,14 +8,14 @@ import com.cavium.key.CaviumRSAPrivateKey;
 import com.cavium.key.CaviumRSAPublicKey;
 import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
 import com.cavium.provider.CaviumProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 
 import javax.crypto.*;
 import javax.crypto.spec.OAEPParameterSpec;
@@ -48,7 +48,7 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             keyGenerator.init(aesSpec);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            LOGGER.error("Failed to create data key. correlation_id: " + correlationId, e);
+            LOGGER.error("Failed to create data key", e,  new Pair<>("correlation_id", correlationId));
             throw new CryptoImplementationSupplierException(e);
         }
     }
@@ -57,18 +57,23 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("wrappingKeyHandle: '{}'. correlation_id: {}", wrappingKeyHandle, correlationId);
+
             byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
             CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
             String encoded = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
-            LOGGER.info("Public key bytes: '{}'. correlation_id: {}", encoded, correlationId);
+
+            LOGGER.info("Encrypting key",
+                    new Pair<>("wrapping_key_handle", wrappingKeyHandle.toString()),
+                    new Pair<>("public_key", encoded),
+                    new Pair<>("correlation_id", correlationId));
+
             Cipher cipher = cipher(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encode(cipher.doFinal(dataKey.getEncoded()));
         } catch (BadPaddingException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new CryptoImplementationSupplierException(e);
         } catch (CFM2Exception e) {
             String message = "Failed to encrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
-            LOGGER.warn(message);
+            LOGGER.warn(message, new Pair<>("correlation_id", correlationId));
             throw new MasterKeystoreException(message, e);
         }
     }
@@ -77,7 +82,9 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     public String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-            LOGGER.info("decryptionKeyHandle: '{}'. correlation_id: {}", decryptionKeyHandle, correlationId);
+            LOGGER.info("Decrypting key",
+                    new Pair<>("decryption_key_handle", decryptionKeyHandle.toString()),
+                    new Pair<>("correlation_id", correlationId));
             byte[] privateKeyAttribute = Util.getKeyAttributes(decryptionKeyHandle);
             CaviumKeyAttributes privateAttributes = new CaviumKeyAttributes(privateKeyAttribute);
             CaviumRSAPrivateKey privateKey = new CaviumRSAPrivateKey(decryptionKeyHandle, privateAttributes);
@@ -94,9 +101,8 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         } catch (InvalidKeyException e) {
             throw new GarbledDataKeyException(correlationId);
         } catch (CFM2Exception e) {
-            LOGGER.warn("Failed to decrypt key: '{}', '{}', '{}'. correlation_id: {}", e.getMessage(), e.getStatus(), e.getClass().getSimpleName(), correlationId);
+            LOGGER.error("Failed to decrypt key", e, new Pair<>("correlation_id", correlationId));
             String message = "Failed to decrypt key, retry will be attempted unless max attempts reached. correlation_id: " + correlationId;
-            LOGGER.warn(message);
             throw new MasterKeystoreException(message, e);
         }
     }
@@ -132,5 +138,5 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         }
 
     }
-    private final static Logger LOGGER = LoggerFactory.getLogger(CaviumCryptoImplementationSupplier.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(CaviumCryptoImplementationSupplier.class.toString());
 }

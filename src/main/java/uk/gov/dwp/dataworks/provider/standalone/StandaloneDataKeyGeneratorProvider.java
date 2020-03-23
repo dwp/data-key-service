@@ -1,11 +1,11 @@
 package uk.gov.dwp.dataworks.provider.standalone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.util.ArrayUtils;
 
@@ -24,7 +24,9 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
 
     @Override
     public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId) {
-        LOGGER.debug("generateDataKey: keyId: '{}', correlation_id: {}", keyId, correlationId);
+        LOGGER.debug("Generating datakey",
+                new Pair("key_id", keyId),
+                new Pair("correlation_id", correlationId));
         // Generate a random key
         int keySize = 128 / 8;
         byte[] key = new byte[keySize];
@@ -34,7 +36,10 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
         ArrayUtils.reverse(key);
         String encryptedKey = encoder.encodeToString(key);
         GenerateDataKeyResponse response = new GenerateDataKeyResponse(keyId, plaintextKey, encryptedKey);
-        LOGGER.debug("generateDataKey: response.hashCode(): '{}', correlation_id: {}", response.hashCode(), correlationId);
+
+        LOGGER.debug("Generating datakey",
+                new Pair("response_hash_code", response.hashCode() + ""),
+                new Pair("correlation_id", correlationId));
         return response;
     }
 
@@ -43,5 +48,5 @@ public class StandaloneDataKeyGeneratorProvider implements DataKeyGeneratorProvi
         return true;
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(StandaloneDataKeyGeneratorProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(StandaloneDataKeyGeneratorProvider.class.toString());
 }

@@ -1,7 +1,5 @@
 package uk.gov.dwp.dataworks.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -11,6 +9,7 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.LoginException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
@@ -21,7 +20,8 @@ public class DataKeyService {
     private final CurrentKeyIdProvider currentKeyIdProvider;
     private final DataKeyDecryptionProvider dataKeyDecryptionProvider;
     private static final String KEY_CACHE = "keycache";
-    private final static Logger LOGGER = LoggerFactory.getLogger(DataKeyService.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyService.class.toString());
+
 
     @Autowired
     public DataKeyService(

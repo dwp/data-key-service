@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.HealthCheckResponse;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
 import java.io.FileInputStream;
@@ -41,7 +40,7 @@ import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 public class HealthCheckController {
 
     private final DataKeyService dataKeyService;
-    private final static Logger LOGGER = LoggerFactory.getLogger(DataKeyController.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyController.class.toString());
 
     @Autowired
     public HealthCheckController(DataKeyService dataKeyService) {

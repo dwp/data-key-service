@@ -5,8 +5,6 @@ import com.amazonaws.services.kms.model.DecryptRequest;
 import com.amazonaws.services.kms.model.DecryptResult;
 import com.amazonaws.services.kms.model.InvalidCiphertextException;
 import com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,7 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.UnusableParameterException;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 
 import java.nio.ByteBuffer;
@@ -26,7 +25,7 @@ public class KMSDataKeyDecryptionProvider implements DataKeyDecryptionProvider {
     private final Base64.Encoder encoder = Base64.getEncoder();
     private final Base64.Decoder decoder = Base64.getDecoder();
     private final AWSKMS awsKms;
-    private final static Logger LOGGER = LoggerFactory.getLogger(KMSDataKeyDecryptionProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(KMSDataKeyDecryptionProvider.class.toString());
 
     @Autowired
     public KMSDataKeyDecryptionProvider(AWSKMS awsKms) {

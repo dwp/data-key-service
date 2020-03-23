@@ -1,11 +1,11 @@
 package uk.gov.dwp.dataworks.provider.standalone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
+import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.util.ArrayUtils;
 
@@ -25,14 +25,19 @@ public class StandaloneDataKeyDecryptionProvider implements DataKeyDecryptionPro
 
     @Override
     public DecryptDataKeyResponse decryptDataKey(String dataKeyEncryptionKeyId, String ciphertextDataKey, String correlationId) {
-        LOGGER.debug("decryptDataKey: dataKeyEncryptionKeyId: '{}', ciphertextDataKey: '{}', correlation_id: {}", dataKeyEncryptionKeyId, ciphertextDataKey, correlationId);
+        LOGGER.debug("Decrypting datakey",
+                new Pair<>("datakey_encryption_key_id", dataKeyEncryptionKeyId),
+                new Pair<>("ciphertext_datakey", ciphertextDataKey),
+                new Pair<>("correlation_id", correlationId));
         ByteBuffer ciphertextDataKeyBuffer = ByteBuffer.wrap(decoder.decode(ciphertextDataKey));
         byte[] decrypted = ciphertextDataKeyBuffer.array();
         // reverse the bytes
         ArrayUtils.reverse(decrypted);
         String plaintext = encoder.encodeToString(decrypted);
         DecryptDataKeyResponse response = new DecryptDataKeyResponse(dataKeyEncryptionKeyId, plaintext);
-        LOGGER.debug("decryptDataKey: response.hashcode(): '{}', correlation_id: {}", response.hashCode(), correlationId);
+        LOGGER.debug("Decrypting datakey",
+                new Pair<>("response_hashcode", response.hashCode() + ""),
+                new Pair<>("correlation_id", correlationId));
         return response;
     }
 
@@ -41,5 +46,5 @@ public class StandaloneDataKeyDecryptionProvider implements DataKeyDecryptionPro
         return true;
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(StandaloneDataKeyDecryptionProvider.class);
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(StandaloneDataKeyDecryptionProvider.class.toString());
 }
