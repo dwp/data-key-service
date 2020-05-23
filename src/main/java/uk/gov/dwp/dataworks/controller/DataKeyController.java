@@ -22,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 @Api(value = "datakey")
 public class DataKeyController {
 
-    @Autowired
-    private ServletWebServerApplicationContext server;
-
     private final DataKeyService dataKeyService;
 
     @Autowired
@@ -38,8 +35,7 @@ public class DataKeyController {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
-    public ResponseEntity<GenerateDataKeyResponse> generate(HttpServletRequest request,
-            @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId) throws MasterKeystoreException {
+    public ResponseEntity<GenerateDataKeyResponse> generate(@RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId) throws MasterKeystoreException {
         String keyId = dataKeyService.currentKeyId(correlationId);
         return new ResponseEntity<>(dataKeyService.generate(keyId, correlationId), HttpStatus.CREATED);
     }
