@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +14,16 @@ import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
+import javax.servlet.http.HttpServletRequest;
+
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/datakey")
 @Api(value = "datakey")
 public class DataKeyController {
+
+    @Autowired
+    private ServletWebServerApplicationContext server;
 
     private final DataKeyService dataKeyService;
 
@@ -32,7 +38,7 @@ public class DataKeyController {
             @ApiResponse(code = 201, message = "Successfully created a new data key"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
-    public ResponseEntity<GenerateDataKeyResponse> generate(
+    public ResponseEntity<GenerateDataKeyResponse> generate(HttpServletRequest request,
             @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId) throws MasterKeystoreException {
         String keyId = dataKeyService.currentKeyId(correlationId);
         return new ResponseEntity<>(dataKeyService.generate(keyId, correlationId), HttpStatus.CREATED);
