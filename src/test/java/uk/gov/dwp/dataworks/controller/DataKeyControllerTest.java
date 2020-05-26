@@ -4,6 +4,10 @@ import org.junit.Test;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 
+import javax.servlet.http.HttpServletRequest;
+
+import java.security.cert.Certificate;
+
 import static org.mockito.Mockito.*;
 
 public class DataKeyControllerTest {
@@ -17,7 +21,9 @@ public class DataKeyControllerTest {
         String keyId = "I am a key Id";
         when(mockDataKeyService.currentKeyId(correlationId)).thenReturn(keyId);
 
-        dataKeyController.generate(correlationId);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getAttribute(anyString())).thenReturn(new Certificate[] {});
+        dataKeyController.generate(correlationId, request);
 
         verify(mockDataKeyService, times(1)).currentKeyId(eq(correlationId));
         verify(mockDataKeyService, times(1)).generate(eq(keyId), eq(correlationId));
