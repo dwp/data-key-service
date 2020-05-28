@@ -7,8 +7,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.FieldSetter;
 import uk.gov.dwp.dataworks.errors.FetchCrlException;
+import uk.gov.dwp.dataworks.errors.RevokedClientCertificateException;
 
+import java.math.BigInteger;
 import java.security.cert.X509CRL;
+import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,9 +25,33 @@ import static org.mockito.Mockito.*;
 
 public class CertificateUtilsTest {
 
+    @Test(expected = RevokedClientCertificateException.class)
+    public void testThrowsOnRevoked() {
+        AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
+        CertificateUtils utils = new CertificateUtils(amazonS3);
+        X509CRL crl = mock(X509CRL.class);
+        X509Certificate certificate = mock(X509Certificate.class);
+        X509CRLEntry revocationEntry = mock(X509CRLEntry.class);
+        BigInteger serialNumber = new BigInteger("123");
+        given(certificate.getSerialNumber()).willReturn(serialNumber);
+        given(crl.getRevokedCertificate(serialNumber)).willReturn(revocationEntry);
+        utils.checkRevocation(crl, certificate);
+    }
+
+    @Test
+    public void testDoesNothingOnNotRevoked() {
+        AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
+        CertificateUtils utils = new CertificateUtils(amazonS3);
+        X509CRL crl = mock(X509CRL.class);
+        X509Certificate certificate = mock(X509Certificate.class);
+        BigInteger serialNumber = new BigInteger("123");
+        given(certificate.getSerialNumber()).willReturn(serialNumber);
+        given(crl.getRevokedCertificate(serialNumber)).willReturn(null);
+        utils.checkRevocation(crl, certificate);
+    }
+
     @Test
     public void testAddCrls() throws FetchCrlException, NoSuchFieldException {
-
         String crlBucket = "CRL_BUCKET";
         String crlCommonPrefix = "CRL_COMMON_PREFIX";
         AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);

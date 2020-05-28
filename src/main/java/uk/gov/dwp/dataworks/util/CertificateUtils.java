@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import kotlin.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ public class CertificateUtils {
         this.amazonS3 = amazonS3;
     }
 
-    public synchronized void  checkCertificatesAgainstCrl(Certificate[] certificates) {
+    public synchronized void checkCertificatesAgainstCrl(Certificate[] certificates) {
         if (certificates != null) {
                 crlCache.entrySet().stream()
                         .map(Map.Entry::getValue)
@@ -37,7 +38,7 @@ public class CertificateUtils {
         }
     }
 
-    private void checkRevocation(X509CRL crl, X509Certificate certificate) {
+    public void checkRevocation(X509CRL crl, X509Certificate certificate) {
         X509CRLEntry revocationEntry = crl.getRevokedCertificate(certificate.getSerialNumber());
         if (revocationEntry != null) {
             String serialNumber = certificate.getSerialNumber().toString();
@@ -49,11 +50,13 @@ public class CertificateUtils {
         }
     }
 
-    @Scheduled(fixedDelay = 5_000)
+    @Scheduled(fixedDelay = 300_000)
     public void refreshCrls() {
+        String crlBucket = StringUtils.isNotBlank(this.crlBucket) ? this.crlBucket : String.format("dw-%s-crl", environmentName);
         LOGGER.info("Getting crl bucket objects",
                 new Pair("crl_bucket", crlBucket),
                 new Pair("crl_prefix", crlCommonPrefix));
+
 
         ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(crlBucket).withPrefix(crlCommonPrefix);
         ListObjectsV2Result results = amazonS3.listObjectsV2(request);
@@ -106,7 +109,10 @@ public class CertificateUtils {
         }
     }
 
-    @Value("${crl.bucket:dw-development-crl}")
+    @Value("${server.environment_name}")
+    private String environmentName;
+
+    @Value("${crl.bucket:}")
     private String crlBucket;
 
     @Value("${crl.common.prefix:crl}")

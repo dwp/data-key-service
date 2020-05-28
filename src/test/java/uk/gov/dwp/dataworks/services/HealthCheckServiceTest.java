@@ -1,5 +1,6 @@
 package uk.gov.dwp.dataworks.services;
 
+import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource(properties = {"healthcheck.interval=1000", "scheduling.enabled=true"})
+@TestPropertySource(properties = {"healthcheck.interval=1000", "scheduling.enabled=true", "server.environment_name=test" })
 public class HealthCheckServiceTest {
 
     private final ResponseEntity<HealthCheckResponse> mockHealthOkResponse = ResponseEntity.ok(
@@ -40,6 +41,9 @@ public class HealthCheckServiceTest {
 
     @MockBean
     private DataKeyDecryptionProvider dataKeyDecryptionProvider;
+
+    @MockBean
+    private AmazonS3 amazonS3;
 
     @Test
     public void Should_Run_Healthcheck_Initially_After_One_Second() throws InterruptedException  {

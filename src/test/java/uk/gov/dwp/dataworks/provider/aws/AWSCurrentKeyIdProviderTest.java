@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @ActiveProfiles({"KMS", "UnitTest"})
+@TestPropertySource(properties = { "server.environment_name=test" })
 public class AWSCurrentKeyIdProviderTest {
 
     private final String correlationId = "correlation";

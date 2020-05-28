@@ -1,6 +1,7 @@
 package uk.gov.dwp.dataworks.helpers;
 
 import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -26,4 +27,10 @@ public class ProviderUnitTestConfiguration {
     public AWSKMS awsKms() {
         return Mockito.mock(AWSKMS.class);
     }
+
+    @Bean
+    public AmazonS3 amazonS3() {
+        return Mockito.mock(AmazonS3.class);
+    }
+
 }
