@@ -16,6 +16,7 @@ import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.errors.RevokedClientCertificateException;
 import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import uk.gov.dwp.dataworks.service.DataKeyService;
+import uk.gov.dwp.dataworks.util.CertificateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -31,11 +32,13 @@ import java.util.Arrays;
 public class DataKeyController {
 
     private final DataKeyService dataKeyService;
+    private final CertificateUtils certificateUtils;
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyController.class.toString());
 
     @Autowired
-    public DataKeyController(DataKeyService dataKeyService) {
+    public DataKeyController(DataKeyService dataKeyService, CertificateUtils certificateUtils) {
         this.dataKeyService = dataKeyService;
+        this.certificateUtils = certificateUtils;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -47,14 +50,11 @@ public class DataKeyController {
     })
     public ResponseEntity<GenerateDataKeyResponse> generate(@RequestParam(name = "correlationId", defaultValue = "NOT_SET")
             String correlationId, HttpServletRequest servletRequest) throws MasterKeystoreException {
-        Certificate[] certs =
-                (Certificate[]) servletRequest.getAttribute("javax.servlet.request.X509Certificate");
-        if (certs != null) {
-            Arrays.asList(certs).forEach(this::checkRevocation);
-        }
+        certificateUtils.checkCertificatesAgainstCrl(requestCertificates(servletRequest));
         String keyId = dataKeyService.currentKeyId(correlationId);
         return new ResponseEntity<>(dataKeyService.generate(keyId, correlationId), HttpStatus.CREATED);
     }
+
 
     @RequestMapping(value = "/actions/decrypt", method = RequestMethod.POST)
     @ApiOperation(value = "Tries to decrypt the ciphertext of a data key", response = DecryptDataKeyResponse.class)
@@ -66,27 +66,14 @@ public class DataKeyController {
     public DecryptDataKeyResponse decrypt(
             @RequestParam(name = "keyId") String dataKeyEncryptionKeyId,
             @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId,
-            @RequestBody String ciphertextDataKey) throws MasterKeystoreException {
+            @RequestBody String ciphertextDataKey,
+            HttpServletRequest servletRequest) throws MasterKeystoreException {
+        certificateUtils.checkCertificatesAgainstCrl(requestCertificates(servletRequest));
         return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey, correlationId);
     }
 
-    private void checkRevocation(Certificate certificate) {
-        try {
-            CertificateFactory cf = CertificateFactory.getInstance("X509");
-            X509CRL crl = (X509CRL) cf.generateCRL(new FileInputStream(new File("resources/development.crl")));
-            X509CRLEntry revocationEntry = crl.getRevokedCertificate(((X509Certificate) certificate).getSerialNumber());
-            if (revocationEntry != null) {
-                System.out.println("Revoked");
-            }
-            else {
-                String serialNumber = ((X509Certificate) certificate).getSerialNumber().toString();
-                LOGGER.error("Client attempted to use service with revoked certificate",
-                        new Pair("serial_number", serialNumber));
-                throw new RevokedClientCertificateException(serialNumber);
-            }
-        }
-        catch (CertificateException | CRLException | FileNotFoundException e) {
-            throw new RevokedClientCertificateException(e.getMessage());
-        }
+    private Certificate[] requestCertificates(HttpServletRequest servletRequest) {
+        return (Certificate[]) servletRequest.getAttribute("javax.servlet.request.X509Certificate");
     }
+
 }

@@ -1,8 +1,10 @@
 package uk.gov.dwp.dataworks.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Test;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.service.DataKeyService;
+import uk.gov.dwp.dataworks.util.CertificateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +19,8 @@ public class DataKeyControllerTest {
     @Test
     public void generateWillPassParametersToTheDataKeyService() throws MasterKeystoreException {
         DataKeyService mockDataKeyService = mock(DataKeyService.class);
-        DataKeyController dataKeyController = new DataKeyController(mockDataKeyService);
+        CertificateUtils certificateUtils = mock(CertificateUtils.class);
+        DataKeyController dataKeyController = new DataKeyController(mockDataKeyService, certificateUtils);
         String keyId = "I am a key Id";
         when(mockDataKeyService.currentKeyId(correlationId)).thenReturn(keyId);
 
@@ -33,10 +36,12 @@ public class DataKeyControllerTest {
     @Test
     public void decryptWillPassParametersToTheDataKeyService() throws MasterKeystoreException {
         DataKeyService mockDataKeyService = mock(DataKeyService.class);
-        DataKeyController dataKeyController = new DataKeyController(mockDataKeyService);
+        CertificateUtils certificateUtils = mock(CertificateUtils.class);
+        DataKeyController dataKeyController = new DataKeyController(mockDataKeyService, certificateUtils);
         String keyId = "I am a key Id";
         String ciphertextDataKey = "I am a ciphertext Data Key";
-        dataKeyController.decrypt(keyId, correlationId, ciphertextDataKey);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        dataKeyController.decrypt(keyId, correlationId, ciphertextDataKey, request);
 
         verify(mockDataKeyService, times(1)).decrypt(eq(keyId), eq(ciphertextDataKey), eq(correlationId));
         verifyNoMoreInteractions(mockDataKeyService);
