@@ -40,7 +40,7 @@ import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 public class HealthCheckController {
 
     private final DataKeyService dataKeyService;
-    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyController.class.toString());
+    private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(HealthCheckController.class.toString());
 
     @Autowired
     public HealthCheckController(DataKeyService dataKeyService) {

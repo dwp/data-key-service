@@ -14,6 +14,7 @@ import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.service.DataKeyService;
+import uk.gov.dwp.dataworks.util.CertificateUtils;
 
 import java.util.Objects;
 
@@ -22,7 +23,8 @@ import java.util.Objects;
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000",
         "key.cache.eviction.interval=1000",
-        "scheduling.enabled=false"
+        "scheduling.enabled=false",
+        "server.environment_name=test"
 })
 public class DataKeyServiceTest {
 
@@ -69,4 +71,7 @@ public class DataKeyServiceTest {
 
     @MockBean
     private DataKeyDecryptionProvider dataKeyDecryptionProvider;
+
+    @MockBean
+    private CertificateUtils certificateUtils;
 }

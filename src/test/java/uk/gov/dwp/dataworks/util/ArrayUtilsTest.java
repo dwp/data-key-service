@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @ActiveProfiles({"UnitTest", "STANDALONE"})
+@TestPropertySource(properties = { "server.environment_name=test" })
 public class ArrayUtilsTest {
     @Test
     public void reverseTest(){

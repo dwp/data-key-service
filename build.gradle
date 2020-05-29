@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.springframework.boot' version '2.1.7.RELEASE'
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -39,12 +39,14 @@ bootJar {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.google.guava:guava:27.0.1-jre'
-    implementation 'commons-codec:commons-codec:1.12'
+    implementation 'commons-codec:commons-codec:1.14'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.534'
-    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.534'
+    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.789'
+    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.789'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.789'
     implementation "io.springfox:springfox-swagger2:2.9.2"
     implementation "io.springfox:springfox-swagger-ui:2.9.2"
     implementation "org.springframework.retry:spring-retry:1.2.4.RELEASE"
@@ -56,8 +58,8 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.3"
 
     // CloudHSM sdk: See notes above and in readme
-    compileOnly    group: "cloudhsm", name: "cloudhsm-3.0.0"
-    testImplementation    group: "cloudhsm", name: "cloudhsm-3.0.0"
+    compileOnly    group: "cloudhsm", name: "cloudhsm-3.1.0"
+    testImplementation    group: "cloudhsm", name: "cloudhsm-3.1.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile "junit:junit:4.12"

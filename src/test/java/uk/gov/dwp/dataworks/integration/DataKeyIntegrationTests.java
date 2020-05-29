@@ -1,5 +1,6 @@
 package uk.gov.dwp.dataworks.integration;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,8 +9,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
@@ -33,9 +36,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest()
 @ActiveProfiles({"IntegrationTest", "INSECURE"})
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+        "server.environment_name=development"
+})
+
 public class DataKeyIntegrationTests {
 
     private final String correlationId = "correlation";
+
+    @MockBean
+    private AmazonS3 amazonS3;
 
     @Autowired
     private CurrentKeyIdProvider currentKeyIdProvider;

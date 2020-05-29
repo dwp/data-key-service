@@ -8,6 +8,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CurrentKeyIdException;
@@ -24,6 +25,9 @@ import static org.mockito.BDDMockito.given;
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @ActiveProfiles({ "UnitTest", "KMS" })
+@TestPropertySource(properties = {
+        "server.environment_name=development"
+})
 public class KMSDataKeyGeneratorProviderTest {
 
     private final String correlationId = "correlation";
