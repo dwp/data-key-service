@@ -44,8 +44,8 @@ public class CertificateUtils {
             String serialNumber = certificate.getSerialNumber().toString();
             LOGGER.error("Client attempted to use service with revoked certificate",
                     new Pair("certificate_serial_number", serialNumber),
-                    new Pair("revocation_reason", revocationEntry.getRevocationReason()),
-                    new Pair("revocation_date", revocationEntry.getRevocationDate()));
+                    new Pair("revocation_reason", revocationEntry.getRevocationReason().toString()),
+                    new Pair("revocation_date", revocationEntry.getRevocationDate().toString()));
             throw new RevokedClientCertificateException(serialNumber);
         }
     }
