@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -18,17 +19,25 @@ public class AwsConfiguration {
 
     @Bean
     public AmazonS3 amazonS3() {
-        return AmazonS3ClientBuilder.standard().withRegion(Regions.EU_WEST_2).build();
+        return AmazonS3ClientBuilder.standard().withRegion(region()).build();
     }
 
     @Bean
     AWSSimpleSystemsManagement awsSimpleSystemsManagement() {
-        return AWSSimpleSystemsManagementClientBuilder.standard().withRegion(Regions.EU_WEST_2).build();
+        return AWSSimpleSystemsManagementClientBuilder.standard().withRegion(region()).build();
     }
 
 
     @Bean
     AWSKMS awsKms() {
-        return AWSKMSClientBuilder.standard().withRegion(Regions.EU_WEST_2).build();
+        return AWSKMSClientBuilder.standard().withRegion(region()).build();
     }
+
+    private Regions region() {
+        return Regions.fromName(defaultRegion);
+    }
+
+    @Value("${default.region:eu-west-2}")
+    private String defaultRegion;
+
 }
