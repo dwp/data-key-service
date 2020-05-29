@@ -50,7 +50,7 @@ public class CertificateUtils {
         }
     }
 
-    @Scheduled(fixedDelay = 300_000)
+    @Scheduled(initialDelay = 1000, fixedRateString = "${crl.check.interval:300000}")
     public void refreshCrls() {
         String crlBucket = StringUtils.isNotBlank(this.crlBucket) ? this.crlBucket : String.format("dw-%s-crl", environmentName);
         LOGGER.info("Getting crl bucket objects",
@@ -117,6 +117,7 @@ public class CertificateUtils {
 
     @Value("${crl.common.prefix:crl}")
     private String crlCommonPrefix;
+
 
     private final AmazonS3 amazonS3;
 
