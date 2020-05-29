@@ -61,6 +61,7 @@ public class DataKeyController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully decrypted the data key"),
             @ApiResponse(code = 400, message = "The supplied data key could not be decrypted. Either the ciphertext is invalid or the data key encryption key is incorrect."),
+            @ApiResponse(code = 403, message = "Client used a revoked certificate"),
             @ApiResponse(code = 503, message = "There has been an internal error, or a dependency failure")
     })
     public DecryptDataKeyResponse decrypt(
