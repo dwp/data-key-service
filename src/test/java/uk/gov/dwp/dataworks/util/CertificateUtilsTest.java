@@ -10,13 +10,13 @@ import uk.gov.dwp.dataworks.errors.FetchCrlException;
 import uk.gov.dwp.dataworks.errors.RevokedClientCertificateException;
 
 import java.math.BigInteger;
+import java.security.cert.CRLReason;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,12 +26,14 @@ import static org.mockito.Mockito.*;
 public class CertificateUtilsTest {
 
     @Test(expected = RevokedClientCertificateException.class)
-    public void testThrowsOnRevoked() {
+    public void testThrowsOnRevoked() throws ParseException {
         AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
         CertificateUtils utils = new CertificateUtils(amazonS3);
         X509CRL crl = mock(X509CRL.class);
         X509Certificate certificate = mock(X509Certificate.class);
         X509CRLEntry revocationEntry = mock(X509CRLEntry.class);
+        given(revocationEntry.getRevocationDate()).willReturn(new SimpleDateFormat("yyyy-MM-dd").parse("2020-03-04"));
+        given(revocationEntry.getRevocationReason()).willReturn(CRLReason.KEY_COMPROMISE);
         BigInteger serialNumber = new BigInteger("123");
         given(certificate.getSerialNumber()).willReturn(serialNumber);
         given(crl.getRevokedCertificate(serialNumber)).willReturn(revocationEntry);
