@@ -105,8 +105,8 @@ public class CertificateUtilsTest {
 
     @Test
     public void testRemovesCrls() throws FetchCrlException, NoSuchFieldException {
-        String crlObject1Key = "CRL_KEY_1";
-        String crlObject2Key = "CRL_KEY_2";
+        String crlObject1Key = "CRL_KEY_1.crl";
+        String crlObject2Key = "CRL_KEY_2.crl";
         String crlObject1EtagV1 = "CRL_1_ETAG_V1";
         String crlObject2EtagV1 = "CRL_2_ETAG_V1";
         X509CRL crl1 = mock(X509CRL.class);
