@@ -63,8 +63,8 @@ public class CertificateUtilsTest {
         S3Object crlObject1 = mockS3Object();
         S3Object crlObject2 = mockS3Object();
 
-        String crlObject1Key = "CRL_KEY_1";
-        String crlObject2Key = "CRL_KEY_2";
+        String crlObject1Key = "CRL_KEY_1.crl";
+        String crlObject2Key = "CRL_KEY_2.crl";
 
         String crlObject1Etag = "CRL_1_ETAG";
         String crlObject2Etag = "CRL_2_ETAG";
@@ -145,7 +145,7 @@ public class CertificateUtilsTest {
 
     @Test
     public void testReplacesCrls() throws FetchCrlException, NoSuchFieldException {
-        String crlObjectKey = "CRL_KEY";
+        String crlObjectKey = "CRL_KEY.crl";
         String crlObjectEtagV1 = "CRL_ETAG_V1";
         String crlObjectEtagV2 = "CRL_ETAG_V2";
         X509CRL crlv1 = mock(X509CRL.class);
