@@ -27,6 +27,6 @@ class LocalAwsConfiguration {
     @Value("${aws.region:eu-west-2}")
     private String region;
 
-    @Value("${s3.service.endpoint:http://s3-dummy:4572}")
+    @Value("${s3.service.endpoint}")
     private String serviceEndpoint;
 }
