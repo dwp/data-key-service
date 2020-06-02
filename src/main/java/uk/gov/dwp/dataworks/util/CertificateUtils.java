@@ -61,7 +61,9 @@ public class CertificateUtils {
         ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(crlBucket).withPrefix(crlCommonPrefix);
         ListObjectsV2Result results = amazonS3.listObjectsV2(request);
         List<S3ObjectSummary> summaries = results.getObjectSummaries();
-        Set<String> crlsInS3 = summaries.stream().map(x -> x.getKey()).collect(Collectors.toSet());
+        Set<String> crlsInS3 = summaries.stream().map(x -> x.getKey())
+                .filter(key -> key.endsWith(".crl"))
+                .collect(Collectors.toSet());
         Set<String> removals = crlCache.keySet().stream().filter(k -> !crlsInS3.contains(k)).collect(Collectors.toSet());
 
         synchronized (this) {
