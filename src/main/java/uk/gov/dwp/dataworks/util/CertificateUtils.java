@@ -78,20 +78,22 @@ public class CertificateUtils {
             summaries.stream().forEach(summary -> {
                 try {
                     String key = summary.getKey();
-                    if (crlCache.containsKey(key)) {
-                        String previousEtag = crlCache.get(key).getEtag();
-                        String latestEtag = summary.getETag();
-                        if (!previousEtag.equals(latestEtag)) {
-                            LOGGER.info("Replacing cached crl", new Pair("crl_key", key),
-                                    new Pair("previous_etag", previousEtag), new Pair("latest_etag", latestEtag));
-                            X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
-                            crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(),crl));
+                    if (key.endsWith(".crl")) {
+                        if (crlCache.containsKey(key)) {
+                            String previousEtag = crlCache.get(key).getEtag();
+                            String latestEtag = summary.getETag();
+                            if (!previousEtag.equals(latestEtag)) {
+                                LOGGER.info("Replacing cached crl", new Pair("crl_key", key),
+                                        new Pair("previous_etag", previousEtag), new Pair("latest_etag", latestEtag));
+                                X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
+                                crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(),crl));
+                            }
                         }
-                    }
-                    else {
-                        LOGGER.info("Adding new crl to cache", new Pair("crl_key", key));
-                        X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
-                        crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(), crl));
+                        else {
+                            LOGGER.info("Adding new crl to cache", new Pair("crl_key", key));
+                            X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
+                            crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(), crl));
+                        }
                     }
                 }
                 catch (FetchCrlException e) {
