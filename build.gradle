@@ -58,7 +58,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.3"
 
     // CloudHSM sdk: See notes above and in readme
-    compileOnly    group: "cloudhsm", name: "cloudhsm-3.1.0"
+    compileOnly    group: "cloudhsm", name: "cloudhsm-3.1.1"
     testImplementation    group: "cloudhsm", name: "cloudhsm-3.1.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
