@@ -59,7 +59,7 @@ dependencies {
 
     // CloudHSM sdk: See notes above and in readme
     compileOnly    group: "cloudhsm", name: "cloudhsm-3.1.1"
-    testImplementation    group: "cloudhsm", name: "cloudhsm-3.1.0"
+    testImplementation    group: "cloudhsm", name: "cloudhsm-3.1.1"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile "junit:junit:4.12"
