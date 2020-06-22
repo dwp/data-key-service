@@ -1,5 +1,6 @@
 package uk.gov.dwp.dataworks.util;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
@@ -13,6 +14,7 @@ import uk.gov.dwp.dataworks.errors.FetchCrlException;
 import uk.gov.dwp.dataworks.errors.RevokedClientCertificateException;
 import uk.gov.dwp.dataworks.logging.DataworksLogger;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.*;
 import java.util.*;
@@ -52,54 +54,59 @@ public class CertificateUtils {
 
     @Scheduled(initialDelay = 1000, fixedRateString = "${crl.check.interval:300000}")
     public void refreshCrls() {
-        String crlBucket = StringUtils.isNotBlank(this.crlBucket) ? this.crlBucket : String.format("dw-%s-crl", environmentName);
-        LOGGER.info("Getting crl bucket objects",
-                new Pair("crl_bucket", crlBucket),
-                new Pair("crl_prefix", crlCommonPrefix));
+        try {
+            String crlBucket = StringUtils.isNotBlank(this.crlBucket) ? this.crlBucket : String.format("dw-%s-crl", environmentName);
+            LOGGER.info("Getting crl bucket objects",
+                    new Pair<>("crl_bucket", crlBucket),
+                    new Pair<>("crl_prefix", crlCommonPrefix));
 
+            ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(crlBucket).withPrefix(crlCommonPrefix);
+            ListObjectsV2Result results = amazonS3.listObjectsV2(request);
+            List<S3ObjectSummary> summaries = results.getObjectSummaries();
+            Set<String> crlsInS3 = summaries.stream().map(x -> x.getKey())
+                    .filter(key -> key.endsWith(".crl"))
+                    .collect(Collectors.toSet());
+            Set<String> removals = crlCache.keySet().stream().filter(k -> !crlsInS3.contains(k)).collect(Collectors.toSet());
 
-        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(crlBucket).withPrefix(crlCommonPrefix);
-        ListObjectsV2Result results = amazonS3.listObjectsV2(request);
-        List<S3ObjectSummary> summaries = results.getObjectSummaries();
-        Set<String> crlsInS3 = summaries.stream().map(x -> x.getKey())
-                .filter(key -> key.endsWith(".crl"))
-                .collect(Collectors.toSet());
-        Set<String> removals = crlCache.keySet().stream().filter(k -> !crlsInS3.contains(k)).collect(Collectors.toSet());
+            synchronized (this) {
 
-        synchronized (this) {
+                removals.stream().forEach(key -> {
+                    LOGGER.info("Removing crl from cache, no longer on s3",
+                            new Pair<>("crl_key", key),
+                            new Pair<>("s3_crls", crlsInS3.toString()));
+                    crlCache.remove(key);
+                });
 
-            removals.stream().forEach(key -> {
-                LOGGER.info("Removing crl from cache, no longer on s3",
-                        new Pair("crl_key", key),
-                        new Pair("s3_crls", crlsInS3.toString()));
-                crlCache.remove(key);
-            });
+                summaries.stream().forEach(summary -> {
+                    try {
+                        String key = summary.getKey();
+                        if (key.endsWith(".crl")) {
+                            if (crlCache.containsKey(key)) {
+                                String previousEtag = crlCache.get(key).getEtag();
+                                String latestEtag = summary.getETag();
+                                if (!previousEtag.equals(latestEtag)) {
+                                    LOGGER.info("Replacing cached crl", new Pair<>("crl_key", key),
+                                            new Pair<>("previous_etag", previousEtag), new Pair<>("latest_etag", latestEtag));
 
-            summaries.stream().forEach(summary -> {
-                try {
-                    String key = summary.getKey();
-                    if (key.endsWith(".crl")) {
-                        if (crlCache.containsKey(key)) {
-                            String previousEtag = crlCache.get(key).getEtag();
-                            String latestEtag = summary.getETag();
-                            if (!previousEtag.equals(latestEtag)) {
-                                LOGGER.info("Replacing cached crl", new Pair("crl_key", key),
-                                        new Pair("previous_etag", previousEtag), new Pair("latest_etag", latestEtag));
+                                    X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
+                                    crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(),crl));
+                                }
+                            }
+                            else {
+                                LOGGER.info("Adding new crl to cache", new Pair<>("crl_key", key));
                                 X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
-                                crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(),crl));
+                                crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(), crl));
                             }
                         }
-                        else {
-                            LOGGER.info("Adding new crl to cache", new Pair("crl_key", key));
-                            X509CRL crl =  crl(amazonS3.getObject(crlBucket, key).getObjectContent());
-                            crlCache.put(summary.getKey(), new AcmPcaCrl(summary.getETag(), crl));
-                        }
                     }
-                }
-                catch (FetchCrlException e) {
-                    LOGGER.error("Failed to fetch crl", e);
-                }
-            });
+                    catch (FetchCrlException e) {
+                        LOGGER.error("Failed to fetch crl", e);
+                    }
+                });
+            }
+        }
+        catch (SdkClientException e) {
+            LOGGER.warn("Failed to refresh crls", new Pair<>("exception_message", e.getMessage()));
         }
     }
 
@@ -110,6 +117,14 @@ public class CertificateUtils {
         }
         catch (CertificateException | CRLException e) {
             throw new FetchCrlException(e);
+        }
+        finally {
+            try {
+                inputStream.close();
+            }
+            catch (IOException e) {
+                LOGGER.warn("Failed to close crl stream", new Pair<>("exception_message", e.getMessage()));
+            }
         }
     }
 
