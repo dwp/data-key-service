@@ -42,16 +42,13 @@ public class CertificateUtils {
 
     public void checkRevocation(X509CRL crl, X509Certificate certificate) {
         X509CRLEntry revocationEntry = crl.getRevokedCertificate(certificate.getSerialNumber());
-        String serialNumber = certificate.getSerialNumber().toString();
         if (revocationEntry != null) {
+            String serialNumber = certificate.getSerialNumber().toString();
             LOGGER.error("Client attempted to use service with revoked certificate",
                     new Pair("certificate_serial_number", serialNumber),
                     new Pair("revocation_reason", revocationEntry.getRevocationReason().toString()),
                     new Pair("revocation_date", revocationEntry.getRevocationDate().toString()));
             throw new RevokedClientCertificateException(serialNumber);
-        }
-        else {
-            LOGGER.info("Valid certificate used by client", new Pair<>("certificate_serial_number", serialNumber.toString()));
         }
     }
 
