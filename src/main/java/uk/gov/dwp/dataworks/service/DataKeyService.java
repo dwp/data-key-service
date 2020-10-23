@@ -49,6 +49,11 @@ public class DataKeyService {
         return dataKeyProvider.generateDataKey(keyId, correlationId);
     }
 
+    @Scheduled(fixedRateString = "86400000") // daily
+    @CacheEvict(value = KEY_CACHE, allEntries = true)
+    public void clearDecryptedCache() {
+        LOGGER.info("Decrypted key cache evicted.");
+    }
 
     @Cacheable(DECRYPTED_CACHE)
     public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey, String correlationId)
