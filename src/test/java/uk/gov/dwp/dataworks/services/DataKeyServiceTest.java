@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000",
         "key.cache.eviction.interval=1000",
+        "decrypted.key.cache.eviction.interval=1000",
         "scheduling.enabled=false",
         "server.environment_name=test"
 })
@@ -72,6 +73,21 @@ public class DataKeyServiceTest {
         assertEquals(expected, firstActual);
         assertEquals(expected, secondActual);
         Mockito.verify(dataKeyDecryptionProvider, Mockito.times(1)).decryptDataKey("keyId", "ciphertextDataKey", "correlationId");
+        Mockito.verifyNoMoreInteractions(dataKeyDecryptionProvider);
+    }
+
+    @Test
+    public void evictsDecryptedKeyCache() throws MasterKeystoreException, InterruptedException {
+        DecryptDataKeyResponse expected =
+                new DecryptDataKeyResponse("dataKeyDecryptionKeyId", "plaintextDataKey");
+        Mockito.when(dataKeyDecryptionProvider.decryptDataKey("keyId", "ciphertextDataKey", "correlationId"))
+                .thenReturn(expected);
+        DecryptDataKeyResponse firstActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId");
+        Thread.sleep(2_000);
+        DecryptDataKeyResponse secondActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId");
+        assertEquals(expected, firstActual);
+        assertEquals(expected, secondActual);
+        Mockito.verify(dataKeyDecryptionProvider, Mockito.times(2)).decryptDataKey("keyId", "ciphertextDataKey", "correlationId");
         Mockito.verifyNoMoreInteractions(dataKeyDecryptionProvider);
     }
 
