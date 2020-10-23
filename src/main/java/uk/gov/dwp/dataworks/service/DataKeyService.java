@@ -50,7 +50,7 @@ public class DataKeyService {
     }
 
     @Scheduled(fixedRateString = "86400000") // daily
-    @CacheEvict(value = KEY_CACHE, allEntries = true)
+    @CacheEvict(value = DECRYPTED_CACHE, allEntries = true)
     public void clearDecryptedCache() {
         LOGGER.info("Decrypted key cache evicted.");
     }
