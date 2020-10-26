@@ -20,6 +20,7 @@ public class DataKeyService {
     private final CurrentKeyIdProvider currentKeyIdProvider;
     private final DataKeyDecryptionProvider dataKeyDecryptionProvider;
     private static final String KEY_CACHE = "keycache";
+    private static final String DECRYPTED_CACHE = "decrypted_cache";
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyService.class.toString());
 
 
@@ -48,6 +49,13 @@ public class DataKeyService {
         return dataKeyProvider.generateDataKey(keyId, correlationId);
     }
 
+    @Scheduled(fixedRateString = "${decrypted.key.cache.eviction.interval:86400000}") // daily
+    @CacheEvict(value = DECRYPTED_CACHE, allEntries = true)
+    public void clearDecryptedCache() {
+        LOGGER.info("Decrypted key cache evicted.");
+    }
+
+    @Cacheable(DECRYPTED_CACHE)
     public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey, String correlationId)
             throws LoginException, MasterKeystoreException {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey, correlationId);
