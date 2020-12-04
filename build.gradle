@@ -44,9 +44,9 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.789'
-    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.789'
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.789'
+    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.893'
+    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.893'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.893'
     implementation "io.springfox:springfox-swagger2:3.0.0"
     implementation "io.springfox:springfox-swagger-ui:3.0.0"
     implementation "org.springframework.retry:spring-retry:1.2.4.RELEASE"
