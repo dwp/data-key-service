@@ -161,6 +161,15 @@ curl --insecure --cert certificate.pem:changeit --key key.pem \
 
 ```
 
+To confirm that your encrypted data key can be successfully decrypted by an HSM:
+1. Copy and paste the base-64 encoded data key cipher text into a file (e.g. data_key.txt)
+1. URL-encode the CloudHSM key ID string (e.g. `cloudhsm:012345:678901` will become `cloudhsm%3A012345%2C678901`)
+1. Run the following command:
+
+```bash
+curl -X POST -H 'Content-type: application/json' --cacert ca.crt --cert certificate.pem --key key.pem --data $(cat data_key.txt) 'https://localhost:8443/datakey/actions/decrypt?keyId=cloudhsm%3A012345%2C678901'
+```
+
 ## Standalone Mode
 You can run DKS in a mode that does not require AWS credentials at all. This is
 helpful if you essentially want a mock version of DKS that you can develop
