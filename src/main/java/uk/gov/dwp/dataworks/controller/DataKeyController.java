@@ -31,7 +31,7 @@ import java.util.Arrays;
 @Api(value = "datakey")
 public class DataKeyController {
 
-    public static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
+    private static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
     private final DataKeyService dataKeyService;
     private final CertificateUtils certificateUtils;
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyController.class.toString());
