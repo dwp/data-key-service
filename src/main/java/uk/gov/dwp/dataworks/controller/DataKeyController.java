@@ -31,6 +31,7 @@ import java.util.Arrays;
 @Api(value = "datakey")
 public class DataKeyController {
 
+    public static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
     private final DataKeyService dataKeyService;
     private final CertificateUtils certificateUtils;
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(DataKeyController.class.toString());
@@ -50,6 +51,9 @@ public class DataKeyController {
     })
     public ResponseEntity<GenerateDataKeyResponse> generate(@RequestParam(name = "correlationId", defaultValue = "NOT_SET")
             String correlationId, HttpServletRequest servletRequest) throws MasterKeystoreException {
+        LOGGER.info("Remote client info",
+                new Pair<>("remote_client_ip", servletRequest.getHeader(X_FORWARDED_FOR)),
+                new Pair<>("remote_client_address", servletRequest.getRemoteAddr()));
         certificateUtils.checkCertificatesAgainstCrl(requestCertificates(servletRequest));
         String keyId = dataKeyService.currentKeyId(correlationId);
         return new ResponseEntity<>(dataKeyService.generate(keyId, correlationId), HttpStatus.CREATED);
@@ -70,6 +74,9 @@ public class DataKeyController {
             @RequestBody String ciphertextDataKey,
             HttpServletRequest servletRequest) throws MasterKeystoreException {
         certificateUtils.checkCertificatesAgainstCrl(requestCertificates(servletRequest));
+        LOGGER.info("Remote client info",
+                new Pair<>("remote_client_ip", servletRequest.getHeader(X_FORWARDED_FOR)),
+                new Pair<>("remote_client_address", servletRequest.getRemoteAddr()));
         return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey, correlationId);
     }
 
