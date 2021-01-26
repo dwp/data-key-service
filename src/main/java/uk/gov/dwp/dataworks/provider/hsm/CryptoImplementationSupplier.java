@@ -14,5 +14,4 @@ public interface CryptoImplementationSupplier {
     String decryptedKey(Integer decryptionKeyHandle, String ciphertextDataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException;
 
-    void cleanupKey(Key datakey);
 }

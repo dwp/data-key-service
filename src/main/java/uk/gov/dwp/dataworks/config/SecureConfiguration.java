@@ -1,6 +1,5 @@
 package uk.gov.dwp.dataworks.config;
 
-import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

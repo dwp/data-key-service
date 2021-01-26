@@ -27,7 +27,7 @@ import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles({"UnitTest", "HSM", "ExplicitHSMLogin"})
+@ActiveProfiles({"UnitTest", "HSM", "ImplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
         "credentials.cache.eviction.interval=1000",
         "scheduling.enabled=false"

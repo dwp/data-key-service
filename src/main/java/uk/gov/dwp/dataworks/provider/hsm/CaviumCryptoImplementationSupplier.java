@@ -2,14 +2,14 @@ package uk.gov.dwp.dataworks.provider.hsm;
 
 import com.cavium.cfm2.CFM2Exception;
 import com.cavium.cfm2.Util;
-import com.cavium.key.CaviumKey;
 import com.cavium.key.CaviumKeyAttributes;
 import com.cavium.key.CaviumRSAPrivateKey;
 import com.cavium.key.CaviumRSAPublicKey;
-import com.cavium.key.parameter.CaviumAESKeyGenParameterSpec;
 import com.cavium.provider.CaviumProvider;
 import kotlin.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
@@ -17,15 +17,19 @@ import uk.gov.dwp.dataworks.errors.GarbledDataKeyException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.logging.DataworksLogger;
 
-import javax.crypto.*;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.*;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Base64;
 
-import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.*;
+import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.CAVIUM_PROVIDER;
 
 @Component
 @Profile("Cavium")
@@ -42,29 +46,24 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     @Override
     public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(SYMMETRIC_KEY_TYPE, CAVIUM_PROVIDER);
-            CaviumAESKeyGenParameterSpec aesSpec =
-                    new CaviumAESKeyGenParameterSpec(128, DATA_KEY_LABEL, EXTRACTABLE, NOT_PERSISTENT);
-            keyGenerator.init(aesSpec);
-            return keyGenerator.generateKey();
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            byte[] keyBytes = new byte[16];
+            random.nextBytes(keyBytes);
+            return new SecretKeySpec(keyBytes, "AES");
+        } catch (NoSuchAlgorithmException e) {
             LOGGER.error("Failed to create data key", e,  new Pair<>("correlation_id", correlationId));
             throw new CryptoImplementationSupplierException(e);
         }
     }
 
     @Override
-    public byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
+    public synchronized byte[] encryptedKey(Integer wrappingKeyHandle, Key dataKey, String correlationId)
             throws CryptoImplementationSupplierException, MasterKeystoreException {
         try {
-
-            byte[] keyAttribute = Util.getKeyAttributes(wrappingKeyHandle);
-            CaviumRSAPublicKey publicKey = new CaviumRSAPublicKey(wrappingKeyHandle, new CaviumKeyAttributes(keyAttribute));
-            String encoded = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+            CaviumRSAPublicKey publicKey = self.publicKey(wrappingKeyHandle);
 
             LOGGER.info("Encrypting key",
                     new Pair<>("wrapping_key_handle", wrappingKeyHandle.toString()),
-                    new Pair<>("public_key", encoded),
                     new Pair<>("correlation_id", correlationId));
 
             Cipher cipher = cipher(Cipher.ENCRYPT_MODE, publicKey);
@@ -76,6 +75,12 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
             LOGGER.warn(message, new Pair<>("correlation_id", correlationId));
             throw new MasterKeystoreException(message, e);
         }
+    }
+
+    @Cacheable(PUBLIC_KEY_CACHE)
+    public CaviumRSAPublicKey publicKey(Integer keyHandle) throws CFM2Exception {
+        byte[] keyAttribute = Util.getKeyAttributes(keyHandle);
+        return new CaviumRSAPublicKey(keyHandle, new CaviumKeyAttributes(keyAttribute));
     }
 
     @Override
@@ -128,15 +133,9 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     @Value("${mask.generation.algorithm:MGF1}")
     private String maskGenerationAlgorithm;
 
-    @Override
-    public void cleanupKey(Key datakey) {
-        try {
-            LOGGER.debug("Deleting session key.");
-            Util.deleteKey((CaviumKey) datakey);
-        } catch (CFM2Exception e) {
-            LOGGER.error("Failed to delete datakey: '" + e.getMessage() + "'", e);
-        }
-
-    }
+    private static final String PUBLIC_KEY_CACHE = "public_key_cache";
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(CaviumCryptoImplementationSupplier.class.toString());
+
+    @Autowired
+    private CaviumCryptoImplementationSupplier self;
 }
