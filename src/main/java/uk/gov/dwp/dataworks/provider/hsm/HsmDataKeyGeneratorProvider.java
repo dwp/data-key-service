@@ -40,7 +40,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
             Key dataKey = cryptoImplementationSupplier.dataKey(correlationId);
             byte[] plaintextDatakey = Base64.getEncoder().encode(dataKey.getEncoded());
             byte[] ciphertext = cryptoImplementationSupplier.encryptedKey(publicKeyHandle, dataKey, correlationId);
-            cryptoImplementationSupplier.cleanupKey(dataKey);
             return new GenerateDataKeyResponse(keyId,
                     new String(plaintextDatakey),
                     new String(ciphertext));

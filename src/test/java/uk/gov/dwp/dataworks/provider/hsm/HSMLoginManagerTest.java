@@ -23,7 +23,7 @@ import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.MA
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles({"UnitTest", "HSM", "ExplicitHSMLogin"})
+@ActiveProfiles({"UnitTest", "HSM", "ImplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000",
         "scheduling.enabled=false"
@@ -53,14 +53,12 @@ public class HSMLoginManagerTest {
     }
 
     @Test
-    public void Should_Login_When_Credentials_Are_Not_Null() throws CFM2Exception, MasterKeystoreException {
+    public void Should_Not_Explicitly_Login_When_Credentials_Are_Not_Null() throws CFM2Exception, MasterKeystoreException {
         HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
         doNothing().when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-
         hsmLoginManager.login();
-
-        verify(loginManager, Mockito.times(1)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
+        verifyNoMoreInteractions(loginManager);
     }
 
     @Test
@@ -77,24 +75,11 @@ public class HSMLoginManagerTest {
         }
     }
 
-    @Test
-    public void Should_retry_until_login_succeeds_when_error_occurs() throws CFM2Exception, MasterKeystoreException {
-        HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
-        given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-        doThrow(dummyC2smException())
-                .doNothing()
-                .when(loginManager)
-                .login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-
-        hsmLoginManager.login();
-
-        verify(loginManager, Mockito.times(2)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-    }
 
     @Test
-    public void Should_Logout_When_Logout_Is_Invoked() throws CFM2Exception, MasterKeystoreException {
+    public void Should_Not_explicitly_Logout_When_Logout_Is_Invoked() throws CFM2Exception, MasterKeystoreException {
         doNothing().when(loginManager).logout();
         hsmLoginManager.logout();
-        verify(loginManager, Mockito.times(1)).logout();
+        verifyNoMoreInteractions(loginManager);
     }
 }

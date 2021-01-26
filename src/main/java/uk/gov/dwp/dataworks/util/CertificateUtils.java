@@ -17,10 +17,13 @@ import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 @Component
 public class CertificateUtils {
