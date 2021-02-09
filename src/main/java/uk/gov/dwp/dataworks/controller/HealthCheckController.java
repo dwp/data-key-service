@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.BAD;
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
@@ -41,10 +42,12 @@ public class HealthCheckController {
 
     private final DataKeyService dataKeyService;
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(HealthCheckController.class.toString());
+    private final AtomicInteger unhealthyCheckGauge;
 
     @Autowired
-    public HealthCheckController(DataKeyService dataKeyService) {
+    public HealthCheckController(DataKeyService dataKeyService, AtomicInteger unhealthyCheckGauge) {
         this.dataKeyService = dataKeyService;
+        this.unhealthyCheckGauge = unhealthyCheckGauge;
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -101,6 +104,12 @@ public class HealthCheckController {
 
             boolean allOk = canReachDependencies && canRetrieveCurrentMasterKeyId &&
                     canCreateNewDataKey && canEncryptDataKey &&  canDecryptDataKey;
+
+            if (allOk) {
+                unhealthyCheckGauge.set(0);
+            } else {
+                unhealthyCheckGauge.incrementAndGet();
+            }
 
             return new ResponseEntity<>(health, allOk ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
         }

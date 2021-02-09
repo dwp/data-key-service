@@ -28,10 +28,10 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
     }
 
     @Override
-    @Retryable(
-            value = {MasterKeystoreException.class},
-            maxAttempts = MAX_ATTEMPTS,
-            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
+    @Retryable(value = {MasterKeystoreException.class},
+            maxAttemptsExpression = "${hsm.retry.maxAttempts:5}",
+            backoff = @Backoff(delayExpression = "${hsm.retry.delay:1000}",
+                    multiplierExpression = "${hsm.retry.multiplier:2.0}"))
     public GenerateDataKeyResponse generateDataKey(String keyId, String correlationId)
             throws DataKeyGenerationException, MasterKeystoreException {
         try {
@@ -47,8 +47,6 @@ public class HsmDataKeyGeneratorProvider extends HsmDependent implements DataKey
             DataKeyGenerationException wrapper = new DataKeyGenerationException(correlationId);
             LOGGER.error(wrapper.getMessage(), e);
             throw wrapper;
-        } finally {
-            loginManager.logout();
         }
     }
 

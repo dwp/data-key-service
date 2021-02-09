@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
@@ -23,11 +26,14 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = { DataKeyService.class, ConcurrentMapCacheManager.class })
+@EnableCaching
+@EnableScheduling
 @TestPropertySource(properties = {"server.environment_name=development",
         "cache.eviction.interval=1000",
         "key.cache.eviction.interval=1000",
         "decrypted.key.cache.eviction.interval=1000",
+        "instance.name=localdev",
         "scheduling.enabled=false",
         "server.environment_name=test"
 })

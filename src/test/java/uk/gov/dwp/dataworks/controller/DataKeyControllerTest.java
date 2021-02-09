@@ -1,13 +1,11 @@
 package uk.gov.dwp.dataworks.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Test;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.service.DataKeyService;
 import uk.gov.dwp.dataworks.util.CertificateUtils;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.security.cert.Certificate;
 
 import static org.mockito.Mockito.*;

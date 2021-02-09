@@ -1,5 +1,6 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
@@ -27,8 +28,9 @@ import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles({"UnitTest", "HSM", "ImplicitHSMLogin"})
+@ActiveProfiles({"HSM", "ImplicitHSMLogin"})
 @TestPropertySource(properties = {"server.environment_name=development",
+        "instance.name=localdev",
         "credentials.cache.eviction.interval=1000",
         "scheduling.enabled=false"
 })
@@ -235,13 +237,15 @@ public class HSMCredentialsProviderTest {
         return new GetParameterRequest().withName(request).withWithDecryption(true);
     }
 
-    private GetParameterRequest getGetParameterClusterIdRequest() {
-        return new GetParameterRequest().withName(DEVELOPMENT_CRYPTO_USER_PARTITION_ID).withWithDecryption(true);
-    }
-
     @Autowired
     private HsmCredentialsProvider hsmCredentialsProvider;
 
     @MockBean
     private AWSSimpleSystemsManagement awsSimpleSystemsManagement;
+
+    @MockBean
+    private CryptoImplementationSupplier cryptoImplementationSupplier;
+
+    @MockBean
+    private AmazonS3 amazonS3;
 }

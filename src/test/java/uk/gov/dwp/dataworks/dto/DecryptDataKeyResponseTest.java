@@ -1,7 +1,9 @@
 package uk.gov.dwp.dataworks.dto;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class DecryptDataKeyResponseTest {
 

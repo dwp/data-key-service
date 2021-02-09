@@ -8,9 +8,7 @@ import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
 import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
-import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
-import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
 @Service
@@ -18,21 +16,17 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 public class HsmDataKeyDecryptionProvider extends HsmDependent
         implements DataKeyDecryptionProvider, HsmDataKeyDecryptionConstants {
 
-    private final int MAX_ATTEMPTS = 10;
-
-    HsmDataKeyDecryptionProvider(CurrentKeyIdProvider currentKeyIdProvider,
-                                 DataKeyGeneratorProvider dataKeyGeneratorProvider,
-                                 HsmLoginManager loginManager,
+    HsmDataKeyDecryptionProvider(HsmLoginManager loginManager,
                                  CryptoImplementationSupplier cryptoImplementationSupplier) {
         super(loginManager);
         this.cryptoImplementationSupplier = cryptoImplementationSupplier;
     }
 
     @Override
-    @Retryable(
-            value = {MasterKeystoreException.class},
-            maxAttempts = MAX_ATTEMPTS,
-            backoff = @Backoff(delay = INITIAL_BACKOFF_MILLIS, multiplier = BACKOFF_MULTIPLIER))
+    @Retryable(value = {MasterKeystoreException.class},
+            maxAttemptsExpression = "${hsm.retry.maxAttempts:5}",
+            backoff = @Backoff(delayExpression = "${hsm.retry.delay:1000}",
+                               multiplierExpression = "${hsm.retry.multiplier:2.0}"))
     public DecryptDataKeyResponse decryptDataKey(String decryptionKeyId, String ciphertextDataKey, String correlationId)
             throws MasterKeystoreException {
         try {
@@ -42,8 +36,6 @@ public class HsmDataKeyDecryptionProvider extends HsmDependent
             return new DecryptDataKeyResponse(decryptionKeyId, decryptedKey);
         } catch (CryptoImplementationSupplierException e) {
             throw new DataKeyDecryptionException(correlationId);
-        } finally {
-            loginManager.logout();
         }
     }
 

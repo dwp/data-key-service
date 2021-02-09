@@ -8,19 +8,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.dwp.dataworks.config.InsecureConfiguration;
+import uk.gov.dwp.dataworks.controller.PingController;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"IntegrationTest", "INSECURE"})
+@SpringBootTest(classes = { PingController.class, InsecureConfiguration.class })
+@ActiveProfiles({"INSECURE"})
 @AutoConfigureMockMvc
-@TestPropertySource(properties = { "server.environment_name=test" })
 public class PingIntegrationTests {
 
     @Autowired

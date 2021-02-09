@@ -12,8 +12,11 @@ import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 public class ImplicitHsmLoginManager implements HsmLoginManager {
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(ImplicitHsmLoginManager.class.toString());
 
-    @Autowired
-    private HsmCredentialsProvider hsmCredentialsProvider;
+    private final HsmCredentialsProvider hsmCredentialsProvider;
+
+    public ImplicitHsmLoginManager(HsmCredentialsProvider hsmCredentialsProvider) {
+        this.hsmCredentialsProvider = hsmCredentialsProvider;
+    }
 
     @Override
     public void login() {
@@ -24,9 +27,5 @@ public class ImplicitHsmLoginManager implements HsmLoginManager {
             System.setProperty("HSM_USER", hsmCredentials.getUserName());
             System.setProperty("HSM_PASSWORD", hsmCredentials.getPassWord());
         }
-    }
-
-    @Override
-    public void logout() {
     }
 }

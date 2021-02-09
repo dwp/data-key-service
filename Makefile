@@ -1,4 +1,5 @@
 SHELL:=bash
+S3_READY_REGEX=^Ready\.$
 
 default: help
 
@@ -22,3 +23,46 @@ git-hooks: ## Set up hooks in .git/hooks
 			ln -s -f ../../.githooks/$${hook} $${HOOK_DIR}/$${hook}; \
 		done \
 	}
+
+certificates:
+	./generate-certificates.sh
+
+service-prometheus:
+	docker-compose up -d prometheus
+
+service-localstack:
+	docker-compose up -d localstack
+	@{ \
+		while ! docker logs localstack 2> /dev/null | grep -q $(S3_READY_REGEX); do \
+			echo Waiting for localstack.; \
+			sleep 2; \
+		done; \
+	}
+	docker-compose up localstack-init
+
+services: service-prometheus service-localstack
+
+dks: services
+	docker-compose up -d dks
+	@{ \
+		while ! docker logs dks | fgrep -q "Started DataKeyServiceApplication"; do \
+		  echo "Waiting for dks"; \
+		  sleep 2; \
+		done; \
+	}
+
+integration-tests: dks
+	docker-compose up integration-tests
+
+restart-prometheus:
+	docker stop prometheus
+	docker rm prometheus
+	docker-compose build prometheus
+	docker-compose up -d prometheus
+
+datakey:
+	curl -sS --insecure --cert certificate.pem:changeit --key key.pem https://localhost:8443/datakey | jq .
+
+metrics:
+	curl --insecure --cert certificate.pem:changeit --key key.pem https://localhost:8443/actuator/prometheus
+

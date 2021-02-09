@@ -10,56 +10,60 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import uk.gov.dwp.dataworks.config.InsecureConfiguration;
+import uk.gov.dwp.dataworks.controller.HealthCheckController;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.HealthCheckResponse;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
+import uk.gov.dwp.dataworks.service.DataKeyService;
 
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"IntegrationTest", "INSECURE"})
+@SpringBootTest(classes = { HealthCheckController.class, DataKeyService.class,
+        InsecureConfiguration.class, AtomicInteger.class })
+@ActiveProfiles({"INSECURE"})
 @AutoConfigureMockMvc
-@TestPropertySource(properties = { "server.environment_name=test" })
+@EnableWebMvc
 public class HealthCheckIntegrationTests {
 
-    @Autowired
-    private CacheManager cacheManager;
 
     @Before
     public void setup() {
         Mockito.reset(currentKeyIdProvider, dataKeyGeneratorProvider, dataKeyDecryptionProvider);
-        for (String name : cacheManager.getCacheNames()) {
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();
-        }
+        gauge.set(0);
     }
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockBean
     private CurrentKeyIdProvider currentKeyIdProvider;
 
-    @Autowired
+    @MockBean
     private DataKeyGeneratorProvider dataKeyGeneratorProvider;
 
-    @Autowired
+    @MockBean
     private DataKeyDecryptionProvider dataKeyDecryptionProvider;
+
+    @Autowired
+    private AtomicInteger gauge;
 
     @MockBean
     private AmazonS3 amazonS3;
@@ -105,6 +109,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -122,6 +127,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -138,6 +144,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -157,6 +164,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -185,6 +193,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT + "?correlationId={correlationId}", correlationId))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -212,6 +221,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isInternalServerError());
+        assertEquals(1, gauge.get());
     }
 
     @Test
@@ -240,6 +250,7 @@ public class HealthCheckIntegrationTests {
         mockMvc.perform(get(HEALTHCHECK_ENDPOINT))
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(healthCheckResponse)))
                 .andExpect(status().isOk());
+        assertEquals(0, gauge.get());
     }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.controller.HealthCheckController;
@@ -20,8 +21,14 @@ import static org.mockito.Mockito.*;
 import static uk.gov.dwp.dataworks.dto.HealthCheckResponse.Health.OK;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@TestPropertySource(properties = {"healthcheck.interval=1000", "scheduling.enabled=true", "server.environment_name=test" })
+@SpringBootTest(classes = HealthCheckService.class)
+@EnableScheduling
+@TestPropertySource(properties = {
+        "healthcheck.interval=1000",
+        "instance.name=localdev",
+        "scheduling.enabled=true",
+        "server.environment_name=test"
+})
 public class HealthCheckServiceTest {
 
     private final ResponseEntity<HealthCheckResponse> mockHealthOkResponse = ResponseEntity.ok(

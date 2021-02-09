@@ -17,7 +17,9 @@ public class SecureConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
-                .authorizeRequests().antMatchers("/healthcheck").permitAll()
+                .authorizeRequests()
+                .antMatchers("/healthcheck").permitAll()
+                .antMatchers("/actuator/prometheus").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
