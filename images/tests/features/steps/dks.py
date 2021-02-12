@@ -1,15 +1,20 @@
-import requests
 import time
-from behave import *
+
+import requests
 from assertpy import assert_that
+from behave import *
+
+DKS_CERTIFICATE = "dks-crt.pem"
+TESTS_KEY = "integration-tests-key.pem"
+TESTS_CERTIFICATE = "integration-tests-crt.pem"
 
 
 @given("dks is up and healthy")
 def step_impl(context):
     response = requests.get("https://dks:8443/healthcheck",
-                            cert=("integration-tests-crt.pem",
-                                  "integration-tests-key.pem"),
-                            verify="dks-crt.pem").json()
+                            cert=(TESTS_CERTIFICATE,
+                                  TESTS_KEY),
+                            verify=DKS_CERTIFICATE).json()
     assert_that(response).contains_key('encryptionService', 'masterKey', 'dataKeyGenerator', 'encryption', 'decryption',
                                        'correlationId', 'trustedCertificates')
     status_items = [item for item in response.items() if
@@ -21,9 +26,9 @@ def step_impl(context):
 @step("A datakey has been acquired")
 def step_impl(context):
     response = requests.get("https://dks:8443/datakey?correlationId=integration_tests",
-                            cert=("integration-tests-crt.pem",
-                                  "integration-tests-key.pem"),
-                            verify="dks-crt.pem").json()
+                            cert=(TESTS_CERTIFICATE,
+                                  TESTS_KEY),
+                            verify=DKS_CERTIFICATE).json()
     assert_that(response).contains_key('dataKeyEncryptionKeyId', 'plaintextDataKey', 'ciphertextDataKey',
                                        'correlationId')
     context.datakey_response = response
@@ -34,9 +39,9 @@ def step_impl(context):
     decrypt_response = requests.post(
         f"https://dks:8443/datakey/actions/decrypt?keyId={context.datakey_response['dataKeyEncryptionKeyId']}&correlationId=integration_tests",
         data=context.datakey_response['ciphertextDataKey'],
-        cert=("integration-tests-crt.pem",
-              "integration-tests-key.pem"),
-        verify="dks-crt.pem").json()
+        cert=(TESTS_CERTIFICATE,
+              TESTS_KEY),
+        verify=DKS_CERTIFICATE).json()
 
     assert_that(decrypt_response).contains_key('dataKeyDecryptionKeyId', 'plaintextDataKey', 'correlationId')
 
