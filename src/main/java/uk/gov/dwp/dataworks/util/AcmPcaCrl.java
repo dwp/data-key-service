@@ -33,6 +33,6 @@ public class AcmPcaCrl {
         return Objects.hash(etag);
     }
 
-    private String etag;
-    private X509CRL crl;
+    private final String etag;
+    private final X509CRL crl;
 }

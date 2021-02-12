@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  prometheus:
+    build:
+      context: images/prometheus
+    container_name: prometheus
+
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    container_name: localstack
+    environment:
+      - SERVICES=s3
+
+  localstack-init:
+    image: localstack-init
+    build:
+      context: images/localstack
+    container_name: localstack-init
+
+  dks:
+    build: ./
+    container_name: dks
+
+  integration-tests:
+    build: ./images/tests
+    container_name: integration-tests

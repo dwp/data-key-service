@@ -10,19 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import uk.gov.dwp.dataworks.config.InsecureConfiguration;
+import uk.gov.dwp.dataworks.controller.DataKeyController;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.dto.GenerateDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.*;
 import uk.gov.dwp.dataworks.provider.CurrentKeyIdProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyDecryptionProvider;
 import uk.gov.dwp.dataworks.provider.DataKeyGeneratorProvider;
-
-import java.util.Objects;
+import uk.gov.dwp.dataworks.service.DataKeyService;
+import uk.gov.dwp.dataworks.util.CertificateUtils;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,13 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"IntegrationTest", "INSECURE"})
+@SpringBootTest(classes = {
+        DataKeyController.class,
+        DataKeyService.class,
+        CertificateUtils.class,
+        InsecureConfiguration.class })
+@ActiveProfiles({"INSECURE"})
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "server.environment_name=development"
-})
-
+@EnableWebMvc
 public class DataKeyIntegrationTests {
 
     private final String correlationId = "correlation";
@@ -47,27 +49,28 @@ public class DataKeyIntegrationTests {
     @MockBean
     private AmazonS3 amazonS3;
 
-    @Autowired
+    @MockBean
     private CurrentKeyIdProvider currentKeyIdProvider;
 
-    @Autowired
+    @MockBean
     private DataKeyGeneratorProvider dataKeyGeneratorProvider;
 
-    @Autowired
+    @MockBean
     private DataKeyDecryptionProvider dataKeyDecryptionProvider;
+
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private CacheManager cacheManager;
+//    @Autowired
+//    private CacheManager cacheManager;
 
     @Before
     public void setup() {
         Mockito.reset(currentKeyIdProvider, dataKeyGeneratorProvider, dataKeyDecryptionProvider);
-        for (String name : cacheManager.getCacheNames()) {
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();
-        }
+//        for (String name : cacheManager.getCacheNames()) {
+//            Objects.requireNonNull(cacheManager.getCache(name)).clear();
+//        }
     }
 
     @Test

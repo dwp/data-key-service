@@ -58,6 +58,24 @@ jobs:
         paths:
         - data-key-service-*.jar
 
+  integration-tests:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+
+      - run:
+          name: "Run the integration tests"
+          command: |
+            mkdir bin
+            curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o ./bin/docker-compose
+            chmod +x ./bin/docker-compose
+            export PATH=$PATH:./bin
+            make certificates
+            make integration-tests
+
   publish-github-release:
     docker:
     - image: cibuilds/github:0.10
@@ -84,6 +102,9 @@ workflows:
   build-and-deploy:
     jobs:
     - build
+    - integration-tests:
+        requires:
+          - build
     - publish-github-release:
         requires:
         - build

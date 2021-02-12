@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.CryptoImplementationSupplierException;
@@ -24,12 +23,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"UnitTest", "HSM"})
-@TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000",
-        "scheduling.enabled=false"
-})
+@SpringBootTest(classes = HsmDataKeyDecryptionProvider.class)
+@ActiveProfiles({"HSM"})
 public class HsmDataKeyDecryptionProviderTest {
 
     private final String correlationId = "correlation";
@@ -47,7 +42,6 @@ public class HsmDataKeyDecryptionProviderTest {
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
         String plaintextDataKey = "PLAINTEXT_DATA_KEY";
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey, correlationId)).willReturn(plaintextDataKey);
 
@@ -66,7 +60,6 @@ public class HsmDataKeyDecryptionProviderTest {
         int publicKeyHandle = 2;
         String encryptedDataKey = "ENCRYPTED_DATA_KEY";
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         given(cryptoImplementationSupplier.decryptedKey(privateKeyHandle, encryptedDataKey, correlationId))
                 .willThrow(CryptoImplementationSupplierException.class);
@@ -83,7 +76,6 @@ public class HsmDataKeyDecryptionProviderTest {
     public void malformedMasterKeyId() throws MasterKeystoreException {
         String dataKeyEncryptionKeyId = "cloudhsm:NOT_IN_CORRECT_FORMAT";
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
 
         try {
             dataKeyDecryptionProvider.decryptDataKey(dataKeyEncryptionKeyId, "ENCRYPTED", correlationId);
@@ -96,7 +88,7 @@ public class HsmDataKeyDecryptionProviderTest {
     @Autowired
     private DataKeyDecryptionProvider dataKeyDecryptionProvider;
 
-    @Autowired
+    @MockBean
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean

@@ -10,24 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;
-import uk.gov.dwp.dataworks.errors.MasterKeystoreException;
 import uk.gov.dwp.dataworks.provider.HsmLoginManager;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.MAX_ATTEMPTS;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles({"UnitTest", "HSM", "ImplicitHSMLogin"})
-@TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000",
-        "scheduling.enabled=false"
-})
+@SpringBootTest(classes = ImplicitHsmLoginManager.class)
+@ActiveProfiles({"ImplicitHSMLogin"})
 public class HSMLoginManagerTest {
 
     private static final String CRYPTO_USER = "development_crypto_user";
@@ -48,38 +41,13 @@ public class HSMLoginManagerTest {
         Mockito.reset(hsmCredentialsProvider);
     }
 
-    static CFM2Exception dummyC2smException() {
-        return new CFM2Exception(1610612865, "dummy-call");
-    }
-
     @Test
-    public void Should_Not_Explicitly_Login_When_Credentials_Are_Not_Null() throws CFM2Exception, MasterKeystoreException {
+    public void Should_Not_Explicitly_Login_When_Credentials_Are_Not_Null() throws CFM2Exception {
         HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
         given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
         doNothing().when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
         hsmLoginManager.login();
         verifyNoMoreInteractions(loginManager);
-    }
 
-    @Test
-    public void Should_retry_when_login_fails() throws CFM2Exception {
-        try {
-            HSMCredentials hsmCredentials = new HSMCredentials(CRYPTO_USER, CRYPTO_USER_PASSWORD, CRYPTO_USER_PARTITION_ID);
-            given(hsmCredentialsProvider.getCredentials()).willReturn(hsmCredentials);
-            doThrow(dummyC2smException()).when(loginManager).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-
-            hsmLoginManager.login();
-        } catch (MasterKeystoreException ex) {
-            verify(loginManager, Mockito.times(MAX_ATTEMPTS)).login(CRYPTO_USER_PARTITION_ID, CRYPTO_USER, CRYPTO_USER_PASSWORD);
-            assertEquals("Failed to login, will retry (unless '" + MAX_ATTEMPTS + "' attempts made).", ex.getMessage());
-        }
-    }
-
-
-    @Test
-    public void Should_Not_explicitly_Logout_When_Logout_Is_Invoked() throws CFM2Exception, MasterKeystoreException {
-        doNothing().when(loginManager).logout();
-        hsmLoginManager.logout();
-        verifyNoMoreInteractions(loginManager);
     }
 }

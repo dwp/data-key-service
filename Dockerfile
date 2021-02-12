@@ -1,12 +1,36 @@
-# This is an example of how to run this java app on CentOS, because we will host it as an EC2 running Centos in prod
-FROM centos
+FROM gradle:latest as build
 
-EXPOSE 8080
-CMD ["java", "-jar",  "/opt/data-key-service/data-key-service.jar"]
-RUN mkdir /opt/data-key-service
+RUN ls /etc
+RUN cat /etc/os-release
+RUN apt-get -y update
+RUN wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client-jce_latest_u18.04_amd64.deb
+RUN dpkg --force-depends --install ./cloudhsm-client-jce_latest_u18.04_amd64.deb
+RUN mkdir -p /build
+COPY build.gradle .
+COPY settings.gradle .
+COPY src/ ./src
+RUN gradle build
+RUN cp build/libs/data-key-service.jar /build/
 
-RUN yum -y upgrade
-RUN yum install -y java-1.8.0-openjdk
-ENV JAVA_HOME /etc/alternatives/jre
+FROM openjdk:16-alpine
 
-COPY build/libs/data-key-service-*.jar /opt/data-key-service/data-key-service.jar
+ENV USER_NAME=dks
+ENV GROUP_NAME=dks
+ENV WORKDIR=/dks
+ENV LOGDIR=/var/log/dks
+RUN addgroup $GROUP_NAME
+RUN adduser --system --ingroup $GROUP_NAME $USER_NAME
+RUN chown -R $USER_NAME.$GROUP_NAME /etc/ssl/
+RUN chown -R $USER_NAME.$GROUP_NAME /usr/local/share/ca-certificates/
+
+RUN mkdir $WORKDIR
+RUN mkdir $LOGDIR
+WORKDIR $WORKDIR
+COPY --from=build /build/data-key-service.jar .
+COPY ./images/dks/application.properties .
+COPY ./images/dks/logback.xml .
+COPY ./images/dks/keystore.jks .
+COPY ./images/dks/truststore.jks .
+RUN chown -R $USER_NAME.$GROUP_NAME $WORKDIR $LOGDIR
+USER $USER_NAME
+CMD ["java", "-Xmx2g", "-Dlogging.config=logback.xml", "-jar", "data-key-service.jar"]

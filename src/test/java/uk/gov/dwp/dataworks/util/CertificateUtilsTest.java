@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.*;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.FieldSetter;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.dwp.dataworks.errors.FetchCrlException;
 import uk.gov.dwp.dataworks.errors.RevokedClientCertificateException;
 
@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -53,7 +52,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testAddCrls() throws FetchCrlException, NoSuchFieldException {
+    public void testAddCrls() throws FetchCrlException {
         String crlBucket = "CRL_BUCKET";
         String crlCommonPrefix = "CRL_COMMON_PREFIX";
         AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
@@ -80,9 +79,9 @@ public class CertificateUtilsTest {
         CertificateUtils real = new CertificateUtils(amazonS3);
         Map<String, AcmPcaCrl> cache = mock(Map.class);
 
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCache"), cache);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlBucket"), crlBucket);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCommonPrefix"), crlCommonPrefix);
+        ReflectionTestUtils.setField(real, "crlCache", cache);
+        ReflectionTestUtils.setField(real, "crlBucket", crlBucket);
+        ReflectionTestUtils.setField(real, "crlCommonPrefix", crlCommonPrefix);
 
         X509CRL crl1 = mock(X509CRL.class);
         X509CRL crl2 = mock(X509CRL.class);
@@ -104,7 +103,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testRemovesCrls() throws FetchCrlException, NoSuchFieldException {
+    public void testRemovesCrls() throws FetchCrlException {
         String crlObject1Key = "CRL_KEY_1.crl";
         String crlObject2Key = "CRL_KEY_2.crl";
         String crlObject1EtagV1 = "CRL_1_ETAG_V1";
@@ -112,7 +111,7 @@ public class CertificateUtilsTest {
         X509CRL crl1 = mock(X509CRL.class);
         X509CRL crl2 = mock(X509CRL.class);
 
-        Map<String, AcmPcaCrl> realCache = new HashMap<String, AcmPcaCrl>();
+        Map<String, AcmPcaCrl> realCache = new HashMap<>();
         realCache.put(crlObject1Key, new AcmPcaCrl(crlObject1EtagV1, crl1));
         realCache.put(crlObject2Key, new AcmPcaCrl(crlObject2EtagV1, crl2));
         Map<String, AcmPcaCrl> cache = spy(realCache);
@@ -122,9 +121,10 @@ public class CertificateUtilsTest {
 
         String crlBucket = "CRL_BUCKET";
         String crlCommonPrefix = "CRL_COMMON_PREFIX";
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCache"), cache);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlBucket"), crlBucket);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCommonPrefix"), crlCommonPrefix);
+
+        ReflectionTestUtils.setField(real, "crlCache", cache);
+        ReflectionTestUtils.setField(real, "crlBucket", crlBucket);
+        ReflectionTestUtils.setField(real, "crlCommonPrefix", crlCommonPrefix);
 
         CertificateUtils utils = spy(real);
 
@@ -134,7 +134,7 @@ public class CertificateUtilsTest {
         S3Object crlObject1 = mockS3Object();
         given(amazonS3.getObject(crlBucket, crlObject1Key)).willReturn(crlObject1);
         S3ObjectSummary crlSummary1 = mockS3ObjectSummary(crlObject1Key, crlObject1EtagV1);
-        given(results1.getObjectSummaries()).willReturn(Arrays.asList(crlSummary1));
+        given(results1.getObjectSummaries()).willReturn(Collections.singletonList(crlSummary1));
 
         utils.refreshCrls();
 
@@ -144,7 +144,7 @@ public class CertificateUtilsTest {
     }
 
     @Test
-    public void testReplacesCrls() throws FetchCrlException, NoSuchFieldException {
+    public void testReplacesCrls() throws FetchCrlException {
         String crlObjectKey = "CRL_KEY.crl";
         String crlObjectEtagV1 = "CRL_ETAG_V1";
         String crlObjectEtagV2 = "CRL_ETAG_V2";
@@ -160,9 +160,9 @@ public class CertificateUtilsTest {
 
         String crlBucket = "CRL_BUCKET";
         String crlCommonPrefix = "CRL_COMMON_PREFIX";
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCache"), cache);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlBucket"), crlBucket);
-        FieldSetter.setField(real, real.getClass().getDeclaredField("crlCommonPrefix"), crlCommonPrefix);
+        ReflectionTestUtils.setField(real, "crlCache", cache);
+        ReflectionTestUtils.setField(real, "crlBucket", crlBucket);
+        ReflectionTestUtils.setField(real, "crlCommonPrefix", crlCommonPrefix);
 
         CertificateUtils utils = spy(real);
         doReturn(crlv2).when(utils).crl(any());
@@ -173,7 +173,7 @@ public class CertificateUtilsTest {
         S3Object crlObject = mockS3Object();
         given(amazonS3.getObject(crlBucket, crlObjectKey)).willReturn(crlObject);
         S3ObjectSummary crlSummary = mockS3ObjectSummary(crlObjectKey, crlObjectEtagV2);
-        given(results.getObjectSummaries()).willReturn(Arrays.asList(crlSummary));
+        given(results.getObjectSummaries()).willReturn(Collections.singletonList(crlSummary));
 
         utils.refreshCrls();
 

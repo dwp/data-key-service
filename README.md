@@ -6,9 +6,8 @@ DataWorks service to manage the generation and decryption of data keys.
 
 * Java 8 jdk
 * Gradle
-* CloudHSM sdk (force install ignoring missing dependencies) available from
-  https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html
-  * See versions in See https://docs.aws.amazon.com/cloudhsm/latest/userguide/client-history.html
+* [CloudHSM](https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html) (force install ignoring missing dependencies)
+  * See versions in See [https://docs.aws.amazon.com/cloudhsm/latest/userguide/client-history.html]
   * Must match those used in aws infrastructure
 
 ## On a unix machine

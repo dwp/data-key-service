@@ -1,7 +1,8 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.springframework.boot' version '2.3.5.RELEASE'
+    id 'org.springframework.boot' version '2.4.2'
+    id 'com.github.ben-manes.versions' version '0.36.0'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -37,29 +38,35 @@ bootJar {
 }
 
 dependencies {
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1"
+    implementation "com.github.ben-manes.caffeine:caffeine"
+    implementation "com.github.dwp:dataworks-common-logging:0.0.6"
+    implementation "io.micrometer:micrometer-core:1.6.3"
+    implementation "io.micrometer:micrometer-registry-prometheus:1.6.3"
+    implementation "io.prometheus:simpleclient:0.10.0"
+    implementation "io.prometheus:simpleclient_caffeine:0.10.0"
+    implementation "io.prometheus:simpleclient_logback:0.10.0"
+    implementation "io.prometheus:simpleclient_spring_web:0.10.0"
+    implementation "io.springfox:springfox-swagger-ui:3.0.0"
+    implementation "io.springfox:springfox-swagger2:3.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.30"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.30"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation "org.springframework.retry:spring-retry:1.3.1"
+    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.951'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.951'
+    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.951'
+    implementation 'com.google.guava:guava:30.1-jre'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'com.google.guava:guava:30.0-jre'
-    implementation 'commons-codec:commons-codec:1.14'
-    implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'com.amazonaws:aws-java-sdk-kms:1.11.893'
-    implementation 'com.amazonaws:aws-java-sdk-ssm:1.11.893'
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.893'
-    implementation "io.springfox:springfox-swagger2:3.0.0"
-    implementation "io.springfox:springfox-swagger-ui:3.0.0"
-    implementation "org.springframework.retry:spring-retry:1.2.4.RELEASE"
-    implementation "org.springframework.boot:spring-boot-starter-aop"
-    implementation "com.github.dwp:dataworks-common-logging:0.0.5"
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.70"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.70"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.3"
 
     // CloudHSM sdk: See notes above and in readme
-    compileOnly    group: "cloudhsm", name: "cloudhsm-3.2.1"
-    testImplementation    group: "cloudhsm", name: "cloudhsm-3.2.1"
+    compileOnly    group: "cloudhsm", name: "cloudhsm-3.3.0"
+    testImplementation    group: "cloudhsm", name: "cloudhsm-3.3.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile "junit:junit:4.13.1"

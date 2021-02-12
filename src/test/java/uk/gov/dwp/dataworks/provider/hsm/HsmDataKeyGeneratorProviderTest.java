@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -25,14 +26,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static uk.gov.dwp.dataworks.provider.hsm.HsmDataKeyDecryptionConstants.MAX_ATTEMPTS;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"UnitTest", "HSM"})
-@TestPropertySource(properties = {"server.environment_name=development",
-        "cache.eviction.interval=1000",
-        "scheduling.enabled=false"
+@SpringBootTest(classes = HsmDataKeyGeneratorProvider.class)
+@ActiveProfiles({"HSM"})
+@EnableRetry
+@TestPropertySource(properties = {
+        "hsm.retry.maxAttempts=5",
+        "hsm.retry.delay=1",
+        "hsm.retry.multiplier=1.0",
 })
 public class HsmDataKeyGeneratorProviderTest {
 
@@ -52,7 +54,6 @@ public class HsmDataKeyGeneratorProviderTest {
         String plainTextKey = "PLAINTEXTKEY";
         String encryptedDataKey = "ENCRYPTEDDATAKEY";
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
         CaviumKey key = Mockito.mock(CaviumKey.class);
         given(key.getEncoded()).willReturn(plainTextKey.getBytes());
         given(cryptoImplementationSupplier.dataKey(correlationId)).willReturn(key);
@@ -85,7 +86,7 @@ public class HsmDataKeyGeneratorProviderTest {
             fail("Expected a MasterKeystoreException");
         } catch (MasterKeystoreException ex) {
             assertEquals("Boom", ex.getMessage());
-            verify(cryptoImplementationSupplier, times(MAX_ATTEMPTS)).encryptedKey(any(), any(), eq(correlationId));
+            verify(cryptoImplementationSupplier, times(5)).encryptedKey(any(), any(), eq(correlationId));
         }
     }
 
@@ -94,7 +95,6 @@ public class HsmDataKeyGeneratorProviderTest {
         int privateKeyHandle = 1;
         int publicKeyHandle = 2;
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
@@ -114,7 +114,6 @@ public class HsmDataKeyGeneratorProviderTest {
         int privateKeyHandle = 1;
         Integer publicKeyHandle = 2;
         doNothing().when(hsmLoginManager).login();
-        doNothing().when(hsmLoginManager).logout();
         String dataKeyEncryptionKeyId = "cloudhsm:" + privateKeyHandle + "/" + publicKeyHandle;
         String plainTextKey = "PLAINTEXTKEY";
         CaviumKey key = Mockito.mock(CaviumKey.class);
@@ -144,7 +143,7 @@ public class HsmDataKeyGeneratorProviderTest {
     @Autowired
     private DataKeyGeneratorProvider dataKeyGeneratorProvider;
 
-    @Autowired
+    @MockBean
     private CryptoImplementationSupplier cryptoImplementationSupplier;
 
     @MockBean

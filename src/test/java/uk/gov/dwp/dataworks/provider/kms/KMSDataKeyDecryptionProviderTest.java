@@ -2,17 +2,15 @@ package uk.gov.dwp.dataworks.provider.kms;
 
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.*;
-import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
 import uk.gov.dwp.dataworks.errors.DataKeyDecryptionException;
@@ -28,12 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
-@ActiveProfiles({"UnitTest", "KMS"})
-@TestPropertySource(properties = {
-        "server.environment_name=development",
-        "cache.eviction.interval=1000"
-})
+@SpringBootTest(classes = KMSDataKeyDecryptionProvider.class)
+@ActiveProfiles({ "KMS" })
 public class KMSDataKeyDecryptionProviderTest {
 
     private final String correlationId = "correlation";
@@ -149,9 +143,7 @@ public class KMSDataKeyDecryptionProviderTest {
     @Autowired
     private KMSDataKeyDecryptionProvider kmsDataKeyDecryptionProvider;
 
-    @Autowired
+    @MockBean
     private AWSKMS awsKms;
 
-    @Autowired
-    private AmazonS3 amazonS3;
 }

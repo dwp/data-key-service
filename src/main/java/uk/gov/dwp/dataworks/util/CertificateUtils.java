@@ -17,13 +17,8 @@ import uk.gov.dwp.dataworks.logging.DataworksLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Arrays.asList;
 
 @Component
 public class CertificateUtils {
@@ -34,10 +29,9 @@ public class CertificateUtils {
 
     public synchronized void checkCertificatesAgainstCrl(Certificate[] certificates) {
         if (certificates != null) {
-                crlCache.entrySet().stream()
-                        .map(Map.Entry::getValue)
+                crlCache.values().stream()
                         .map(AcmPcaCrl::getCrl)
-                        .forEach(crl -> asList(certificates).stream()
+                        .forEach(crl -> Arrays.stream(certificates)
                                 .map(X509Certificate.class::cast)
                                 .forEach(certificate -> checkRevocation(crl, certificate)));
         }
@@ -73,14 +67,14 @@ public class CertificateUtils {
 
             synchronized (this) {
 
-                removals.stream().forEach(key -> {
+                removals.forEach(key -> {
                     LOGGER.info("Removing crl from cache, no longer on s3",
                             new Pair<>("crl_key", key),
                             new Pair<>("s3_crls", crlsInS3.toString()));
                     crlCache.remove(key);
                 });
 
-                summaries.stream().forEach(summary -> {
+                summaries.forEach(summary -> {
                     try {
                         String key = summary.getKey();
                         if (key.endsWith(".crl")) {
@@ -143,6 +137,6 @@ public class CertificateUtils {
 
     private final AmazonS3 amazonS3;
 
-    private Map<String, AcmPcaCrl> crlCache = new HashMap<>();
+    private final Map<String, AcmPcaCrl> crlCache = new HashMap<>();
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(CertificateUtils.class.toString());
 }
