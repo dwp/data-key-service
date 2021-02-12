@@ -2,7 +2,7 @@ import time
 
 import requests
 from assertpy import assert_that
-from behave import *
+from behave import given, step, then
 
 DKS_CERTIFICATE = "dks-crt.pem"
 TESTS_KEY = "integration-tests-key.pem"
