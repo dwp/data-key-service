@@ -43,10 +43,6 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
         }
     }
 
-    public CaviumCryptoImplementationSupplier(CaviumCryptoImplementationSupplier self) {
-        this.self = self;
-    }
-
     @Override
     public Key dataKey(String correlationId) throws CryptoImplementationSupplierException {
         try {
@@ -140,5 +136,6 @@ public class CaviumCryptoImplementationSupplier implements CryptoImplementationS
     private static final String PUBLIC_KEY_CACHE = "public_key_cache";
     private final static DataworksLogger LOGGER = DataworksLogger.Companion.getLogger(CaviumCryptoImplementationSupplier.class.toString());
 
-    private final CaviumCryptoImplementationSupplier self;
+    @Autowired
+    private CaviumCryptoImplementationSupplier self;
 }
