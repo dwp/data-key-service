@@ -60,7 +60,7 @@ public class DataKeyController {
             @RequestParam(name = "correlationId", defaultValue = "NOT_SET") String correlationId,
             @RequestBody String ciphertextDataKey, HttpServletRequest servletRequest) throws MasterKeystoreException {
         certificateUtils.checkCertificatesAgainstCrl(requestCertificates(servletRequest));
-        LOGGER.info("Decrypt data key request recieved");
+        LOGGER.info("Decrypt data key request received");
         return dataKeyService.decrypt(dataKeyEncryptionKeyId, ciphertextDataKey, correlationId);
     }
 
