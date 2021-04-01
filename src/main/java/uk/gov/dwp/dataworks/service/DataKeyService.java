@@ -49,7 +49,7 @@ public class DataKeyService {
         return dataKeyProvider.generateDataKey(keyId, correlationId);
     }
 
-    @Scheduled(fixedRateString = "${decrypted.key.cache.eviction.interval:86400000}") // daily
+    @Scheduled(fixedRateString = "${decrypted.key.cache.eviction.interval:604800000}") // weekly
     @CacheEvict(value = DECRYPTED_CACHE, allEntries = true)
     public void clearDecryptedCache() {
         LOGGER.info("Decrypted key cache evicted.");
