@@ -11,6 +11,14 @@
 
     <appender name="METRICS" class="io.prometheus.client.logback.InstrumentedAppender" />
 
+    <logger name="com.github.benmanes" level="TRACE" additivity="true">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="org.springframework.cache" level="TRACE" additivity="true">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
     <root level="${LOG_LEVEL}">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="METRICS"/>
