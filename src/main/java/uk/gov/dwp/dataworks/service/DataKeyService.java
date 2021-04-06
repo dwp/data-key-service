@@ -1,8 +1,10 @@
 package uk.gov.dwp.dataworks.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.dataworks.dto.DecryptDataKeyResponse;
@@ -55,7 +57,7 @@ public class DataKeyService {
         LOGGER.info("Decrypted key cache evicted.");
     }
 
-    @Cacheable(DECRYPTED_CACHE)
+    @Cacheable(value = DECRYPTED_CACHE, key = "{ #dataKeyId, #ciphertextDataKey }")
     public DecryptDataKeyResponse decrypt(String dataKeyId, String ciphertextDataKey, String correlationId)
             throws LoginException, MasterKeystoreException {
         return dataKeyDecryptionProvider.decryptDataKey(dataKeyId, ciphertextDataKey, correlationId);

@@ -72,13 +72,15 @@ public class DataKeyServiceTest {
     public void cachesDecryptedKeys() throws MasterKeystoreException {
         DecryptDataKeyResponse expected =
                 new DecryptDataKeyResponse("dataKeyDecryptionKeyId", "plaintextDataKey");
-        Mockito.when(dataKeyDecryptionProvider.decryptDataKey("keyId", "ciphertextDataKey", "correlationId"))
+        Mockito.when(dataKeyDecryptionProvider.decryptDataKey("keyId", "ciphertextDataKey", "correlationId1"))
                 .thenReturn(expected);
-        DecryptDataKeyResponse firstActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId");
-        DecryptDataKeyResponse secondActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId");
+        Mockito.when(dataKeyDecryptionProvider.decryptDataKey("keyId", "ciphertextDataKey", "correlationId2"))
+                .thenReturn(expected);
+        DecryptDataKeyResponse firstActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId1");
+        DecryptDataKeyResponse secondActual = dataKeyService.decrypt("keyId", "ciphertextDataKey", "correlationId2");
         assertEquals(expected, firstActual);
         assertEquals(expected, secondActual);
-        Mockito.verify(dataKeyDecryptionProvider, Mockito.times(1)).decryptDataKey("keyId", "ciphertextDataKey", "correlationId");
+        Mockito.verify(dataKeyDecryptionProvider, Mockito.times(1)).decryptDataKey("keyId", "ciphertextDataKey", "correlationId1");
         Mockito.verifyNoMoreInteractions(dataKeyDecryptionProvider);
     }
 
