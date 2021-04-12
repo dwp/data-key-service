@@ -40,7 +40,7 @@ public class HsmCredentialsProvider implements HsmDataKeyDecryptionConstants {
         LOGGER.debug("Credentials cache evicted.");
     }
 
-    @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME, key = "#root.methodName")
+    @Cacheable(value = HSM_CREDENTIALS_CACHE_NAME, key = "#root.methodName", sync = true)
     public HSMCredentials getCredentials() {
         HSMCredentials hsmCredentials;
         try {
