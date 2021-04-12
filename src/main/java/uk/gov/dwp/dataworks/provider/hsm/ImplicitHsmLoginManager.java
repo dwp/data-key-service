@@ -1,6 +1,5 @@
 package uk.gov.dwp.dataworks.provider.hsm;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.dwp.dataworks.dto.HSMCredentials;

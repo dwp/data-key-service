@@ -3,7 +3,6 @@ package uk.gov.dwp.dataworks.provider.hsm;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.google.common.base.Strings;
-import kotlin.jvm.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
