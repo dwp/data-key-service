@@ -1,4 +1,4 @@
-FROM gradle:latest as build
+FROM gradle:latest@sha256:1776a1744a6966af96a339c9fad19633e458d33d7b54d1b1551a625ab3276e89 as build
 
 RUN ls /etc
 RUN cat /etc/os-release

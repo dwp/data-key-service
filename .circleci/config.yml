@@ -60,7 +60,7 @@ jobs:
 
   integration-tests:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8-jdk@sha256:1e11bbe2854ecf5c467d99d5760f48a94227f88b503efc4e6ca6d96ca9f7b139
     steps:
       - checkout
       - setup_remote_docker:
