@@ -3,8 +3,8 @@ FROM gradle:latest@sha256:1776a1744a6966af96a339c9fad19633e458d33d7b54d1b1551a62
 RUN ls /etc
 RUN cat /etc/os-release
 RUN apt-get -y update
-RUN wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Bionic/cloudhsm-client-jce_latest_u18.04_amd64.deb
-RUN dpkg --force-depends --install ./cloudhsm-client-jce_latest_u18.04_amd64.deb
+RUN wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_3.4.2-1_amd64.deb
+RUN dpkg --force-depends --install ./cloudhsm-client-jce_3.4.2-1_amd64.deb
 RUN mkdir -p /build
 COPY build.gradle .
 COPY settings.gradle .
