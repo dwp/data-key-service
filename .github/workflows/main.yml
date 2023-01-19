@@ -62,7 +62,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 5.5.1
+          gradle-version: 6.3
 
       - name: Build
         run: |

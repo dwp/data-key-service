@@ -30,7 +30,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 5.5.1
+          gradle-version: 6.3
 
       - name: Build
         run: |
@@ -45,7 +45,7 @@ jobs:
           sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" gradle.properties
           wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_latest_amd64.deb
           sudo dpkg --force-all -i cloudhsm-client-jce_latest_amd64.deb
-          gradle build
+          gradle build --stacktrace
           mkdir artifacts
           cp build/libs/data-key-service-*.jar artifacts/
 
