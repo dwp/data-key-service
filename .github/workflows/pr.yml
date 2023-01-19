@@ -1,0 +1,56 @@
+name: Perform PR Build and tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: "-Xmx3200m"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          java-package: jdk
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build
+        run: |
+          set -u
+          set +o pipefail
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          set -o pipefail
+          [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+          VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          VERSION_NUMBER=$(echo $VERSION | sed 's/^v\(.*\)$/\1/')
+          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" build.gradle.kts
+          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" gradle.properties
+          wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_latest_amd64.deb
+          sudo dpkg --force-all -i cloudhsm-client-jce_latest_amd64.deb
+          gradle build
+          mkdir artifacts
+          cp build/libs/data-key-service-*.jar artifacts/
+
+      - name: Integration tests
+        run: | 
+          sudo pip3 install docker-compose
+          make certificates
+          make integration-tests
+
+
