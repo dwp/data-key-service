@@ -10,6 +10,7 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY src/ ./src
 RUN gradle build
+RUN ls build/libs
 RUN cp build/libs/data-key-service.jar /build/
 
 FROM openjdk:16-alpine
