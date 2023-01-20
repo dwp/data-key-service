@@ -105,6 +105,7 @@ extract_pems() {
 
         openssl pkcs12 \
                 -provider legacy \
+                -nomacver \
                 -in $intermediate_store \
                 -nodes \
                 -nocerts \
@@ -113,6 +114,7 @@ extract_pems() {
 
         openssl pkcs12 \
                 -provider legacy
+                -nomacver \
                 -in $intermediate_store \
                 -nokeys \
                 -out $certificate \
