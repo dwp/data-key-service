@@ -11,7 +11,7 @@ COPY settings.gradle .
 COPY src/ ./src
 RUN gradle build
 RUN ls build/libs
-RUN for nam in data-key-service*.jar; do newname=data-key-service.jar; mv $nam $newname; done
+RUN for nam in build/libs/data-key-service*.jar; do newname=build/libs/data-key-service.jar; mv $nam $newname; done
 RUN cp build/libs/data-key-service.jar /build/
 
 FROM openjdk:16-alpine
