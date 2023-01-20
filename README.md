@@ -18,8 +18,8 @@ sudo yum install -y ./cloudhsm-client-jce-latest.el6.x86_64.rpm
 ```
 or
 ```bash
-wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_latest_amd64.deb
-sudo dpkg -i cloudhsm-client-jce_latest_amd64.deb
+wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_3.4.2-1_amd64.deb
+sudo dpkg -i cloudhsm-client-jce_3.4.2-1_amd64.deb
 ```
 
 ## On a Mac

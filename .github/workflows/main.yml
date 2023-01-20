@@ -1,0 +1,105 @@
+name: Master
+
+on:
+  push:
+    branches:
+      - mastercopy
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  get-publish-version:
+    runs-on: ubuntu-latest
+    outputs:
+      publish-version: ${{ steps.get-publish-version.outputs.publish-version }}
+    steps:   
+      - name: Prepare SemVer
+        id: prepare-semver
+        run: |
+          set +o pipefail
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          set -o pipefail
+          [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+          echo "latest_version_out=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          commit_message=$( echo "${{ github.event.head_commit.message }}" | sed 's/"//g')
+          if [[ "${commit_message,,}" == *"major release"* ]]; then
+            echo "semver_increment='m'" >> $GITHUB_OUTPUT
+          elif [[ "${commit_message,,}" == *"minor release"* ]]; then
+            echo "semver_increment='i'" >> $GITHUB_OUTPUT
+          else
+            echo "semver_increment='p'" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Increment SemVer
+        id: semver
+        uses: matt-FFFFFF/simple-semver@v0.1.0
+        with:
+          semver-input: ${{ steps.prepare-semver.outputs.latest_version_out }}
+          increment: ${{ steps.prepare-semver.outputs.semver_increment }}
+      
+      - name: Get publish version
+        id: get-publish-version
+        run: |
+          echo "publish-version=${{ steps.semver.outputs.semver }}" >> $GITHUB_OUTPUT
+  
+  
+  build-and-publish-github-release:
+    runs-on: ubuntu-latest
+    needs: [get-publish-version]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          java-package: jdk
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.3
+
+      - name: Build
+        run: |
+          set -u
+          set +o pipefail
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          set -o pipefail
+          [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+          VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          VERSION_NUMBER=$(echo $VERSION | sed 's/^v\(.*\)$/\1/')
+          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" build.gradle.kts
+          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" gradle.properties
+          wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_3.4.2-1_amd64.deb
+          sudo dpkg --force-all -i cloudhsm-client-jce_3.4.2-1_amd64.deb
+          gradle build
+          mkdir artifacts
+          cp build/libs/data-key-service-*.jar artifacts/
+
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.get-publish-version.outputs.publish-version }}
+          release_name: ${{ needs.get-publish-version.outputs.publish-version }}
+          draft: false
+          prerelease: false
+
+      - name: upload data-key-service.jar file
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/data-key-service-${{ needs.get-publish-version.outputs.publish-version }}.jar
+          asset_name: data-key-service-${{ needs.get-publish-version.outputs.publish-version }}.jar
+          asset_content_type: application/java-archive
+
