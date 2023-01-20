@@ -73,7 +73,7 @@ jobs:
           [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
           VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
           VERSION_NUMBER=$(echo $VERSION | sed 's/^v\(.*\)$/\1/')
-          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" build.gradle.kts
+          sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" build.gradle
           sed -i -e "s/version = \"0.0.0\"/version = \"$VERSION\"/" gradle.properties
           wget https://s3.amazonaws.com/cloudhsmv2-software/CloudHsmClient/Xenial/cloudhsm-client-jce_3.4.2-1_amd64.deb
           sudo dpkg --force-all -i cloudhsm-client-jce_3.4.2-1_amd64.deb
