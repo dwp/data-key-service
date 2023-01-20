@@ -3,7 +3,7 @@ name: Master
 on:
   push:
     branches:
-      - master
+      - mastercopy
     paths-ignore:
       - 'docs/**'
       - '*.md'
