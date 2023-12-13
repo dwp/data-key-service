@@ -1,3 +1,5 @@
+# DO NOT USE THIS REPO - MIGRATED TO GITLAB
+
 # Data Key Service
 
 DataWorks service to manage the generation and decryption of data keys.
